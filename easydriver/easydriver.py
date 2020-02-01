@@ -124,8 +124,10 @@ class EasyDriver(Device):
     @power_state.setter
     def power_state(self, state):
         self._power_state = state
-        self._enable_pin.state = 1 if state == PowerState.OFF else 0
-        if state == PowerState.ON:
+        if state == PowerState.OFF:
+            self._enable_pin.state = 1
+        elif state == PowerState.ON:
+            self._enable_pin.state = 0
             time.sleep(1/1000) # Maximum Wakeup Time (1.0 ms) - see Datasheet
 
     def _step_once(self):
@@ -140,7 +142,7 @@ class EasyDriver(Device):
 
     def step(self, steps, direction=StepDirection.FORWARD):
         self.power_state = PowerState.ON
-       
+      
         if direction == StepDirection.FORWARD:
             self._dir_pin.state = 0
         elif direction == StepDirection.REVERSE:
