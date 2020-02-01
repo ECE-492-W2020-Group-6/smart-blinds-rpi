@@ -12,6 +12,10 @@ class StepDirection(IntEnum):
     FORWARD = 0
     REVERSE = 1
 
+class PowerState(IntEnum):
+    OFF = 0
+    ON = 1
+
 class EasyDriver(Device):
     def __init__(self,
             step_pin=None, 
@@ -68,6 +72,7 @@ class EasyDriver(Device):
         self._enable_pin.output_with_state(1)
 
         self.microstep_resolution = microstep_resolution
+        self.power_state = PowerState.OFF
 
     @property
     def step_pin(self):
@@ -111,6 +116,17 @@ class EasyDriver(Device):
             self._ms2_pin.state = 1
         
         time.sleep(200/1000000000) # Minimum Command Action Time (200 ns) - See Datasheet
+    
+    @property
+    def power_state(self):
+        return self._power_state
+
+    @power_state.setter
+    def power_state(self, state):
+        self._power_state = state
+        self._enable_pin.state = 1 if state == PowerState.OFF else 0
+        if state == PowerState.ON:
+            time.sleep(1/1000) # Maximum Wakeup Time (1.0 ms) - see Datasheet
 
     def _step_once(self):
         self._step_pin.state = 1 # Trigger one step
@@ -123,8 +139,7 @@ class EasyDriver(Device):
         time.sleep(0.1)
 
     def step(self, steps, direction=StepDirection.FORWARD):
-        self._enable_pin.state = 0 # Enable
-        time.sleep(1/1000) # Maximum Wakeup Time (1.0 ms) - see Datasheet
+        self.power_state = PowerState.ON
        
         if direction == StepDirection.FORWARD:
             self._dir_pin.state = 0
@@ -135,7 +150,7 @@ class EasyDriver(Device):
         for _ in range(steps):
             self._step_once()
 
-        self._enable_pin.state = 1 # Disable
+        self.power_state = PowerState.OFF
 
     def close(self):
         super().close()
