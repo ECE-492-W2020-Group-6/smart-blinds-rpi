@@ -1,5 +1,5 @@
 import pytest
-from easydriver.easydriver import EasyDriver, MicroStepResolution
+from easydriver.easydriver import EasyDriver, MicroStepResolution, StepDirection
 from gpiozero import GPIOPinMissing, Device
 from gpiozero.pins.mock import MockFactory
 
@@ -70,4 +70,11 @@ class TestEasyDriver:
         assert driver.ms1_pin.state == 1
         assert driver.ms2_pin.state == 1 
 
+    def test_one_step_forward(self, driver):
+        driver.step(1)
+        assert driver.dir_pin.state == 0
+
+    def test_one_step_reverse(self, driver):
+        driver.step(1, direction=StepDirection.REVERSE)
+        assert driver.dir_pin.state == 1
 

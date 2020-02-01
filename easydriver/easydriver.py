@@ -1,11 +1,16 @@
 from gpiozero import Device, GPIOPinMissing
 from enum import IntEnum
+import time
 
 class MicroStepResolution(IntEnum):
     FULL_STEP = 0
     HALF_STEP = 1
     QUARTER_STEP = 2
     EIGHTH_STEP = 3
+
+class StepDirection(IntEnum):
+    FORWARD = 0
+    REVERSE = 1
 
 class EasyDriver(Device):
     def __init__(self,
@@ -58,7 +63,19 @@ class EasyDriver(Device):
         self._enable_pin = self.pin_factory.pin(enable_pin)
         self._enable_pin.output_with_state(1)
 
-        self._microstep_resolution = microstep_resolution
+        self.microstep_resolution = microstep_resolution
+
+    @property
+    def step_pin(self):
+        return self._step_pin
+
+    @property 
+    def dir_pin(self):
+        return self._dir_pin
+
+    @property
+    def enable_pin(self):
+        return self._enable_pin
 
     @property
     def ms1_pin(self):
@@ -88,6 +105,33 @@ class EasyDriver(Device):
         elif self._microstep_resolution == MicroStepResolution.EIGHTH_STEP:
             self._ms1_pin.state = 1
             self._ms2_pin.state = 1
+        
+        time.sleep(200/1000000000) # Minimum Command Action Time (200 ns) - See Datasheet
+
+    def _step_once(self):
+        self._step_pin.state = 1 # Trigger one step
+        time.sleep(1/1000000) #  Minimum Step Pulse Width (1.0 us) - See Datasheet
+        self._step_pin.state = 0 # Pull step pin low so it can be triggered again
+        time.sleep(1/1000000) # Minimum Step Low Time (1.0 us) - See Datasheet
+
+        # Use delay to get smooth action
+        # TODO: Adjust speed?
+        time.sleep(0.1)
+
+    def step(self, steps, direction=StepDirection.FORWARD):
+        self._enable_pin.state = 0 # Enable
+        time.sleep(1/1000) # Maximum Wakeup Time (1.0 ms) - see Datasheet
+       
+        if direction == StepDirection.FORWARD:
+            self._dir_pin.state = 0
+        elif direction == StepDirection.REVERSE:
+            self._dir_pin.state = 1
+        time.sleep(200/1000000000) # Minimum Command Action Time (200 ns) - See Datasheet
+
+        for _ in range(steps):
+            self._step_once()
+
+        self._enable_pin.state = 1 # Disable
 
     def close(self):
         super().close()
@@ -104,11 +148,3 @@ class EasyDriver(Device):
 
         for pin in filter(None, all_pins):
             pin.close()
-
-    def _stepOnce(self):
-        raise NotImplementedError
-
-    def step(self):
-        raise NotImplementedError
-
-
