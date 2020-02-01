@@ -22,12 +22,14 @@ class EasyDriver(Device):
             microstep_resolution=MicroStepResolution.FULL_STEP, **kwargs):
         super().__init__(**kwargs)
 
+        # Init pins to None, useful in self.close()
         self._step_pin = None
         self._dir_pin = None
         self._ms1_pin = None
         self._ms2_pin = None
         self._enable_pin = None
 
+        # Check if any pins are missing
         if step_pin is None:
             raise GPIOPinMissing("No Step Pin Given")
 
@@ -43,6 +45,8 @@ class EasyDriver(Device):
         if enable_pin is None:
             raise GPIOPinMissing("No Enable Pin Given")
 
+        # Reserve pins and get ref of pin from factory
+        # Set GPIO mode to output and set initial output state
         self.pin_factory.reserve_pins(self, step_pin)
         self._step_pin = self.pin_factory.pin(step_pin)
         self._step_pin.output_with_state(0)
