@@ -47,8 +47,11 @@ class TestEasyDriver:
                     ms2_pin=self.MS2_PIN)
 
     def test_init_success(self, driver):
+        assert driver.step_pin.state == 0
+        assert driver.dir_pin.state == 0
         assert driver.ms1_pin.state == 0
         assert driver.ms2_pin.state == 0
+        assert driver.enable_pin.state == 1
 
     def test_set_microstep_resolution_full_step(self, driver):
         driver.microstep_resolution = MicroStepResolution.FULL_STEP
