@@ -7,19 +7,19 @@ from gpiozero.pins.mock import MockFactory
 Device.pin_factory = MockFactory()
 
 class TestEasyDriver:
-    step_pin = 20
-    dir_pin = 21
-    enable_pin = 25
-    ms1_pin = 24
-    ms2_pin = 23
+    STEP_PIN = 20
+    DIR_PIN = 21
+    ENABLE_PIN = 25
+    MS1_PIN = 24
+    MS2_PIN = 23
 
     @pytest.fixture()
     def driver(self):
-        driver = EasyDriver(step_pin=self.step_pin,
-                    dir_pin=self.dir_pin, 
-                    ms1_pin=self.ms1_pin, 
-                    ms2_pin=self.ms2_pin,
-                    enable_pin=self.enable_pin)
+        driver = EasyDriver(step_pin=self.STEP_PIN,
+                    dir_pin=self.DIR_PIN, 
+                    ms1_pin=self.MS1_PIN, 
+                    ms2_pin=self.MS2_PIN,
+                    enable_pin=self.ENABLE_PIN)
         yield driver
         driver.close()
 
@@ -29,22 +29,22 @@ class TestEasyDriver:
 
     def test_init_no_dir_pin(self):
         with pytest.raises(GPIOPinMissing):
-            EasyDriver(step_pin=self.step_pin)
+            EasyDriver(step_pin=self.STEP_PIN)
 
     def test_init_no_ms1_pin(self):
         with pytest.raises(GPIOPinMissing):
-            EasyDriver(step_pin=self.step_pin, dir_pin=self.dir_pin)
+            EasyDriver(step_pin=self.STEP_PIN, dir_pin=self.DIR_PIN)
 
     def test_init_no_ms2_pin(self):
         with pytest.raises(GPIOPinMissing):
-            EasyDriver(step_pin=self.step_pin, dir_pin=self.dir_pin, ms1_pin=self.ms1_pin)
+            EasyDriver(step_pin=self.STEP_PIN, dir_pin=self.DIR_PIN, ms1_pin=self.MS1_PIN)
 
     def test_init_no_enable_pin(self):
         with pytest.raises(GPIOPinMissing):
-            EasyDriver(step_pin=self.step_pin,
-                    dir_pin=self.dir_pin, 
-                    ms1_pin=self.ms1_pin, 
-                    ms2_pin=self.ms2_pin)
+            EasyDriver(step_pin=self.STEP_PIN,
+                    dir_pin=self.DIR_PIN, 
+                    ms1_pin=self.MS1_PIN, 
+                    ms2_pin=self.MS2_PIN)
 
     def test_init_success(self, driver):
         assert driver.ms1_pin.state == 0
