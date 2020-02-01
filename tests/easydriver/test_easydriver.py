@@ -73,8 +73,12 @@ class TestEasyDriver:
     def test_one_step_forward(self, driver):
         driver.step(1)
         assert driver.dir_pin.state == 0
+        assert driver.step_pin.state == 0
+        assert driver.enable_pin.state == 1
 
     def test_one_step_reverse(self, driver):
         driver.step(1, direction=StepDirection.REVERSE)
         assert driver.dir_pin.state == 1
+        assert driver.step_pin.state == 0
+        assert driver.enable_pin.state == 1
 
