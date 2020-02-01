@@ -1,6 +1,5 @@
 from gpiozero import Device, GPIOPinMissing
 from enum import IntEnum
-from atexit import register
 
 class MicroStepResolution(IntEnum):
     FULL_STEP = 0
@@ -81,17 +80,19 @@ class EasyDriver(Device):
             self._ms1_pin.state = 0
             self._ms2_pin.state = 0
         elif self._microstep_resolution == MicroStepResolution.HALF_STEP:
-            self._ms1_pin = 1
-            self._ms2_pin = 0
+            self._ms1_pin.state = 1
+            self._ms2_pin.state = 0
         elif self._microstep_resolution == MicroStepResolution.QUARTER_STEP:
-            self._ms1_pin = 0
-            self._ms2_pin = 1
+            self._ms1_pin.state = 0
+            self._ms2_pin.state = 1
         elif self._microstep_resolution == MicroStepResolution.EIGHTH_STEP:
-            self._ms1_pin = 1
-            self._ms2_pin = 1
+            self._ms1_pin.state = 1
+            self._ms2_pin.state = 1
 
     def close(self):
         super().close()
+
+        self.pin_factory.release_all(self)
         
         all_pins = [
             self._step_pin,
@@ -101,9 +102,7 @@ class EasyDriver(Device):
             self._enable_pin,
         ]
 
-        reserved_pins = filter(None, all_pins)
-        for pin in reserved_pins:
-            self.pin_factory.release_pins(self, pin)
+        for pin in filter(None, all_pins):
             pin.close()
 
     def _stepOnce(self):
