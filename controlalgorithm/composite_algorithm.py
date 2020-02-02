@@ -1,14 +1,34 @@
+"""
+Date: Jan 31, 2020
+Author: Sam Wu
+Contents: Composite algorithm for obtaining the optimal tilt angle for both
+maximum sunlight for user convenience
+and minimum power consumption for energy efficiency
+"""
+
 import max_sunlight_algorithm as max_sun
 import heat_mgmt_algorithm as heat_mgmt
 
-def composite_algorithm(angle, cc, et, at , w): # TODO: rm args when methods implemented
-    # tilt_angle_sunlight = max_sun.max_sunlight_algorithm() # TODO: actual inputs
-    # tilt_angle_heat = heat_mgmt.heat_mgmt_algorithm() # TODO: actual inputs
-    tilt_angle_sunlight = max_sun.max_sunlight_algorithm(angle) # TODO: for testing
-    tilt_angle_heat = heat_mgmt.heat_mgmt_algorithm(cc, et, at, w) # TODO: for testing
+"""
+Composite algorithm that uses the max_sunlight_algorithm and heat_mgmt_algorithm
+together to obtain an optimal balance between sunlight for the user's convenience
+and reduction of power consumption for power efficiency
 
-    # solar_angle_weight = heat_mgmt.get_solar_angle_weight() # TODO: actual method
-    solar_angle_weight = w # TODO: for testing
+Inputs:
+solar_angle (float): angle of the sun
+cloud_cover (int): cloud coverage in percentage
+ext_temp (float): external temperature
+act_int_temp (float): actual internal temperature
+solar_weight (float): weighting for the tilt angle determined by the max sunlight algorithm
+
+Output:
+tilt_angle_final (float): final tilt angle for maximum convenience and efficiency
+"""
+def composite_algorithm(solar_angle, cloud_cover, ext_temp, act_int_temp , solar_weight):
+    tilt_angle_sunlight = max_sun.max_sunlight_algorithm(solar_angle) 
+    tilt_angle_heat = heat_mgmt.heat_mgmt_algorithm(cloud_cover, ext_temp, act_int_temp, solar_weight) 
+
+    solar_angle_weight = solar_weight
     heat_weight = 1 - solar_angle_weight
 
     tilt_angle_final = tilt_angle_sunlight * solar_angle_weight + tilt_angle_heat * heat_weight
