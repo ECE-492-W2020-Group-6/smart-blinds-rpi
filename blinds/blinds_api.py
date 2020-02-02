@@ -177,7 +177,7 @@ class SmartBlindsSystem:
         # TODO: ERROR CASE 
         # TODO: CREATE CASE RESP_CODES[ "CREATED" ] (201)
 
-        return RESP_CODES[ "ACCEPTED" ]
+        return {}, RESP_CODES[ "ACCEPTED" ]
 
     '''
     API DELETE request handler for schedule
@@ -189,7 +189,7 @@ class SmartBlindsSystem:
 
         # TODO: ERROR CASE 
 
-        return RESP_CODES[ "OK" ]
+        return {}, RESP_CODES[ "OK" ]
 
     '''
     API POST request handler for command
@@ -205,9 +205,14 @@ class SmartBlindsSystem:
     def postBlindsCommand( self, position, time ):
         print( "processing request for POST command")
 
+        # dummy data for return
+        data = {
+            "position" : "11",
+            "time" : "2"
+        }
         # TODO: ERROR CASE 
 
-        return RESP_CODES[ "OK" ]   
+        return data, RESP_CODES[ "ACCEPTED" ]   
     # ---------- END OF API functions --------- #
 
 # ---------- Custom Exception classes --------- #

@@ -1,13 +1,12 @@
 import pytest
-from blinds.blinds_api import Blinds
-from blinds.blinds_api import InvalidBlindPositionException
+from blinds.blinds_api import Blinds, InvalidBlindPositionException
 
 class TestBlinds:
 
     '''
     Test rotating blinds changes internal position
     '''
-    def test_rotate():
+    def test_rotate( self ):
         blinds = Blinds( None )
         assert ( blinds._currentPosition == 0 )
 
@@ -23,7 +22,7 @@ class TestBlinds:
         blinds.rotateToPosition( -100 )
         assert ( blinds._currentPosition == -100 )
 
-    def test_invalid_rotation():
+    def test_invalid_rotation( self ):
         blinds = Blinds( None )
         with pytest.raises( InvalidBlindPositionException ):
             blinds.rotateToPosition( 101 )
@@ -37,7 +36,7 @@ class TestBlinds:
         with pytest.raises( InvalidBlindPositionException ):
             blinds.rotateToPosition( -500 )
 
-    def test_reset_position():
+    def test_reset_position( self ):
         blinds = Blinds( None )
         blinds._currentPosition = 20
         blinds.reset_position()
