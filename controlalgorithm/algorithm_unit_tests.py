@@ -21,6 +21,9 @@ class TestControlAlgorithms(unittest.TestCase):
         self.assertAlmostEqual(heat_mgmt.heat_mgmt_algorithm(80, -10, 20, 1), 51, places=0)
         with self.assertRaises(exceptions.InputError):
             heat_mgmt.heat_mgmt_algorithm(101, 0, 23, 0.5)
+        self.assertAlmostEqual(heat_mgmt.heat_mgmt_algorithm(87, 22, 20, 0.88), -10, places=0)
+        self.assertAlmostEqual(heat_mgmt.heat_mgmt_algorithm(87, 20, 22, 0.88), 46, places=0)
+        self.assertAlmostEqual(heat_mgmt.heat_mgmt_algorithm(87, 22, 22, 0.88), 0, places=0) # in actuality motor should do nothing
 
     def test_comp(self):
         self.assertAlmostEqual(comp.composite_algorithm(80, 80, -10, 20, 0.88), -65.3024, places=4)

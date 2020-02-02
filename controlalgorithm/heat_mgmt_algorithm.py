@@ -120,18 +120,25 @@ def heat_mgmt_algorithm(cc, et, at, w): # TODO: rm args when methods implemented
     if ext_vs_des is "equilibrium":
         tilt_angle_cc = 0 # don't care term (but must be real number for calculations)
         solar_angle_weight = 0 # TODO: for testing
+        temp_weight = 1
         print("ext vs des is equilibrium. do nothing")
     else:
         tilt_angle_cc = evd_cc_to_tilt_angle(ext_vs_des, cloud_cover)
 
     if act_int_vs_des_int is "equilibrium":
         tilt_angle_temp = 0 # don't care term (but must be real number for calculations)
+        solar_angle_weight = 1
         temp_weight = 0
         print("act int vs des int is equilibrium. do nothing")
     else:
         tilt_angle_temp = evd_avd_to_tilt_angle(ext_vs_des, act_int_vs_des_int)
 
+    if ext_vs_des is "equilibrium" and act_int_vs_des_int is "equilibrium":
+        print("all temp differences at equilibrium. no need to change tilt angle")
+        return 0 # TODO: don't move the motor
+
     tilt_angle_final = tilt_angle_cc * solar_angle_weight + tilt_angle_temp * temp_weight
+
     return tilt_angle_final
     
 if __name__ == "__main__":
