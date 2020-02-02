@@ -53,6 +53,9 @@ class Blinds:
     TODO: METHOD STUB 
     '''
     def rotateToPosition( self, position ):
+        if ( position > 100 or position < -100 ):
+            raise InvalidBlindPositionException( "Position must be between -100 and 100")
+
         print( "rotating to {}%".format( position ) )
         self._currentPosition = position
         pass
@@ -206,3 +209,10 @@ class SmartBlindsSystem:
 
         return RESP_CODES[ "OK" ]   
     # ---------- END OF API functions --------- #
+
+# ---------- Custom Exception classes --------- #
+
+class InvalidBlindPositionException( Exception ):
+    pass
+
+# ---------- END OF Custom Exception classes --------- #
