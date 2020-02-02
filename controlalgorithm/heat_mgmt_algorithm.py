@@ -53,7 +53,12 @@ def evd_cc_to_tilt_angle(evd, cc):
     }
     return mapping[evd, cc]
 
-# define dictionary to map external temperature vs desired internal temperature and actual internal temperature vs desired internal temperature to tilt angle
+"""
+define dictionary to map
+external temperature vs desired internal temperature
+and actual internal temperature vs desired internal temperature 
+to tilt angle
+"""
 def evd_avd_to_tilt_angle(evd, avd):
     mapping = {
         ("hot", "hot"): 80,
@@ -119,7 +124,7 @@ def heat_mgmt_algorithm(cc, et, at, w): # TODO: rm args when methods implemented
 
     if ext_vs_des is "equilibrium":
         tilt_angle_cc = 0 # don't care term (but must be real number for calculations)
-        solar_angle_weight = 0 # TODO: for testing
+        solar_angle_weight = 0
         temp_weight = 1
         print("ext vs des is equilibrium. do nothing")
     else:
