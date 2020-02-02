@@ -21,7 +21,7 @@ solar_angle (float): angle of the sun
 Output:
 tilt_angle (float): angle to tilt the blinds for max sunlight
 """
-def max_sunlight_algorithm(solar_angle):
+def max_sunlight_algorithm(angle):
     solar_angle = angle
     if (angle > 90 or angle < -90):
         raise exceptions.InputError("get_solar_angle()", "Solar Angle may only be between -90 and 90 degrees inclusive")
