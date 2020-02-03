@@ -14,6 +14,13 @@ class TestEasyDriver:
     MS2_PIN = 23
 
     @pytest.fixture()
+    """Creates and returns a fresh instance of a driver for tests.
+
+    Also handles cleanup after the yield.
+    
+    Yields:
+        EasyDriver -- fresh instance of driver for each test
+    """
     def driver(self):
         driver = EasyDriver(step_pin=self.STEP_PIN,
                     dir_pin=self.DIR_PIN, 
@@ -23,22 +30,32 @@ class TestEasyDriver:
         yield driver
         driver.close()
 
+    """Test init with no step pin
+    """
     def test_init_no_step_pin(self):
         with pytest.raises(GPIOPinMissing):
             EasyDriver()
 
+    """Test init with no dir pin
+    """
     def test_init_no_dir_pin(self):
         with pytest.raises(GPIOPinMissing):
             EasyDriver(step_pin=self.STEP_PIN)
 
+    """Test init with no ms1 pin
+    """
     def test_init_no_ms1_pin(self):
         with pytest.raises(GPIOPinMissing):
             EasyDriver(step_pin=self.STEP_PIN, dir_pin=self.DIR_PIN)
 
+    """Test init with no ms2 pin
+    """
     def test_init_no_ms2_pin(self):
         with pytest.raises(GPIOPinMissing):
             EasyDriver(step_pin=self.STEP_PIN, dir_pin=self.DIR_PIN, ms1_pin=self.MS1_PIN)
 
+    """Test init with no enable pin
+    """
     def test_init_no_enable_pin(self):
         with pytest.raises(GPIOPinMissing):
             EasyDriver(step_pin=self.STEP_PIN,
@@ -46,6 +63,8 @@ class TestEasyDriver:
                     ms1_pin=self.MS1_PIN, 
                     ms2_pin=self.MS2_PIN)
 
+    """Test init success
+    """
     def test_init_success(self, driver):
         assert driver.step_pin.state == 0
         assert driver.dir_pin.state == 0
@@ -53,32 +72,44 @@ class TestEasyDriver:
         assert driver.ms2_pin.state == 0
         assert driver.enable_pin.state == 1
 
+    """Test setting microstep resolution to full step
+    """
     def test_set_microstep_resolution_full_step(self, driver):
         driver.microstep_resolution = MicroStepResolution.FULL_STEP
         assert driver.ms1_pin.state == 0 
         assert driver.ms2_pin.state == 0 
 
+    """Test setting microstep resolution to half step
+    """
     def test_set_microstep_resolution_half_step(self, driver):
         driver.microstep_resolution = MicroStepResolution.HALF_STEP
         assert driver.ms1_pin.state == 1
         assert driver.ms2_pin.state == 0 
 
+    """Test setting microstep resolution to quarter step
+    """
     def test_set_microstep_resolution_quarter_step(self, driver):
         driver.microstep_resolution = MicroStepResolution.QUARTER_STEP
         assert driver.ms1_pin.state == 0
         assert driver.ms2_pin.state == 1 
 
+    """Test setting microstep resolution to eighth step
+    """
     def test_set_microstep_resolution_eighth_step(self, driver):
         driver.microstep_resolution = MicroStepResolution.EIGHTH_STEP
         assert driver.ms1_pin.state == 1
         assert driver.ms2_pin.state == 1 
 
+    """Test moving one step forward
+    """
     def test_one_step_forward(self, driver):
         driver.step(1)
         assert driver.dir_pin.state == 0
         assert driver.step_pin.state == 0
         assert driver.enable_pin.state == 1
 
+    """Test moving one step backward
+    """
     def test_one_step_reverse(self, driver):
         driver.step(1, direction=StepDirection.REVERSE)
         assert driver.dir_pin.state == 1
