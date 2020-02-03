@@ -1,3 +1,9 @@
+"""
+Date: Jan 31, 2020
+Author: Ishaat Chowdhury
+Contents: Unit tests for Software Driver of SparkFun EasyDriver Board
+"""
+
 import pytest
 from easydriver.easydriver import EasyDriver, MicroStepResolution, StepDirection
 from gpiozero import GPIOPinMissing, Device
