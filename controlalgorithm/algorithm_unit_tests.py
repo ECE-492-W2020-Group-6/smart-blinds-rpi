@@ -1,3 +1,14 @@
+"""
+Date: Feb 2, 2020
+Author: Sam Wu
+Contents: Unit tests  for the three algorithms
+1. Sunlight Algorithm for obtaining the optimal tilt angle for maximum sunlight for the user's convenience
+2. Heat Algorithm for obtaining the optimal tilt angle for minimum power consumption for energy efficiency
+3. Composite Algorithm for obtaining the optimal tilt angle for both
+maximum sunlight for user convenience
+and minimum power consumption for energy efficiency
+"""
+
 import unittest
 
 import user_defined_exceptions as exceptions
@@ -5,6 +16,15 @@ import max_sunlight_algorithm as max_sun
 import heat_mgmt_algorithm as heat_mgmt
 import composite_algorithm as comp
 
+"""
+Test class for the control algorithm tests.
+Inherits from the TestCase class
+
+Methods:
+test_max_sun: Tests the Sunlight Algorithm
+test_heat_mgmt: Tests the Heat Algorithm
+test_comp: Tests the Composite Algorithm
+"""
 class TestControlAlgorithms(unittest.TestCase):
 
     def test_max_sun(self):

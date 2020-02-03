@@ -1,3 +1,9 @@
+"""
+Date: Jan 31, 2020
+Author: Sam Wu
+Contents: Algorithm for obtaining the optimal tilt angle for minimum power consumption for energy efficiency
+"""
+
 import sys
 
 import user_defined_exceptions as exceptions
@@ -84,16 +90,16 @@ def evd_avd_to_tilt_angle(evd, avd):
     }
     return mapping[evd, avd]
 
+# get the cloud coverage in terms of a percentage
 def get_cloud_cover_percentage():
-    # TODO: get cloud coverage in percentage from Internet
     return 80
 
+# get the external temperature
 def get_ext_temp():
-    # TODO: get external temperature in Celsius from Internet
     return -10
 
+# get the internal temperature
 def get_int_temp():
-    # TODO: get internal temperature readings from sensor
     return 20
 
 # formula to determine the weight for cloud cover in the algorithm based on angle of the sun
@@ -105,25 +111,33 @@ def get_solar_angle_weight():
         weight = solar_angle / 90
     return weight
 
-def heat_mgmt_algorithm(cc, et, at, w): # TODO: rm args when methods implemented
-    # cloud_cover_percentage = get_cloud_cover_percentage() # TODO: actual method
-    # ext_temp = get_ext_temp() # TODO: actual method
-    # act_int_temp = get_int_temp() # TODO: actual method
-    cloud_cover_percentage = cc # TODO: for testing
-    ext_temp = et # TODO: for testing
-    act_int_temp = at # TODO: for testing
-    des_int_temp = 22 #TODO: get this from user input?
+"""
+Determine the optimal tilt angle for minimum power consumption for energy efficiency
+
+Inputs:
+cloud_cover (int): cloud coverage in percentage
+ext_temp (float): external temperature
+act_int_temp (float): actual internal temperature
+solar_weight (float): weighting for the tilt angle determined by the cloud coverage
+
+Output:
+tilt_angle_final (float): final tilt angle for maximum energy efficiency
+"""
+def heat_mgmt_algorithm(cloud_c, ex_t, ac_t, solar_w):
+    cloud_cover_percentage = cloud_c
+    ext_temp = ex_t
+    act_int_temp = ac_t
+    des_int_temp = 22
 
     ext_vs_des = temp_to_temp_range(ext_temp - des_int_temp)
     act_int_vs_des_int = temp_to_temp_range(act_int_temp - des_int_temp)
     cloud_cover = cover_percentage_to_cloud_cover(cloud_cover_percentage)
 
-    # solar_angle_weight = get_solar_angle_weight() # TODO: actual method
-    solar_angle_weight = w
+    solar_angle_weight = solar_w
     temp_weight = 1 - solar_angle_weight
 
     if ext_vs_des is "equilibrium":
-        tilt_angle_cc = 0 # don't care term (but must be real number for calculations)
+        tilt_angle_cc = 0
         solar_angle_weight = 0
         temp_weight = 1
         print("ext vs des is equilibrium. do nothing")
@@ -131,7 +145,7 @@ def heat_mgmt_algorithm(cc, et, at, w): # TODO: rm args when methods implemented
         tilt_angle_cc = evd_cc_to_tilt_angle(ext_vs_des, cloud_cover)
 
     if act_int_vs_des_int is "equilibrium":
-        tilt_angle_temp = 0 # don't care term (but must be real number for calculations)
+        tilt_angle_temp = 0 
         solar_angle_weight = 1
         temp_weight = 0
         print("act int vs des int is equilibrium. do nothing")
@@ -140,7 +154,7 @@ def heat_mgmt_algorithm(cc, et, at, w): # TODO: rm args when methods implemented
 
     if ext_vs_des is "equilibrium" and act_int_vs_des_int is "equilibrium":
         print("all temp differences at equilibrium. no need to change tilt angle")
-        return 0 # TODO: don't move the motor
+        return 0 
 
     tilt_angle_final = tilt_angle_cc * solar_angle_weight + tilt_angle_temp * temp_weight
 
