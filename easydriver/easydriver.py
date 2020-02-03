@@ -2,20 +2,28 @@ from gpiozero import Device, GPIOPinMissing
 from enum import IntEnum
 import time
 
+"""Encapsulates microstep resolution of EasyDriver board
+"""
 class MicroStepResolution(IntEnum):
     FULL_STEP = 0
     HALF_STEP = 1
     QUARTER_STEP = 2
     EIGHTH_STEP = 3
 
+"""Encapsulates direction of EasyDriver board
+"""
 class StepDirection(IntEnum):
     FORWARD = 0
     REVERSE = 1
 
+"""Encapsulates state of power for EasyDriver Board
+"""
 class PowerState(IntEnum):
     OFF = 0
     ON = 1
 
+"""Class provides software control of SparkFun EasyDriver Motor Controller Board
+"""
 class EasyDriver(Device):
     """[summary]
     

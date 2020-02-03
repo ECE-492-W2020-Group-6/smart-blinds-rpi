@@ -6,6 +6,8 @@ from gpiozero.pins.mock import MockFactory
 # Set the default pin factory to a mock factory
 Device.pin_factory = MockFactory()
 
+"""Class holding unit tests for driver
+"""
 class TestEasyDriver:
     STEP_PIN = 20
     DIR_PIN = 21
