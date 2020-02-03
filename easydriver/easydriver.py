@@ -1,3 +1,9 @@
+"""
+Date: Jan 31, 2020
+Author: Ishaat Chowdhury
+Contents: Software Driver for SparkFun EasyDriver Motor Controller Board
+"""
+
 from gpiozero import Device, GPIOPinMissing
 from enum import IntEnum
 import time
