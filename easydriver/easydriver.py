@@ -17,6 +17,22 @@ class PowerState(IntEnum):
     ON = 1
 
 class EasyDriver(Device):
+    """[summary]
+    
+    Arguments:
+        step_pin{int, string} -- Pin to control STEP GPIO signal on board
+        dir_pin{int, string} -- Pin to control DIR GPIO signal on board
+        ms1_pin{int, string} -- Pin to control MS1 GPIO signal on board
+        ms2_pin{int, string} -- Pin to control MS2 GPIO signal on board
+        enable_pin{int, string} -- Pin to control ENABLE GPIO signal on board
+    
+    Raises:
+        GPIOPinMissing: No Step Pin Given
+        GPIOPinMissing: No Dir Pin Given
+        GPIOPinMissing: No MS1 Pin Given
+        GPIOPinMissing: No MS2 Pin Given
+        GPIOPinMissing: No Enable Pin Given
+    """
     def __init__(self,
             step_pin=None, 
             dir_pin=None, 
@@ -75,30 +91,65 @@ class EasyDriver(Device):
         self.power_state = PowerState.OFF
         self.direction = StepDirection.FORWARD
 
+    """Get's step pin
+    
+    Returns:
+        gpiozero.PIN - Instance of STEP Pin
+    """
     @property
     def step_pin(self):
         return self._step_pin
 
+    """Get's dir pin
+
+    Returns:
+        gpiozero.PIN - Instance of DIR Pin
+    """
     @property 
     def dir_pin(self):
         return self._dir_pin
 
+    """Get's enable pin
+
+    Returns:
+        gpiozero.PIN - Instance of ENABLE Pin
+    """
     @property
     def enable_pin(self):
         return self._enable_pin
 
+    """Get's ms1 pin
+
+    Returns:
+        gpiozero.PIN - Instance of MS 1 Pin
+    """
     @property
     def ms1_pin(self):
         return self._ms1_pin
 
+    """Get's ms2 pin
+
+    Returns:
+        gpiozero.PIN - Instance of MS 2 Pin
+    """
     @property
     def ms2_pin(self):
         return self._ms2_pin
 
+    """Get's microstep revolution setting for driver
+
+    Returns:
+        MicroStepResolution - microstep resolution setting of driver
+    """
     @property
     def microstep_resolution(self):
         return self._microstep_resolution 
 
+    """[summary]
+
+    Arguments:
+        microstep_resolution {MicroStepResolution} - new microstep resolution setting
+    """
     @microstep_resolution.setter
     def microstep_resolution(self, microstep_resolution):
         self._microstep_resolution = microstep_resolution
@@ -118,10 +169,20 @@ class EasyDriver(Device):
         
         time.sleep(200/1000000000) # Minimum Command Action Time (200 ns) - See Datasheet
     
+    """Return power state
+    
+    Returns:
+        PowerState -- current power state of driver
+    """
     @property
     def power_state(self):
         return self._power_state
 
+    """Set's new power state of driver
+
+    Arguments:
+        state {PowerState} - new power state of driver
+    """
     @power_state.setter
     def power_state(self, state):
         self._power_state = state
@@ -131,10 +192,20 @@ class EasyDriver(Device):
             self._enable_pin.state = 0
             time.sleep(1/1000) # Maximum Wakeup Time (1.0 ms) - see Datasheet
 
+    """Get's direction of driver
+    
+    Returns:
+        StepDirection -- step direction of driver
+    """
     @property
     def direction(self):
         return self._direction
 
+    """Set's direction of driver
+
+    Arguments:
+        direction {StepDirection} --  new direction of driver
+    """
     @direction.setter
     def direction(self, direction):
         self._direction = direction 
@@ -144,6 +215,10 @@ class EasyDriver(Device):
             self._dir_pin.state = 1
         time.sleep(200/1000000000) # Minimum Command Action Time (200 ns) - See Datasheet
 
+    """Makes one step in the current direction of the driver
+
+    Note: this is a private method that is not meant to be called outside of the class.
+    """
     def _step_once(self):
         self._step_pin.state = 1 # Trigger one step
         time.sleep(1/1000000) #  Minimum Step Pulse Width (1.0 us) - See Datasheet
@@ -154,6 +229,12 @@ class EasyDriver(Device):
         # TODO: Adjust speed?
         time.sleep(0.1)
 
+    """Makes the specified number of steps in the specified direction
+
+    Arguments:
+        steps {int} -- number of steps
+        direction {StepDirection} -- direction to step in
+    """
     def step(self, steps, direction=StepDirection.FORWARD):
         self.power_state = PowerState.ON
         self.direction = direction
@@ -161,6 +242,8 @@ class EasyDriver(Device):
             self._step_once()
         self.power_state = PowerState.OFF
 
+    """Cleanup driver's resources
+    """
     def close(self):
         super().close()
 
