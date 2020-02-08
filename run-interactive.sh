@@ -2,8 +2,6 @@
 # Author: Ishaat Chowdhury
 # Contents: bash script to run interactive process for docker image
 
-#!/bin/bash
-
 # Get common definitions
 source common.sh
 

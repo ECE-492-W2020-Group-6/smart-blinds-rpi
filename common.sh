@@ -3,6 +3,7 @@
 # Contents: bash script that contains common variables
 
 #!/bin/bash
+set -Eeuo pipefail
 
 GH_PKG_ROOT=docker.pkg.github.com/ece-492-w2020-group-6/smart-blinds-rpi
 BUILD_STAGE_IMAGE=$GH_PKG_ROOT/rpi:build-stage

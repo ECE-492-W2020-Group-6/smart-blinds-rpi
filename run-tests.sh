@@ -5,9 +5,6 @@
 # Attributions:
 # - https://pythonspeed.com/articles/faster-multi-stage-builds/ 
 
-#!/bin/bash
-set -Eeuo pipefail
-
 # Source common definitions
 source common.sh
 
