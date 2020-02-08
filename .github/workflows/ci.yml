@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repo
+      id: checkout
+      uses: actions/checkout@v2
+      
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: crazy-max/ghaction-docker-buildx@v1.0.5
+     
+    - name: Authenticate to GitHub Packages
+      id: docker-login
+      uses: azure/docker-login@v1
+      with:
+        login-server: docker.pkg.github.com
+        username: $GITHUB_ACTOR
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build Docker Images
+      id: build-docker
+      run: sh ./build-docker.sh
+      
+    - name: Run Unit tests
+      id: run-tests
+      run: sh ./run-tests.sh
