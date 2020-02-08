@@ -47,6 +47,7 @@ docker buildx build --platform linux/arm/v7 --load --target build-image --tag $B
 # Build the runtime stage image:
 docker buildx build --platform linux/arm/v7 --load --target runtime-image --tag $RPI_IMAGE .
 
+# Push image to registry if cli argument set
 if [[ -v PUSH ]]; then
     docker push $BUILD_STAGE_IMAGE
     docker push $RPI_IMAGE
