@@ -16,7 +16,13 @@ jobs:
     - name: Set up Docker Buildx
       id: buildx
       uses: crazy-max/ghaction-docker-buildx@v1.0.5
-     
+      with:
+        verion: latest
+
+    - name: Available platforms
+      id: available-platforms
+      run: echo ${{ steps.buildx.outputs.platforms }}
+    
     - name: Authenticate to GitHub Packages
       id: docker-login
       uses: azure/docker-login@v1
@@ -24,6 +30,10 @@ jobs:
         login-server: docker.pkg.github.com
         username: $GITHUB_ACTOR
         password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Run buildx
+      id: run-buildx
+      run: docker buildx
 
     - name: Build Docker Images
       id: build-docker
