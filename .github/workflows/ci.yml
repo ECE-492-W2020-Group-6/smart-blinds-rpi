@@ -35,6 +35,10 @@ jobs:
       id: docker-version
       run: DOCKER_CLI_EXPERIMENTAL=enabled docker version
 
+    - name: Docker info
+      id: docker-info
+      run: DOCKER_CLI_EXPERIMENTAL=enabled docker info
+
     - name: Run buildx
       id: run-buildx
       run: DOCKER_CLI_EXPERIMENTAL=enabled docker buildx
