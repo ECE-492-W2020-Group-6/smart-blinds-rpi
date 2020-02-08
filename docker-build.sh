@@ -22,7 +22,12 @@ docker pull $BUILD_STAGE_IMAGE || true
 docker pull $RPI_IMAGE || true
 
 # Build the build stage image:
-docker buildx build --platform linux/arm/v7 --load --target build-image --tag $BUILD_STAGE_IMAGE .
+docker buildx build --platform linux/arm/v7 --load --target build-image \
+    --cache-from=$BUILD_STAGE_IMAGE \
+    --tag $BUILD_STAGE_IMAGE .
 
 # Build the runtime stage image:
-docker buildx build --platform linux/arm/v7 --load --target runtime-image --tag $RPI_IMAGE .
+docker buildx build --platform linux/arm/v7 --load --target runtime-image \
+    --cache-from=$BUILD_STAGE_IMAGE \
+    --cache-from=$RPI_IMAGE \
+    --tag $RPI_IMAGE .
