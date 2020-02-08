@@ -37,11 +37,15 @@ jobs:
 
     - name: Docker info
       id: docker-info
-      run: DOCKER_CLI_EXPERIMENTAL=enabled docker info
+      run: which docker && DOCKER_CLI_EXPERIMENTAL=enabled docker info
+
+    - name: Docker info Two 
+      id: docker-info2
+      run: DOCKER_CLI_EXPERIMENTAL=enabled /usr/bin/docker info
 
     - name: Run buildx
       id: run-buildx
-      run: DOCKER_CLI_EXPERIMENTAL=enabled docker buildx
+      run: DOCKER_CLI_EXPERIMENTAL=enabled /usr/bin/docker buildx
 
     - name: Build Docker Images
       id: build-docker
