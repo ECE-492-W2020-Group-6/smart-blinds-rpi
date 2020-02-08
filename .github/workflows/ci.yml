@@ -39,9 +39,9 @@ jobs:
       id: docker-info
       run: which docker && DOCKER_CLI_EXPERIMENTAL=enabled docker info
 
-    - name: Run buildx
-      id: run-buildx
-      run: DOCKER_CLI_EXPERIMENTAL=enabled /usr/bin/docker buildx
+    # - name: Run buildx
+    #   id: run-buildx
+    #   run: DOCKER_CLI_EXPERIMENTAL=enabled /usr/bin/docker buildx
 
     - name: Build Docker Images
       id: build-docker
