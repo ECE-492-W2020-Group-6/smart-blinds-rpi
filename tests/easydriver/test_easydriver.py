@@ -21,7 +21,6 @@ class TestEasyDriver:
     MS1_PIN = 24
     MS2_PIN = 23
 
-    @pytest.fixture()
     """Creates and returns a fresh instance of a driver for tests.
 
     Also handles cleanup after the yield.
@@ -29,6 +28,7 @@ class TestEasyDriver:
     Yields:
         EasyDriver -- fresh instance of driver for each test
     """
+    @pytest.fixture()
     def driver(self):
         driver = EasyDriver(step_pin=self.STEP_PIN,
                     dir_pin=self.DIR_PIN, 
