@@ -25,9 +25,6 @@ done
 # Source common definitions
 source common.sh
 
-# Enable host x86 machine to run ARM executables with QEMU
-docker run --rm --privileged docker/binfmt:820fdd95a9972a5308930a2bdfb8573dd4447ad3
-
 # Create and set buildkit builder instance
 if ! docker buildx use mybuilder; then
     docker buildx create --name mybuilder
@@ -35,8 +32,7 @@ if ! docker buildx use mybuilder; then
     docker buildx inspect --bootstrap
 fi
 
-# Pull the latest version of the image, in order to
-# populate the build cache:
+# Pull the latest version of the image, in order to populate the build cache
 # Pipe || true to prevent failures when image doesn't exist in registry
 docker pull $BUILD_STAGE_IMAGE || true
 docker pull $RPI_IMAGE || true
