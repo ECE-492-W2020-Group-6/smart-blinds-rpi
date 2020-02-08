@@ -25,7 +25,7 @@ done
 # Source common definitions
 source common.sh
 
-# Setup ARM executables
+# Enable host x86 machine to run ARM executables with QEMU
 docker run --rm --privileged docker/binfmt:820fdd95a9972a5308930a2bdfb8573dd4447ad3
 
 # Create and set buildkit builder instance
