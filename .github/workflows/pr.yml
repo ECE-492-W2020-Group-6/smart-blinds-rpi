@@ -1,0 +1,26 @@
+name: PR
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repo
+      id: checkout
+      uses: actions/checkout@v2
+      
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: crazy-max/ghaction-docker-buildx@v1
+
+    - name: Build Docker Images
+      id: docker-build
+      run: ./docker-build.sh
+      
+    - name: Run Unit tests
+      id: run-unit-tests
+      run: ./run-tests.sh
