@@ -13,15 +13,19 @@ jobs:
       id: checkout
       uses: actions/checkout@v2
       
-    # - name: Set up Docker Buildx
-    #   id: buildx
-    #   uses: crazy-max/ghaction-docker-buildx@v1
-    #   with:
-    #     verion: latest
-    #
-    # - name: Available platforms
-    #   id: available-platforms
-    #   run: echo ${{ steps.buildx.outputs.platforms }}
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: crazy-max/ghaction-docker-buildx@v1
+      with:
+        verion: latest
+
+    - name: Available platforms
+      id: available-platforms
+      run: echo ${{ steps.buildx.outputs.platforms }}
+    
+    - name: Run buildx
+      id: run-buildx
+      run: DOCKER_CLI_EXPERIMENTAL=enabled docker buildx
     
     - name: Authenticate to GitHub Packages
       id: docker-login
@@ -30,18 +34,6 @@ jobs:
         login-server: docker.pkg.github.com
         username: $GITHUB_ACTOR
         password: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Docker version
-      id: docker-version
-      run: DOCKER_CLI_EXPERIMENTAL=enabled docker version
-
-    - name: Docker info
-      id: docker-info
-      run: which docker && DOCKER_CLI_EXPERIMENTAL=enabled docker info
-
-    # - name: Run buildx
-    #   id: run-buildx
-    #   run: DOCKER_CLI_EXPERIMENTAL=enabled /usr/bin/docker buildx
 
     - name: Build Docker Images
       id: build-docker
