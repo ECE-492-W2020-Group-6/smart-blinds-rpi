@@ -36,7 +36,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Run buildx
-      id: run-buildx
+      id: run-buildx-after
       run: DOCKER_CLI_EXPERIMENTAL=enabled docker buildx
 
     - name: Build Docker Images
