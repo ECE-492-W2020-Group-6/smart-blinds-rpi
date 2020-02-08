@@ -31,9 +31,13 @@ jobs:
         username: $GITHUB_ACTOR
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Docker version
+      id: docker-version
+      run: DOCKER_CLI_EXPERIMENTAL=enabled docker version
+
     - name: Run buildx
       id: run-buildx
-      run: docker buildx
+      run: DOCKER_CLI_EXPERIMENTAL=enabled docker buildx
 
     - name: Build Docker Images
       id: build-docker
