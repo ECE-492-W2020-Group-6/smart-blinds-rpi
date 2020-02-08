@@ -27,8 +27,8 @@ jobs:
 
     - name: Build Docker Images
       id: build-docker
-      run: sh ./build-docker.sh
+      run: ./build-docker.sh
       
     - name: Run Unit tests
       id: run-tests
-      run: sh ./run-tests.sh
+      run: ./run-tests.sh
