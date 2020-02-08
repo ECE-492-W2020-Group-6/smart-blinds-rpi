@@ -9,6 +9,7 @@
 #!/bin/bash
 set -Eeuo pipefail
 
+# Parse args
 for arg in "$@"
 do
     if [ "$arg" = "--push" ]; then
@@ -19,14 +20,15 @@ do
         echo "TODO: HELP"
         exit
     fi
-
 done
 
+# Source common definitions
 source common.sh
 
 # Setup ARM executables
 docker run --rm --privileged docker/binfmt:820fdd95a9972a5308930a2bdfb8573dd4447ad3
 
+# Create and set buildkit builder instance
 if ! docker buildx use mybuilder; then
     docker buildx create --name mybuilder
     docker buildx use mybuilder
@@ -35,14 +37,14 @@ fi
 
 # Pull the latest version of the image, in order to
 # populate the build cache:
-# Pipe || true to prevent failures during very first run on CI pipeline
+# Pipe || true to prevent failures when image doesn't exist in registry
 docker pull $BUILD_STAGE_IMAGE || true
-docker pull $RPI_IMAGE        || true
+docker pull $RPI_IMAGE || true
 
-# Build the buld stage:
+# Build the buld stage image:
 docker buildx build --platform linux/arm/v7 --load --target build-image --tag $BUILD_STAGE_IMAGE .
 
-# Build the runtime stage, using cached build stage:
+# Build the runtime stage image:
 docker buildx build --platform linux/arm/v7 --load --target runtime-image --tag $RPI_IMAGE .
 
 if [[ -v PUSH ]]; then

@@ -13,17 +13,20 @@ FROM arm32v7/python:3.8.1-slim-buster as base
 # Stage 1: Create image which contains app dependencies
 FROM base as build-image
 
+# Create virtualenv
 RUN python -m venv /opt/venv
 # Make sure we use the virtualenv:
 ENV PATH="/opt/venv/bin:$PATH"
 
+# Install deps
 COPY requirements.txt .
 COPY requirements-dev.txt .
 RUN pip3 install -r requirements-dev.txt
 
-# Stage 2: Copy deps from build-image and copy source code into new image to run app
+# Stage 2: Create image to run app
 FROM base as runtime-image
 
+# Copy deps from build-image
 COPY --from=build-image /opt/venv /opt/venv
 
 # Make sure we use the virtualenv:

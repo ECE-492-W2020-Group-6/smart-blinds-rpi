@@ -1,6 +1,6 @@
 # Date: Feb 8, 2020
 # Author: Ishaat Chowdhury
-# Contents: bash script to run unit tests 
+# Contents: bash script that contains common variables
 
 #!/bin/bash
 

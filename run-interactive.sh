@@ -4,6 +4,7 @@
 
 #!/bin/bash
 
+# Get common definitions
 source common.sh
 
 # Run image in daemon mode
@@ -14,7 +15,6 @@ docker exec -it rpi-code /bin/bash
 
 # Cleanup container
 docker stop rpi-code
-
 docker rm rpi-code
 
 

@@ -8,6 +8,8 @@
 #!/bin/bash
 set -Eeuo pipefail
 
-GH_PKG_ROOT=docker.pkg.github.com/ece-492-w2020-group-6/smart-blinds-rpi
+# Source common definitions
+source common.sh
 
+# Run unit tests in container and exit
 docker run --rm $GH_PKG_ROOT/rpi:latest python3 -m pytest
