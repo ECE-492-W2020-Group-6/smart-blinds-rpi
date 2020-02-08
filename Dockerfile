@@ -26,11 +26,12 @@ RUN pip3 install -r requirements-dev.txt
 # Stage 2: Create image to run app
 FROM base as runtime-image
 
-# Copy deps from build-image
+# Copy virtualenv from build-image
 COPY --from=build-image /opt/venv /opt/venv
 
 # Make sure we use the virtualenv:
 ENV PATH="/opt/venv/bin:$PATH"
 
+# Copy source code to container
 WORKDIR /src
 COPY . .
