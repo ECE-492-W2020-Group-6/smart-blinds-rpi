@@ -14,6 +14,3 @@ docker exec -it rpi-code /bin/bash
 # Cleanup container
 docker stop rpi-code
 docker rm rpi-code
-
-
-
