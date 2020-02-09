@@ -1,0 +1,40 @@
+name: CD
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  cd:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repo
+      id: checkout
+      uses: actions/checkout@v2
+      
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: crazy-max/ghaction-docker-buildx@v1
+
+    - name: Build Docker Images
+      id: docker-build
+      run: ./docker-build.sh
+      
+    - name: Run Unit tests
+      id: run-unit-tests
+      run: ./run-tests.sh
+    
+    # Must be placed after docker build and unit tests since
+    # this action seems to reset docker and remove the buildx plugin
+    - name: Authenticate to GitHub Packages Docker Image Registry
+      id: docker-login
+      uses: azure/docker-login@v1
+      with:
+        login-server: docker.pkg.github.com
+        username: $GITHUB_ACTOR
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Push Docker Images
+      id: docker-push
+      run: ./docker-push.sh
