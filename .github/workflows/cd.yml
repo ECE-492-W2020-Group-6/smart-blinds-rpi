@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-      - create-cd-workflow
+
 jobs:
   cd:
     runs-on: ubuntu-latest
