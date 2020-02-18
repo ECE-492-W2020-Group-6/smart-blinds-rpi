@@ -16,21 +16,8 @@ Author: Alex (Yin) Chen
 Creation Date: February 1, 2020
 '''
 from requests import codes as RESP_CODES
-
-# ---------- API Constants ---------- #
-'''
-These constants define the URL routes that can be used to access the API. 
-'''
-API_BASE_ROUTE = "/api"
-API_VERSION = "/v1"
-
-TEMPERATURE_ROUTE = API_BASE_ROUTE + API_VERSION + "/temp"
-POSITION_ROUTE = API_BASE_ROUTE + API_VERSION + "/pos"
-STATUS_ROUTE = API_BASE_ROUTE + API_VERSION + "/status"
-SCHEDULE_ROUTE = API_BASE_ROUTE + API_VERSION + "/schedule"
-COMMAND_ROUTE = API_BASE_ROUTE + API_VERSION + "/command"
-
-# ---------- END OF API Constants ---------- #
+from flask import jsonify
+from piserver.api_routes import *
 
 '''
 Class to model blinds as an abstraction. 
@@ -127,7 +114,7 @@ class SmartBlindsSystem:
             "temp_units" : "C"
         }
 
-        resp = (data, RESP_CODES[ "OK" ])
+        resp = ( jsonify( data ), RESP_CODES[ "OK" ])
 
         # TODO: ERROR CASE 
 
@@ -146,7 +133,7 @@ class SmartBlindsSystem:
             "position" : "15"
         }
 
-        resp = (data, RESP_CODES[ "OK" ])
+        resp = ( jsonify( data ), RESP_CODES[ "OK" ] )
 
         # TODO: ERROR CASE 
 
@@ -167,7 +154,7 @@ class SmartBlindsSystem:
             "temp_units" : "C"
         }
 
-        resp = (data, RESP_CODES[ "OK" ])
+        resp = ( jsonify( data ), RESP_CODES[ "OK" ] )
 
         # TODO: ERROR CASE 
 
@@ -187,7 +174,7 @@ class SmartBlindsSystem:
             "schedule" : "SCHEDULE"
         }
 
-        resp = (data, RESP_CODES[ "OK" ])
+        resp = ( jsonify( data ), RESP_CODES[ "OK" ] )
 
         # TODO: ERROR CASE 
 
@@ -200,11 +187,12 @@ class SmartBlindsSystem:
     '''
     def postSchedule( self, schedule ):
         print( "processing request for POST schedule")
+        print( "schedule=\n", schedule )
 
         # TODO: ERROR CASE 
         # TODO: CREATE CASE RESP_CODES[ "CREATED" ] (201)
 
-        return {}, RESP_CODES[ "ACCEPTED" ]
+        return "{}", RESP_CODES[ "ACCEPTED" ]
 
     '''
     API DELETE request handler for schedule
@@ -216,7 +204,7 @@ class SmartBlindsSystem:
 
         # TODO: ERROR CASE 
 
-        return {}, RESP_CODES[ "OK" ]
+        return "{}", RESP_CODES[ "OK" ]
 
     '''
     API POST request handler for command
@@ -239,7 +227,7 @@ class SmartBlindsSystem:
         }
         # TODO: ERROR CASE 
 
-        return data, RESP_CODES[ "ACCEPTED" ]   
+        return jsonify( data ), RESP_CODES[ "ACCEPTED" ]   
     # ---------- END OF API functions --------- #
 
 # ---------- Custom Exception classes --------- #
