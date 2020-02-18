@@ -1,11 +1,29 @@
 '''
-File for blinds API related code.
+File for blinds API related code. 
+Contains classes: 
+    Blinds: an abstraction to model the blinds, gives functions for rotation and callse the motor driver
+    BlindsScheduler: class to hold the scheduling mechanism, gives functions for serializaion and deserialization
+    SmartBlindsSystem: class to model the whole system, provides functions to handle API requests. 
+
+Also contains custom exception classes to provide more specific exceptions for the smart blinds systems. 
+Currently, these are: 
+    InvalidBlindPositionException
+
+Note, the API handlers are not implemented, and the dummy data there is used to indicate the intended format of 
+the response data. 
+
+Author: Alex (Yin) Chen
+Creation Date: February 1, 2020
 '''
 from requests import codes as RESP_CODES
 
 # ---------- API Constants ---------- #
+'''
+These constants define the URL routes that can be used to access the API. 
+'''
 API_BASE_ROUTE = "/api"
 API_VERSION = "/v1"
+
 TEMPERATURE_ROUTE = API_BASE_ROUTE + API_VERSION + "/temp"
 POSITION_ROUTE = API_BASE_ROUTE + API_VERSION + "/pos"
 STATUS_ROUTE = API_BASE_ROUTE + API_VERSION + "/status"
@@ -63,12 +81,21 @@ class Blinds:
 
 '''
 Class for handling blinds scheduling to define a 
-structure for the schedule and editing functionlity
-TODO: Dummy class for now
+structure for the schedule and editing functionlity.
+
+Provides functions to serialize and deserialize a BlindsSchedule
+
+TODO: Define the formatting for this.
 '''
 class BlindsSchedule:
     def __init__( self ):
-        pass
+        raise NotImplementedError
+
+    def serialize( self ): 
+        raise NotImplementedError
+
+    def serialize( self ): 
+        raise NotImplementedError
 
 
 '''
@@ -216,7 +243,7 @@ class SmartBlindsSystem:
     # ---------- END OF API functions --------- #
 
 # ---------- Custom Exception classes --------- #
-
+# Thrown when an position outside of [-100, 100] is given to rotateToPositions
 class InvalidBlindPositionException( Exception ):
     pass
 

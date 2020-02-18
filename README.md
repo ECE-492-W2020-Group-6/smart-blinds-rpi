@@ -14,7 +14,7 @@ However, there are several dependencies that are useful for developement (ex. te
 
 # Adding Dependencies
 
-Any dependencies that are used only for testing should be added to *requiremenets-dev.txt*.
+Any dependencies that are used only for testing should be added to *requirements-dev.txt*.
 
 All other dependencies should be added to *requirements.txt*.
 

@@ -1,10 +1,19 @@
+'''
+Unit tests for the Blinds object from blinds/blinds_api
+Focus of the tests is on the internals of the Blinds object itself, without the dependencies on the 
+motor driver or other external modules. 
+
+Author: Alex (Yin) Chen
+Creation Date: February 1, 2020
+'''
+
 import pytest
 from blinds.blinds_api import Blinds, InvalidBlindPositionException
 
 class TestBlinds:
 
     '''
-    Test rotating blinds changes internal position
+    Test rotateToPosition to check that the internal position is updated. 
     '''
     def test_rotate( self ):
         blinds = Blinds( None )
@@ -22,6 +31,10 @@ class TestBlinds:
         blinds.rotateToPosition( -100 )
         assert ( blinds._currentPosition == -100 )
 
+    '''
+    Test for invalid rotational positions given to rotateToPosition. 
+    These are expected to throw InvalidBlindPositionException
+    '''
     def test_invalid_rotation( self ):
         blinds = Blinds( None )
         with pytest.raises( InvalidBlindPositionException ):
@@ -36,6 +49,9 @@ class TestBlinds:
         with pytest.raises( InvalidBlindPositionException ):
             blinds.rotateToPosition( -500 )
 
+    '''
+    Test for resetPosition. Checks that the internal position was reset to 0. 
+    '''
     def test_reset_position( self ):
         blinds = Blinds( None )
         blinds._currentPosition = 20
