@@ -1,0 +1,30 @@
+GitHub Secrets (for API Keys):
+https://developer.github.com/v3/actions/secrets/
+http://jonathansoma.com/lede/foundations-2019/classes/apis/keeping-api-keys-secret/
+
+
+
+OpenCage Geocoding API (forward geocoding = address to lat/lon):
+https://opencagedata.com/api
+https://github.com/OpenCageData/opencagedata-misc-docs/blob/master/query-formatting.md
+
+Suncalc API (sun angle):
+https://www.programmableweb.com/api/suncalc-rest-api
+https://www.suncalc.org/#/53.5272,-113.4927,2/2020.02.07/10:27/1/0
+https://www.torsten-hoffmann.de/apis/suncalcmooncalc/link_en.html
+
+Dark Sky API (cloud cover, temp):
+https://darksky.net/dev/docs
+
+
+
+GET request:
+https://sunrise-sunset.org/api
+curl -i -X GET "https://api.sunrise-sunset.org/json?lat=36.7201600&lng=-4.4203400" > temp.txt
+
+Python curl:
+https://stackabuse.com/using-curl-in-python-with-pycurl/
+
+Python requests:
+https://www.dataquest.io/blog/python-api-tutorial/
+https://www.geeksforgeeks.org/get-post-requests-using-python/

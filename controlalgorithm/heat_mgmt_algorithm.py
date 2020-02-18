@@ -4,6 +4,8 @@ Author: Sam Wu
 Contents: Algorithm for obtaining the optimal tilt angle for minimum power consumption for energy efficiency
 """
 
+import dotenv
+import os
 import sys
 
 import user_defined_exceptions as exceptions
