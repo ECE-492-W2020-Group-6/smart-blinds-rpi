@@ -8,3 +8,4 @@ numpy>=1.13.3
 pandas==1.0.1
 pvlib==0.7.1
 RPi.bme==0.2.3
+smbus2==0.3.0

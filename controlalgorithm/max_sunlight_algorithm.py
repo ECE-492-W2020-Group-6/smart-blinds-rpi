@@ -11,38 +11,14 @@ import pandas
 import pvlib.solarposition
 import requests
 
+import persistent_data as p_data
 import user_defined_exceptions as exceptions
-
-"""
-API Keys and Endpoints
-"""
-dotenv.load_dotenv()
-OPENCAGE_API_KEY = os.getenv("OPENCAGE_API_KEY")
-OPENCAGE_URL = "https://api.opencagedata.com/geocode/v1/json?key={OPENCAGE_API_KEY}&q={place_name}&pretty=1"
-
-"""
-Given a location or place name, get the latitude/longitude and time zone of the place
-"""
-def get_lat_lon():
-    place_name = input("Enter location or place name: ")
-
-    OPENCAGE_URL = "https://api.opencagedata.com/geocode/v1/json?key={}&q={}&pretty=1".format(OPENCAGE_API_KEY, place_name)
-    # print(OPENCAGE_URL)
-    loc_req = requests.get(url = OPENCAGE_URL)
-    geodata = loc_req.json()
-
-    lat = geodata["results"][0]["geometry"]["lat"]
-    lon = geodata["results"][0]["geometry"]["lng"]
-
-    timezone_adjustment = geodata["results"][0]["annotations"]["timezone"]["offset_sec"] // 3600 # timezone difference in hours
-
-    return lat, lon, timezone_adjustment
 
 """
 Given a lat/lon, get the solar angle from pvlib.solarposition
 """
 def get_solar_angle():
-    lat, lon, timezone_adjustment = get_lat_lon()
+    lat, lon, timezone_adjustment = p_data.get_lat_lon()
 
     # UTC +0 time (7 hours ahead of MST -7) [MST = UTC - 7]
     date_time = datetime.datetime.today()

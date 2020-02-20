@@ -12,8 +12,9 @@ import requests
 import smbus2
 import sys
 
-import user_defined_exceptions as exceptions
 import max_sunlight_algorithm as max_sun
+import persistent_data as p_data
+import user_defined_exceptions as exceptions
 
 """
 Calibration parameters for the temperature sensor (Bosch BME280)
@@ -131,7 +132,7 @@ Given a lat/lon, get the cloud coverage in terms of a percentage from DarkSky
 and the external temperature in Celsius from DarkSky
 """
 def get_cloud_cover_percentage_and_ext_temp():
-    lat, lon, timezone_adjustment = max_sun.get_lat_lon()
+    lat, lon, timezone_adjustment = p_data.get_lat_lon()
 
     # UTC +0 time (7 hours ahead of MST -7) [MST = UTC - 7]
     date_time = datetime.datetime.today()
