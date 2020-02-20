@@ -1,5 +1,8 @@
 {
     "lat": 53.535411,
     "lon": -113.507996,
-    "timezone_adjustment": -7
+    "timezone_adjustment": -7,
+    "minute": 52,
+    "cloud_cover_percentage": 32.0,
+    "ext_temp_celsius": 0.46666666666666856
 }

@@ -4,12 +4,12 @@ Author: Sam Wu
 Contents: Algorithm for obtaining the optimal tilt angle for minimum power consumption for energy efficiency
 """
 
-import bme280
+# import bme280
 import datetime
 import dotenv
 import os
 import requests
-import smbus2
+# import smbus2
 import sys
 
 import max_sunlight_algorithm as max_sun
@@ -21,8 +21,8 @@ Calibration parameters for the temperature sensor (Bosch BME280)
 """
 port = 1
 address = 0x76
-bus = smbus2.SMBus(port)
-calibration_params = bme280.load_calibration_params(bus, address)
+# bus = smbus2.SMBus(port)
+# calibration_params = bme280.load_calibration_params(bus, address)
 
 """
 API Keys and Endpoints
@@ -122,31 +122,6 @@ def evd_avd_to_tilt_angle(evd, avd):
     }
     return mapping[evd, avd]
 
-# Convert Fahrenheit to Celsius
-def fahrenheit_to_celsius(fahrenheit):
-    celsius = (fahrenheit - 32) / 1.8
-    return celsius
-
-"""
-Given a lat/lon, get the cloud coverage in terms of a percentage from DarkSky
-and the external temperature in Celsius from DarkSky
-"""
-def get_cloud_cover_percentage_and_ext_temp():
-    lat, lon, timezone_adjustment = p_data.get_lat_lon()
-
-    # UTC +0 time (7 hours ahead of MST -7) [MST = UTC - 7]
-    date_time = datetime.datetime.today()
-
-    DARKSKY_URL = "https://api.darksky.net/forecast/{}/{},{}".format(DARKSKY_API_KEY, lat, lon)
-    # print(DARKSKY_URL)
-    weather_req = requests.get(url = DARKSKY_URL)
-    weather_data = weather_req.json()
-
-    cloud_cover_percentage = weather_data["currently"]["cloudCover"] * 100
-    ext_temp_farenheit = weather_data["currently"]["temperature"]
-    ext_temp_celsius = fahrenheit_to_celsius(ext_temp_farenheit)
-    return cloud_cover_percentage, ext_temp_celsius
-
 # get the internal temperature from the Bosch BME280 digital sensor module
 def get_int_temp():
     # take a single reading and return a compensated_reading object
@@ -178,7 +153,7 @@ Output:
 tilt_angle_final (float): final tilt angle for maximum energy efficiency
 """
 def heat_mgmt_algorithm(ac_t):
-    cloud_cover_percentage, ext_temp = get_cloud_cover_percentage_and_ext_temp()
+    cloud_cover_percentage, ext_temp = p_data.get_cloud_cover_percentage_and_ext_temp()
     act_int_temp = ac_t
     des_int_temp = 22
 
