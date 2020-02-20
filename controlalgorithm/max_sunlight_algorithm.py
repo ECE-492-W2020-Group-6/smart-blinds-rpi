@@ -35,7 +35,7 @@ def get_lat_lon():
     lon = geodata["results"][0]["geometry"]["lng"]
 
     timezone_adjustment = geodata["results"][0]["annotations"]["timezone"]["offset_sec"] // 3600 # timezone difference in hours
-    
+
     return lat, lon, timezone_adjustment
 
 """
@@ -69,8 +69,7 @@ def get_solar_angle():
     solar_position = pvlib.solarposition.get_solarposition(date_data_frame.index, lat, lon)
 
     # get the apparent elevation of the sun from solar position
-    solar_angle = solar_position.iloc[0]['apparent_elevation']
-    
+    solar_angle = solar_position.iloc[0]['apparent_elevation']    
     return solar_angle
 
 """

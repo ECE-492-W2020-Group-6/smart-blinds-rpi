@@ -32,7 +32,6 @@ def composite_algorithm(act_int_temp):
     heat_weight = 1 - solar_angle_weight
 
     tilt_angle_final = tilt_angle_sunlight * solar_angle_weight + tilt_angle_heat * heat_weight
-
     return tilt_angle_final
 
 if __name__ == "__main__":
