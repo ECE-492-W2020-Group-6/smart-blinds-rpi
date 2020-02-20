@@ -4,14 +4,24 @@ Author: Sam Wu
 Contents: Algorithm for obtaining the optimal tilt angle for minimum power consumption for energy efficiency
 """
 
+import bme280
 import datetime
 import dotenv
 import os
 import requests
+import smbus2
 import sys
 
 import user_defined_exceptions as exceptions
 import max_sunlight_algorithm as max_sun
+
+"""
+Calibration parameters for the temperature sensor (Bosch BME280)
+"""
+port = 1
+address = 0x76
+bus = smbus2.SMBus(port)
+calibration_params = bme280.load_calibration_params(bus, address)
 
 """
 API Keys and Endpoints
@@ -132,15 +142,18 @@ def get_cloud_cover_percentage_and_ext_temp():
     weather_data = weather_req.json()
 
     cloud_cover_percentage = weather_data["currently"]["cloudCover"] * 100
-    
     ext_temp_farenheit = weather_data["currently"]["temperature"]
     ext_temp_celsius = fahrenheit_to_celsius(ext_temp_farenheit)
-
     return cloud_cover_percentage, ext_temp_celsius
 
-# get the internal temperature from sensor
+# get the internal temperature from the Bosch BME280 digital sensor module
 def get_int_temp():
-    return 20
+    # take a single reading and return a compensated_reading object
+    data = bme280.sample(bus, address, calibration_params)
+
+    # get the temperature attribute from the compensated_reading class 
+    int_temp = data.temperature
+    return int_temp
 
 # formula to determine the weight for cloud cover in the algorithm based on angle of the sun
 def get_solar_angle_weight():
@@ -163,7 +176,7 @@ solar_weight (float): weighting for the tilt angle determined by the cloud cover
 Output:
 tilt_angle_final (float): final tilt angle for maximum energy efficiency
 """
-def heat_mgmt_algorithm(ac_t, solar_w):
+def heat_mgmt_algorithm(ac_t):
     cloud_cover_percentage, ext_temp = get_cloud_cover_percentage_and_ext_temp()
     act_int_temp = ac_t
     des_int_temp = 22
@@ -172,7 +185,7 @@ def heat_mgmt_algorithm(ac_t, solar_w):
     act_int_vs_des_int = temp_to_temp_range(act_int_temp - des_int_temp)
     cloud_cover = cover_percentage_to_cloud_cover(cloud_cover_percentage)
 
-    solar_angle_weight = solar_w
+    solar_angle_weight = get_solar_angle_weight()
     temp_weight = 1 - solar_angle_weight
 
     if ext_vs_des == "equilibrium":
@@ -196,10 +209,9 @@ def heat_mgmt_algorithm(ac_t, solar_w):
         return 0 
 
     tilt_angle_final = tilt_angle_cc * solar_angle_weight + tilt_angle_temp * temp_weight
-
     return tilt_angle_final
     
 if __name__ == "__main__":
     # result = heat_mgmt_algorithm(80, -10, 20, 0.88) # expect cold, overcast and cold, cool: 51*0.88 + (-20)*0.12 = 42.48
-    result = heat_mgmt_algorithm(20, 0.88)
+    result = heat_mgmt_algorithm(20)
     print(result)
