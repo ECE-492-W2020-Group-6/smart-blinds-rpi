@@ -60,3 +60,6 @@ def post_command():
     duration = request.form[ 'time' ]
 
     return smart_blinds_system.postBlindsCommand( position, duration )
+
+if __name__ == "__main__":
+    app.run( debug=True )

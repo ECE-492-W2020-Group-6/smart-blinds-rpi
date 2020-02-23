@@ -2,7 +2,6 @@
 File for blinds API related code. 
 Contains classes: 
     Blinds: an abstraction to model the blinds, gives functions for rotation and callse the motor driver
-    BlindsScheduler: class to hold the scheduling mechanism, gives functions for serializaion and deserialization
     SmartBlindsSystem: class to model the whole system, provides functions to handle API requests. 
 
 Also contains custom exception classes to provide more specific exceptions for the smart blinds systems. 
@@ -16,8 +15,9 @@ Author: Alex (Yin) Chen
 Creation Date: February 1, 2020
 '''
 from requests import codes as RESP_CODES
-from flask import jsonify
 from piserver.api_routes import *
+from enum import Enum
+from blinds.blinds_schedule import BlindsSchedule
 
 '''
 Class to model blinds as an abstraction. 
@@ -67,25 +67,6 @@ class Blinds:
 
 
 '''
-Class for handling blinds scheduling to define a 
-structure for the schedule and editing functionlity.
-
-Provides functions to serialize and deserialize a BlindsSchedule
-
-TODO: Define the formatting for this.
-'''
-class BlindsSchedule:
-    def __init__( self ):
-        raise NotImplementedError
-
-    def serialize( self ): 
-        raise NotImplementedError
-
-    def serialize( self ): 
-        raise NotImplementedError
-
-
-'''
 Class for modelling the smart blinds system as a whole
 Provides functions for API requests
 '''
@@ -114,7 +95,7 @@ class SmartBlindsSystem:
             "temp_units" : "C"
         }
 
-        resp = ( jsonify( data ), RESP_CODES[ "OK" ])
+        resp = ( data, RESP_CODES[ "OK" ])
 
         # TODO: ERROR CASE 
 
@@ -133,7 +114,7 @@ class SmartBlindsSystem:
             "position" : "15"
         }
 
-        resp = ( jsonify( data ), RESP_CODES[ "OK" ] )
+        resp = ( data, RESP_CODES[ "OK" ] )
 
         # TODO: ERROR CASE 
 
@@ -154,7 +135,7 @@ class SmartBlindsSystem:
             "temp_units" : "C"
         }
 
-        resp = ( jsonify( data ), RESP_CODES[ "OK" ] )
+        resp = ( data, RESP_CODES[ "OK" ] )
 
         # TODO: ERROR CASE 
 
@@ -174,7 +155,7 @@ class SmartBlindsSystem:
             "schedule" : "SCHEDULE"
         }
 
-        resp = ( jsonify( data ), RESP_CODES[ "OK" ] )
+        resp = ( data, RESP_CODES[ "OK" ] )
 
         # TODO: ERROR CASE 
 
@@ -192,7 +173,7 @@ class SmartBlindsSystem:
         # TODO: ERROR CASE 
         # TODO: CREATE CASE RESP_CODES[ "CREATED" ] (201)
 
-        return "{}", RESP_CODES[ "ACCEPTED" ]
+        return schedule, RESP_CODES[ "ACCEPTED" ]
 
     '''
     API DELETE request handler for schedule
@@ -222,12 +203,12 @@ class SmartBlindsSystem:
 
         # dummy data for return
         data = {
-            "position" : "11",
-            "time" : "2"
+            "position" : position,
+            "time" : time
         }
         # TODO: ERROR CASE 
 
-        return jsonify( data ), RESP_CODES[ "ACCEPTED" ]   
+        return data, RESP_CODES[ "ACCEPTED" ]   
     # ---------- END OF API functions --------- #
 
 # ---------- Custom Exception classes --------- #
