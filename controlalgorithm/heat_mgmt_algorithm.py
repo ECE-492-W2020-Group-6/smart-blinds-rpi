@@ -4,12 +4,37 @@ Author: Sam Wu
 Contents: Algorithm for obtaining the optimal tilt angle for minimum power consumption for energy efficiency
 """
 
+# import bme280
+import datetime
+import dotenv
+import os
+import requests
+# import smbus2
 import sys
 
-import user_defined_exceptions as exceptions
 import max_sunlight_algorithm as max_sun
+import persistent_data as p_data
+import user_defined_exceptions as exceptions
 
-# define a standard for temperature ranges
+"""
+Calibration parameters for the temperature sensor (Bosch BME280)
+"""
+port = 1
+address = 0x76
+# bus = smbus2.SMBus(port)
+# calibration_params = bme280.load_calibration_params(bus, address)
+
+"""
+API Keys and Endpoints
+"""
+dotenv.load_dotenv()
+DARKSKY_API_KEY = os.getenv("DARKSKY_API_KEY")
+DARKSKY_URL = "https://api.darksky.net/forecast/{DARKSKY_API_KEY}/{lat},{lon}"
+
+"""
+Define a standard for temperature ranges
+in Celsius
+"""
 def temp_to_temp_range(temp):
     if temp >= 6:
         temp_range = "hot"
@@ -23,7 +48,10 @@ def temp_to_temp_range(temp):
         temp_range = "equilibrium" #algorithm should do nothing
     return temp_range
 
-# define a standard for cloud coverage percentages
+"""
+Define a standard for cloud coverage percentages
+ranging from 0% to 100%
+"""
 def cover_percentage_to_cloud_cover(cloud_cover_percentage):
     if cloud_cover_percentage >= 0 and cloud_cover_percentage < 25:
         cloud_cover = "clear"
@@ -37,7 +65,11 @@ def cover_percentage_to_cloud_cover(cloud_cover_percentage):
         raise exceptions.InputError("cover_percentage_to_cloud_cover()", "Cloud Cover Percentage must be between 0 and 100 percent inclusive")
     return cloud_cover
 
-# define dictionary to map external temperature vs desired internal temperature and cloud cover to tilt angle
+"""
+Define dictionary to map 
+external temperature vs desired internal temperature and cloud cover
+to tilt angle
+"""
 def evd_cc_to_tilt_angle(evd, cc):
     mapping = {
         ("hot", "clear"): 70,
@@ -60,7 +92,7 @@ def evd_cc_to_tilt_angle(evd, cc):
     return mapping[evd, cc]
 
 """
-define dictionary to map
+Define dictionary to map
 external temperature vs desired internal temperature
 and actual internal temperature vs desired internal temperature 
 to tilt angle
@@ -90,17 +122,14 @@ def evd_avd_to_tilt_angle(evd, avd):
     }
     return mapping[evd, avd]
 
-# get the cloud coverage in terms of a percentage
-def get_cloud_cover_percentage():
-    return 80
-
-# get the external temperature
-def get_ext_temp():
-    return -10
-
-# get the internal temperature
+# get the internal temperature from the Bosch BME280 digital sensor module
 def get_int_temp():
-    return 20
+    # take a single reading and return a compensated_reading object
+    data = bme280.sample(bus, address, calibration_params)
+
+    # get the temperature attribute from the compensated_reading class 
+    int_temp = data.temperature
+    return int_temp
 
 # formula to determine the weight for cloud cover in the algorithm based on angle of the sun
 def get_solar_angle_weight():
@@ -123,9 +152,8 @@ solar_weight (float): weighting for the tilt angle determined by the cloud cover
 Output:
 tilt_angle_final (float): final tilt angle for maximum energy efficiency
 """
-def heat_mgmt_algorithm(cloud_c, ex_t, ac_t, solar_w):
-    cloud_cover_percentage = cloud_c
-    ext_temp = ex_t
+def heat_mgmt_algorithm(ac_t):
+    cloud_cover_percentage, ext_temp = p_data.get_cloud_cover_percentage_and_ext_temp()
     act_int_temp = ac_t
     des_int_temp = 22
 
@@ -133,10 +161,10 @@ def heat_mgmt_algorithm(cloud_c, ex_t, ac_t, solar_w):
     act_int_vs_des_int = temp_to_temp_range(act_int_temp - des_int_temp)
     cloud_cover = cover_percentage_to_cloud_cover(cloud_cover_percentage)
 
-    solar_angle_weight = solar_w
+    solar_angle_weight = get_solar_angle_weight()
     temp_weight = 1 - solar_angle_weight
 
-    if ext_vs_des is "equilibrium":
+    if ext_vs_des == "equilibrium":
         tilt_angle_cc = 0
         solar_angle_weight = 0
         temp_weight = 1
@@ -144,22 +172,22 @@ def heat_mgmt_algorithm(cloud_c, ex_t, ac_t, solar_w):
     else:
         tilt_angle_cc = evd_cc_to_tilt_angle(ext_vs_des, cloud_cover)
 
-    if act_int_vs_des_int is "equilibrium":
-        tilt_angle_temp = 0 
+    if act_int_vs_des_int == "equilibrium":
+        tilt_angle_temp = 0
         solar_angle_weight = 1
         temp_weight = 0
         print("act int vs des int is equilibrium. do nothing")
     else:
         tilt_angle_temp = evd_avd_to_tilt_angle(ext_vs_des, act_int_vs_des_int)
 
-    if ext_vs_des is "equilibrium" and act_int_vs_des_int is "equilibrium":
+    if ext_vs_des == "equilibrium" and act_int_vs_des_int == "equilibrium":
         print("all temp differences at equilibrium. no need to change tilt angle")
         return 0 
 
     tilt_angle_final = tilt_angle_cc * solar_angle_weight + tilt_angle_temp * temp_weight
-
     return tilt_angle_final
     
 if __name__ == "__main__":
-    result = heat_mgmt_algorithm(80, -10, 20, 0.88) # expect cold, overcast and cold, cool: 51*0.88 + (-20)*0.12 = 42.48
+    # result = heat_mgmt_algorithm(80, -10, 20, 0.88) # expect cold, overcast and cold, cool: 51*0.88 + (-20)*0.12 = 42.48
+    result = heat_mgmt_algorithm(20)
     print(result)
