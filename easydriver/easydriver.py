@@ -249,7 +249,7 @@ class EasyDriver(Device):
         steps {int} -- number of steps
         direction {StepDirection} -- direction to step in
     """
-    def step(self, steps, direction=StepDirection.FORWARD):
+    def step(self, steps=1, direction=StepDirection.FORWARD):
         self.power_state = PowerState.ON
         self.direction = direction
         for _ in range(steps):

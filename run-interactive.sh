@@ -2,8 +2,6 @@
 # Author: Ishaat Chowdhury
 # Contents: bash script to run interactive process for docker image
 
-#!/bin/bash
-
 # Get common definitions
 source common.sh
 
@@ -16,6 +14,3 @@ docker exec -it rpi-code /bin/bash
 # Cleanup container
 docker stop rpi-code
 docker rm rpi-code
-
-
-
