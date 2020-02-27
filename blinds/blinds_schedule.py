@@ -147,6 +147,15 @@ class ScheduleTimeBlock:
 
         return True
 
+    '''
+    Override default equality check to check internal values of the ScheduleTimeBlock instead of the object identifier.
+    '''
+    def __eq__( self, other ):
+        if not isinstance( other, ScheduleTimeBlock ):
+            return False
+        else:
+            return self._start == other._start and self._end == other._end and self._mode == other._mode and self._position == other._position 
+
 '''
 Class for handling blinds scheduling to define a 
 structure for the schedule and editing functionlity.
@@ -174,7 +183,7 @@ The general format is:
 }
 '''
 class BlindsSchedule:
-    # class constants for days of the week
+    # class constants for days of the week, these values should NOT be changed
     SUNDAY = "sunday"
     MONDAY = "monday"
     TUESDAY = "tuesday"
@@ -185,6 +194,7 @@ class BlindsSchedule:
 
     DAYS_OF_WEEK = set( [ SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY ] )
 
+    # object attributes describing the schedule
     _default_mode = None 
     _default_pos = None
     _schedule = {
@@ -197,18 +207,38 @@ class BlindsSchedule:
         SATURDAY : []
     }
 
+    '''
+    Constructor for BlindsSchedule. Initializes it with the default mode and position, and a 
+    schedule of time blocks if provided. 
+    Calls self.validate at the end to ensure that the created object is valid. 
+    '''
     def __init__( self, default_mode, default_pos=None, schedule=None ):
         self._default_mode = default_mode
         self._default_pos = default_pos
 
         if schedule is not None:
             self._schedule = schedule
-            self.sortScheduleBlocks()
+
+        # validate and checking for conflicts are separated to ensure that the time blocks can be sorted without error
+        self.validate()
+        self.sortScheduleBlocks()
+        self.checkHasNoTimeConflicts()
 
     def sortScheduleBlocks( self ):
-        for day in DAYS_OF_WEEK:
-            self._schedule[ day ] = sortedTimeBlockList( self._schedule[ day ] )
+        for day in BlindsSchedule.DAYS_OF_WEEK:
+            self._schedule[ day ] = BlindsSchedule.sortedTimeBlockList( self._schedule[ day ] )
 
+    '''
+    Validates the BlindsSchedule object. Returns True if the BlindsSchedule is properly defined, and throws exceptions otherwise. 
+    InvalidBlindsScheduleException is thrown when the parameters of the object itself are invalid, such as 
+    having an improperly defined schedule or improperly set default behaviour. 
+
+    The validation assumes that the ScheduleTimeBlocks themselves are valid, as these should be validated upon their
+    creation and update and thus should be valid by the time they are using in the BlindsSchedule object. This is a 
+    conscious choice to improve performace of the validate calls. 
+
+    Does NOT check for time conflicts
+    '''
     def validate( self ):
         # checks for default mode and position
         if not isinstance( self._default_mode, BlindMode ): 
@@ -220,25 +250,27 @@ class BlindsSchedule:
             raise InvalidBlindsScheduleException( "default position must a value from -100 to 100" )
 
         # checks for _schedule being well formatted
-        if not isinstance( self._schedule, dict ) or ( self._schedule.keys != DAYS_OF_WEEK ):
+        if not isinstance( self._schedule, dict ) or ( set( self._schedule.keys() ) != BlindsSchedule.DAYS_OF_WEEK ):
             raise InvalidBlindsScheduleException( "schedule must be a dictionary with keys being the days of the week and values being lists of ScheduleTimeBlocks" )
         
-        for day in DAYS_OF_WEEK:
+        for day in BlindsSchedule.DAYS_OF_WEEK:
             timeBlockList = self._schedule[ day ]
             if not all( map( lambda x: isinstance( x, ScheduleTimeBlock ), timeBlockList ) ):
                 raise InvalidBlindsScheduleException( "schedule must be a dictionary with keys being the days of the week and values being lists of ScheduleTimeBlocks" )
-            
-            # checks for time conflicts
-            if BlindsSchedule.hasConflict( timeBlockList ):
-                raise BlindsSchedulingException( "schedule has conflicting time blocks on " + day )
 
         return True
 
-    def serialize( self ): 
-        raise NotImplementedError
+    '''
+    Checks for scheduling conflicts. Will raise BlindSchedulingException when there conflicting time blocks on a given day. 
+    Otherwise, returns True when there are no conflicts. 
+    '''
+    def checkHasNoTimeConflicts( self ):
+        for day in BlindsSchedule.DAYS_OF_WEEK: 
+            # checks for time conflicts
+            if BlindsSchedule.hasConflict( self._schedule[ day ] ):
+                raise BlindSchedulingException( "schedule has conflicting time blocks on " + day )
 
-    def deserialize( self ): 
-        raise NotImplementedError
+        return True
 
     '''
     Returns a list of ScheduleTimeBlocks sorted by start times. Does NOT check for time conflicts.
@@ -259,17 +291,62 @@ class BlindsSchedule:
     def hasConflict( timeBlockList ): 
         lastTimeBlock = None
         for timeBlock in timeBlockList: 
-            print( "last: ", ScheduleTimeBlock.toJson( lastTimeBlock ))
-            print( "now: ", ScheduleTimeBlock.toJson( timeBlock ))
-
-
             if lastTimeBlock is not None and timeBlock._start < lastTimeBlock._end:
                 return True
             lastTimeBlock = timeBlock
 
         return False
-    
 
+    '''
+    Returns a JSON representation of a valid BlindsSchedule object
+    '''
+    @staticmethod
+    def toJson( schedule, pretty=False ): 
+        if schedule is None: 
+            return "{}"
+
+        jsonDict = dict()
+        jsonDict[ "default_mode" ] = schedule._default_mode.name 
+
+        jsonDict[ "default_pos" ] = schedule._default_pos
+        
+        jsonDict[ "schedule" ] = dict() 
+        for day in BlindsSchedule.DAYS_OF_WEEK: 
+            jsonDict[ "schedule" ][ day ] = list( map( lambda x : ScheduleTimeBlock.toJson( x ), schedule._schedule[ day ] ) )
+
+        if pretty:
+            return json.dumps( jsonDict, indent=4 )
+        else:
+            return json.dumps( jsonDict )
+
+    '''
+    
+    '''
+    @staticmethod
+    def fromJson( scheduleJson ): 
+        parsedDict = json.loads( scheduleJson )
+
+        try:
+            default_mode = BlindMode[ parsedDict[ "default_mode" ] ]
+            default_pos = parsedDict[ "default_pos" ]
+            # account for integer casee
+            if default_pos is not None: 
+                default_pos = int( default_pos )
+
+            parsed_sched = parsedDict[ "schedule" ]
+
+            blindsSchedule = BlindsSchedule( default_mode, default_pos )
+            for day in BlindsSchedule.DAYS_OF_WEEK:
+                blindsSchedule._schedule[ day ] = list( map( lambda x: ScheduleTimeBlock.fromJson( x ), parsed_sched[ day ] ) )
+
+            blindsSchedule.validate()
+            blindsSchedule.sortScheduleBlocks()
+            blindsSchedule.checkHasNoTimeConflicts()
+
+            return blindsSchedule
+
+        except KeyError as error:
+            print( "key error:", error)
 
 # ---------- Custom Exception classes --------- #
 # Thrown when the BlindsSchedule object is invalid
@@ -284,26 +361,3 @@ class BlindSchedulingException( Exception ):
 class InvalidTimeBlockException( Exception ):
     pass
 # ---------- END OF Custom Exception classes --------- #
-
-
-b = [ ScheduleTimeBlock( datetime.time( 12, 00), datetime.time( 15, 00 ), BlindMode.LIGHT, None ),
-    ScheduleTimeBlock( datetime.time( 4, 3), datetime.time( 6, 00 ), BlindMode.LIGHT, None ), 
-    ScheduleTimeBlock( datetime.time( 22, 44), datetime.time(23, 00 ), BlindMode.LIGHT, None ), 
-    ScheduleTimeBlock( datetime.time( 23, 38), datetime.time( 23, 59 ), BlindMode.LIGHT, None ), 
-    ScheduleTimeBlock( datetime.time( 10, 22), datetime.time( 12, 00 ), BlindMode.LIGHT, None ), 
-    ScheduleTimeBlock( datetime.time( 00, 32), datetime.time( 1, 00 ), BlindMode.LIGHT, None ) ]
-
-sorted_b = BlindsSchedule.sortedTimeBlockList( b )
-
-for t in sorted_b:
-    print( ScheduleTimeBlock.toJson( t ) )
-
-print( BlindsSchedule.hasConflict( sorted_b ) )
-print( BlindsSchedule.sortedTimeBlockList([]) )
-
-# x = ScheduleTimeBlock.toJson( b ) 
-# print(x)
-# y = ScheduleTimeBlock.fromJson( x )
-# print( y == b )
-# print( b.__dict__ )
-# print( y.__dict__) 
