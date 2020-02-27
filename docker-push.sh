@@ -5,6 +5,7 @@
 # Source common definitions
 source common.sh
 
-# Push image to registry
+# Push images to registry
+docker push $PRE_BUILD_STAGE_IMAGE
 docker push $BUILD_STAGE_IMAGE
 docker push $RPI_IMAGE
