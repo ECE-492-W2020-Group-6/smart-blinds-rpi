@@ -79,13 +79,12 @@ class ScheduleTimeBlock:
 
         self.validate()
 
-    # ---------- Static Methods for Serialization/Deserialization --------- #
+    # ---------- Static Helper Methods for Serialization/Deserialization --------- #
     '''
-    Serialize the time block to JSON format. This is done by generating a dictionary for the json.
-    TODO: Comment
+    Converts a time block into a dictionary that can be easily translated to JSON
     '''
     @staticmethod
-    def toJson( timeBlock ):
+    def toDict( timeBlock ):
         if timeBlock is None: 
             return "{}"
 
@@ -95,7 +94,35 @@ class ScheduleTimeBlock:
         jsonDict[ "mode" ] = timeBlock._mode.name # get the name of the mode, rather than the ENUM value
         jsonDict[ "position" ] = timeBlock._position 
 
-        return json.dumps( jsonDict )
+        return jsonDict
+
+    '''
+    Converts a dictionary into a ScheduleTimeBlock object
+    '''
+    @staticmethod
+    def fromDict( timeBlockDict ):
+        # produce more descriptive error for missing keys 
+        try:
+            # temporary variable used for splitting the time string so we can create a proper datetime object
+            tempTimeList = timeBlockDict[ "start" ].split( ":" )
+
+            # 0 is index of hour, 1 is index of minute, we ignore seconds
+            startTime = datetime.time( int( tempTimeList[ 0 ] ), int( tempTimeList[ 1 ] ) )
+
+            tempTimeList = timeBlockDict[ "end" ].split( ":" )
+            endTime = datetime.time( int( tempTimeList[ 0 ] ), int( tempTimeList[ 1 ] ) )
+
+            return ScheduleTimeBlock( startTime, endTime, BlindMode[ timeBlockDict[ "mode" ] ], timeBlockDict[ "position" ] )
+
+        except KeyError as keyError:
+            raise InvalidTimeBlockException( "Missing key in ScheduleTimeBlock json: " + str( keyError ) )
+    '''
+    Serialize the time block to JSON format. This is done by generating a dictionary for the json.
+    TODO: Comment
+    '''
+    @staticmethod
+    def toJson( timeBlock ):
+        return json.dumps( ScheduleTimeBlock.toDict( timeBlock ) )
 
     '''
     Deserializes the jsonStr into a ScheduleTimeBlock object. Calls validate on the generated ScheduleTimeBlock.
@@ -105,22 +132,7 @@ class ScheduleTimeBlock:
     def fromJson( jsonStr ):
         jsonDict = json.loads( jsonStr )
 
-        # produce more descriptive error for missing keys 
-        try:
-            # temporary variable used for splitting the time string so we can create a proper datetime object
-            tempTimeList = jsonDict[ "start" ].split( ":" )
-
-            # 0 is index of hour, 1 is index of minute, we ignore seconds
-            startTime = datetime.time( int( tempTimeList[ 0 ] ), int( tempTimeList[ 1 ] ) )
-
-            tempTimeList = jsonDict[ "end" ].split( ":" )
-            endTime = datetime.time( int( tempTimeList[ 0 ] ), int( tempTimeList[ 1 ] ) )
-
-            return ScheduleTimeBlock( startTime, endTime, BlindMode[ jsonDict[ "mode" ] ], jsonDict[ "position" ] )
-
-        except KeyError as keyError:
-            raise InvalidTimeBlockException( "Missing key in ScheduleTimeBlock json: " + str( keyError ) )
-        
+        return ScheduleTimeBlock.fromDict( jsonDict )
 
     # ---------- End of Static Methods for Serialization/Deserialization --------- #
 
@@ -312,7 +324,7 @@ class BlindsSchedule:
         
         jsonDict[ "schedule" ] = dict() 
         for day in BlindsSchedule.DAYS_OF_WEEK: 
-            jsonDict[ "schedule" ][ day ] = list( map( lambda x : ScheduleTimeBlock.toJson( x ), schedule._schedule[ day ] ) )
+            jsonDict[ "schedule" ][ day ] = list( map( lambda x : ScheduleTimeBlock.toDict( x ), schedule._schedule[ day ] ) )
 
         if pretty:
             return json.dumps( jsonDict, indent=4 )
@@ -337,7 +349,7 @@ class BlindsSchedule:
 
             blindsSchedule = BlindsSchedule( default_mode, default_pos )
             for day in BlindsSchedule.DAYS_OF_WEEK:
-                blindsSchedule._schedule[ day ] = list( map( lambda x: ScheduleTimeBlock.fromJson( x ), parsed_sched[ day ] ) )
+                blindsSchedule._schedule[ day ] = list( map( lambda x: ScheduleTimeBlock.fromDict( x ), parsed_sched[ day ] ) )
 
             blindsSchedule.validate()
             blindsSchedule.sortScheduleBlocks()
