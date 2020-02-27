@@ -8,5 +8,7 @@ python-dateutil>=2.6.1
 numpy>=1.13.3
 pandas==1.0.1
 pvlib==0.7.1
-RPi.bme==0.2.3
 smbus2==0.3.0
+# Install bme280 package from git since no PyPi packages exist
+# for python versions > 3.6
+git+https://github.com/rm-hull/bme280
