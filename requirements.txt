@@ -1,5 +1,6 @@
 gpiozero==1.5.1
 requests==2.22.0
+flask==1.1.1
 python-dotenv==0.11.0
 pytz>=2017.2
 six>=1.5

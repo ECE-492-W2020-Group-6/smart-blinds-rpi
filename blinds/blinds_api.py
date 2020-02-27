@@ -2,7 +2,6 @@
 File for blinds API related code. 
 Contains classes: 
     Blinds: an abstraction to model the blinds, gives functions for rotation and callse the motor driver
-    BlindsScheduler: class to hold the scheduling mechanism, gives functions for serializaion and deserialization
     SmartBlindsSystem: class to model the whole system, provides functions to handle API requests. 
 
 Also contains custom exception classes to provide more specific exceptions for the smart blinds systems. 
@@ -16,21 +15,9 @@ Author: Alex (Yin) Chen
 Creation Date: February 1, 2020
 '''
 from requests import codes as RESP_CODES
-
-# ---------- API Constants ---------- #
-'''
-These constants define the URL routes that can be used to access the API. 
-'''
-API_BASE_ROUTE = "/api"
-API_VERSION = "/v1"
-
-TEMPERATURE_ROUTE = API_BASE_ROUTE + API_VERSION + "/temp"
-POSITION_ROUTE = API_BASE_ROUTE + API_VERSION + "/pos"
-STATUS_ROUTE = API_BASE_ROUTE + API_VERSION + "/status"
-SCHEDULE_ROUTE = API_BASE_ROUTE + API_VERSION + "/schedule"
-COMMAND_ROUTE = API_BASE_ROUTE + API_VERSION + "/command"
-
-# ---------- END OF API Constants ---------- #
+from piserver.api_routes import *
+from enum import Enum
+from blinds.blinds_schedule import BlindsSchedule
 
 '''
 Class to model blinds as an abstraction. 
@@ -80,25 +67,6 @@ class Blinds:
 
 
 '''
-Class for handling blinds scheduling to define a 
-structure for the schedule and editing functionlity.
-
-Provides functions to serialize and deserialize a BlindsSchedule
-
-TODO: Define the formatting for this.
-'''
-class BlindsSchedule:
-    def __init__( self ):
-        raise NotImplementedError
-
-    def serialize( self ): 
-        raise NotImplementedError
-
-    def serialize( self ): 
-        raise NotImplementedError
-
-
-'''
 Class for modelling the smart blinds system as a whole
 Provides functions for API requests
 '''
@@ -127,7 +95,7 @@ class SmartBlindsSystem:
             "temp_units" : "C"
         }
 
-        resp = (data, RESP_CODES[ "OK" ])
+        resp = ( data, RESP_CODES[ "OK" ])
 
         # TODO: ERROR CASE 
 
@@ -146,7 +114,7 @@ class SmartBlindsSystem:
             "position" : "15"
         }
 
-        resp = (data, RESP_CODES[ "OK" ])
+        resp = ( data, RESP_CODES[ "OK" ] )
 
         # TODO: ERROR CASE 
 
@@ -167,7 +135,7 @@ class SmartBlindsSystem:
             "temp_units" : "C"
         }
 
-        resp = (data, RESP_CODES[ "OK" ])
+        resp = ( data, RESP_CODES[ "OK" ] )
 
         # TODO: ERROR CASE 
 
@@ -187,7 +155,7 @@ class SmartBlindsSystem:
             "schedule" : "SCHEDULE"
         }
 
-        resp = (data, RESP_CODES[ "OK" ])
+        resp = ( data, RESP_CODES[ "OK" ] )
 
         # TODO: ERROR CASE 
 
@@ -200,11 +168,12 @@ class SmartBlindsSystem:
     '''
     def postSchedule( self, schedule ):
         print( "processing request for POST schedule")
+        print( "schedule=\n", schedule )
 
         # TODO: ERROR CASE 
         # TODO: CREATE CASE RESP_CODES[ "CREATED" ] (201)
 
-        return {}, RESP_CODES[ "ACCEPTED" ]
+        return schedule, RESP_CODES[ "ACCEPTED" ]
 
     '''
     API DELETE request handler for schedule
@@ -216,7 +185,7 @@ class SmartBlindsSystem:
 
         # TODO: ERROR CASE 
 
-        return {}, RESP_CODES[ "OK" ]
+        return "{}", RESP_CODES[ "OK" ]
 
     '''
     API POST request handler for command
@@ -234,8 +203,8 @@ class SmartBlindsSystem:
 
         # dummy data for return
         data = {
-            "position" : "11",
-            "time" : "2"
+            "position" : position,
+            "time" : time
         }
         # TODO: ERROR CASE 
 
