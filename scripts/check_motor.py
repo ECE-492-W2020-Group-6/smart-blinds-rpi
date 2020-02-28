@@ -43,4 +43,11 @@ if __name__ == "__main__":
     print("quarter-step reverse")
     driver.step(steps=200, direction=StepDirection.REVERSE)
 
+    print("eigth-step fwd")
+    driver.microstep_resolution = MicroStepResolution.EIGHTH_STEP
+    driver.step(steps=200, direction=StepDirection.FORWARD)
+
+    print("eigth-step rev")
+    driver.microstep_resolution = MicroStepResolution.EIGHTH_STEP
+    driver.step(steps=200, direction=StepDirection.REVERSE)
     driver.close()
