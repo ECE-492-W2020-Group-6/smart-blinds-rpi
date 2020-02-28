@@ -27,13 +27,12 @@ jobs:
     
     # Must be placed after docker build and unit tests since
     # this action seems to reset docker and remove the buildx plugin
-    - name: Authenticate to GitHub Packages Docker Image Registry
+    - name: Authenticate to Docker Hub
       id: docker-login
       uses: azure/docker-login@v1
       with:
-        login-server: docker.pkg.github.com
-        username: $GITHUB_ACTOR
-        password: ${{ secrets.GITHUB_TOKEN }}
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
     - name: Push Docker Images
       id: docker-push
