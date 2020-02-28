@@ -18,16 +18,27 @@ fi
 
 # Pull the latest version of the image, in order to populate the build cache
 # Pipe || true to prevent failures when image doesn't exist in registry
+docker pull $PRE_BUILD_STAGE_IMAGE || true
 docker pull $BUILD_STAGE_IMAGE || true
 docker pull $RPI_IMAGE || true
 
+# Build the pre build stage image:
+docker buildx build --platform linux/arm/v7 --load --target pre-build-image \
+    --build-arg BUILDKIT_INLINE_CACHE=1 \
+    --cache-from=$PRE_BUILD_STAGE_IMAGE \
+    --tag $PRE_BUILD_STAGE_IMAGE .
+
 # Build the build stage image:
 docker buildx build --platform linux/arm/v7 --load --target build-image \
+    --build-arg BUILDKIT_INLINE_CACHE=1 \
+    --cache-from=$PRE_BUILD_STAGE_IMAGE \
     --cache-from=$BUILD_STAGE_IMAGE \
     --tag $BUILD_STAGE_IMAGE .
 
 # Build the runtime stage image:
 docker buildx build --platform linux/arm/v7 --load --target runtime-image \
+    --build-arg BUILDKIT_INLINE_CACHE=1 \
+    --cache-from=$PRE_BUILD_STAGE_IMAGE \
     --cache-from=$BUILD_STAGE_IMAGE \
     --cache-from=$RPI_IMAGE \
     --tag $RPI_IMAGE .

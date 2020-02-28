@@ -1,3 +1,5 @@
+![CD](https://github.com/ECE-492-W2020-Group-6/smart-blinds-rpi/workflows/CD/badge.svg)
+
 # About
 
 Smart Blinds. Runs on Python 3.

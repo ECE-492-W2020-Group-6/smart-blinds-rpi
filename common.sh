@@ -5,9 +5,10 @@
 #!/bin/bash
 set -Eeuo pipefail
 
-GH_PKG_ROOT=docker.pkg.github.com/ece-492-w2020-group-6/smart-blinds-rpi
-BUILD_STAGE_IMAGE=$GH_PKG_ROOT/rpi:build-stage
-RPI_IMAGE=$GH_PKG_ROOT/rpi:latest
+DH_PKG_REPO=ece492w2020group6/smart-blinds-rpi
+PRE_BUILD_STAGE_IMAGE=$DH_PKG_REPO:pre-build-stage
+BUILD_STAGE_IMAGE=$DH_PKG_REPO:build-stage
+RPI_IMAGE=$DH_PKG_REPO:latest
 
 # Enable host x86 machine to run ARM executables with QEMU
 docker run --rm --privileged docker/binfmt:820fdd95a9972a5308930a2bdfb8573dd4447ad3
