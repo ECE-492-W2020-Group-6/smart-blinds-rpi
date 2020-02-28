@@ -47,7 +47,7 @@ class TestControlAlgorithms(unittest.TestCase):
         while(True):
             int_temp = get_int_temp()
             print("Internal Temperature:", int_temp)
-            sleep(1)
+            time.sleep(1)
 
 if __name__ == "__main__":
     unittest.main()
