@@ -244,7 +244,7 @@ class EasyDriver(Device):
     Arguments:
         speed {float} -- speed of driver rotation in Hz
     """
-    @property.setter
+    @speed.setter
     def speed(self, speed):
         self._speed = speed
 
