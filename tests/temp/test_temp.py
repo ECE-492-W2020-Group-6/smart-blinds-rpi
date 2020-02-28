@@ -43,8 +43,10 @@ Inherits from the TestCase class
 class TestControlAlgorithms(unittest.TestCase):
 
     def test_temp_sensor(self):
-        int_temp = get_int_temp()
-        print(int_temp)
+        while(true):
+            int_temp = get_int_temp()
+            print("Internal Temperature:", int_temp)
+            sleep(1)
 
 if __name__ == "__main__":
     unittest.main()
