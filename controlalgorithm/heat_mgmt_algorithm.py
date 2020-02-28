@@ -4,12 +4,12 @@ Author: Sam Wu
 Contents: Algorithm for obtaining the optimal tilt angle for minimum power consumption for energy efficiency
 """
 
-# import bme280
+import bme280
 import datetime
 import dotenv
 import os
 import requests
-# import smbus2
+import smbus2
 import sys
 
 import max_sunlight_algorithm as max_sun
@@ -20,9 +20,9 @@ import user_defined_exceptions as exceptions
 Calibration parameters for the temperature sensor (Bosch BME280)
 """
 port = 1
-address = 0x76
-# bus = smbus2.SMBus(port)
-# calibration_params = bme280.load_calibration_params(bus, address)
+address = 0x77
+bus = smbus2.SMBus(port)
+calibration_params = bme280.load_calibration_params(bus, address)
 
 """
 API Keys and Endpoints
@@ -122,7 +122,9 @@ def evd_avd_to_tilt_angle(evd, avd):
     }
     return mapping[evd, avd]
 
-# get the internal temperature from the Bosch BME280 digital sensor module
+"""
+Get the internal temperature from the Bosch BME280 digital sensor module
+"""
 def get_int_temp():
     # take a single reading and return a compensated_reading object
     data = bme280.sample(bus, address, calibration_params)
