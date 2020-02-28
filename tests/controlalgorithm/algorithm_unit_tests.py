@@ -7,6 +7,7 @@ Contents: Unit tests  for the three algorithms
 3. Composite Algorithm for obtaining the optimal tilt angle for both
 maximum sunlight for user convenience
 and minimum power consumption for energy efficiency
+(Deprecated)
 """
 
 import unittest
