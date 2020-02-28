@@ -50,4 +50,5 @@ if __name__ == "__main__":
     print("eigth-step rev")
     driver.microstep_resolution = MicroStepResolution.EIGHTH_STEP
     driver.step(steps=200, direction=StepDirection.REVERSE)
+
     driver.close()
