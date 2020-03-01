@@ -104,6 +104,7 @@ class EasyDriver(Device):
         self.microstep_resolution = microstep_resolution
         self.power_state = PowerState.OFF
         self.direction = StepDirection.FORWARD
+        self.speed = 10
 
     """Get's step pin
     
@@ -228,6 +229,24 @@ class EasyDriver(Device):
         elif direction == StepDirection.REVERSE:
             self._dir_pin.state = 1
         time.sleep(200/1000000000) # Minimum Command Action Time (200 ns) - See Datasheet
+    
+    """Get's speed of driver
+    
+    Returns:
+        float -- speed of driver rotation in Hz
+    """
+    @property
+    def speed(self):
+        return self._speed
+
+    """Set speed of driver
+    
+    Arguments:
+        speed {float} -- speed of driver rotation in Hz
+    """
+    @speed.setter
+    def speed(self, speed):
+        self._speed = speed
 
     """Makes one step in the current direction of the driver
 
@@ -240,8 +259,7 @@ class EasyDriver(Device):
         time.sleep(1/1000000) # Minimum Step Low Time (1.0 us) - See Datasheet
 
         # Use delay to get smooth action
-        # TODO: Adjust speed?
-        time.sleep(0.1)
+        time.sleep(1/self.speed)
 
     """Makes the specified number of steps in the specified direction
 

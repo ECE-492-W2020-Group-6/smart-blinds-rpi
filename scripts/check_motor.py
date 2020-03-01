@@ -1,3 +1,9 @@
+"""
+Date: Feb 26, 2020
+Author: Ishaat Chowdhury
+Contents: Motor test script
+"""
+
 from easydriver.easydriver import EasyDriver, PowerState, MicroStepResolution,  StepDirection
 from gpiozero.pins.rpigpio import RPiGPIOFactory
 from gpiozero import Device
@@ -41,6 +47,14 @@ if __name__ == "__main__":
     driver.step(steps=200, direction=StepDirection.FORWARD)
 
     print("quarter-step reverse")
+    driver.step(steps=200, direction=StepDirection.REVERSE)
+
+    print("eigth-step fwd")
+    driver.microstep_resolution = MicroStepResolution.EIGHTH_STEP
+    driver.step(steps=200, direction=StepDirection.FORWARD)
+
+    print("eigth-step rev")
+    driver.microstep_resolution = MicroStepResolution.EIGHTH_STEP
     driver.step(steps=200, direction=StepDirection.REVERSE)
 
     driver.close()
