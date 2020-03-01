@@ -256,9 +256,9 @@ class BlindsSchedule:
         if not isinstance( self._default_mode, BlindMode ): 
             raise InvalidBlindsScheduleException( "default mode must be a value from the BlindMode enum" )
 
-        if self._default_mode == BlindMode.MANUAL and self._position is None: 
+        if self._default_mode == BlindMode.MANUAL and self._default_pos is None: 
             raise InvalidBlindsScheduleException( "default position must be specified when using BlindMode.MANUAL" )
-        elif self._default_mode == BlindMode.MANUAL and ( self._position > 100 or self._position < -100 ):
+        elif self._default_mode == BlindMode.MANUAL and ( self._default_pos > 100 or self._default_pos < -100 ):
             raise InvalidBlindsScheduleException( "default position must a value from -100 to 100" )
 
         # checks for _schedule being well formatted
@@ -313,7 +313,7 @@ class BlindsSchedule:
     Returns a JSON representation of a valid BlindsSchedule object
     '''
     @staticmethod
-    def toJson( schedule, pretty=False ): 
+    def toJson( schedule, pretty=False, sortKeys=False ): 
         if schedule is None: 
             return "{}"
 
@@ -327,12 +327,13 @@ class BlindsSchedule:
             jsonDict[ "schedule" ][ day ] = list( map( lambda x : ScheduleTimeBlock.toDict( x ), schedule._schedule[ day ] ) )
 
         if pretty:
-            return json.dumps( jsonDict, indent=4 )
+            return json.dumps( jsonDict, sort_keys=sortKeys, indent=4 )
         else:
-            return json.dumps( jsonDict )
+            return json.dumps( jsonDict, sort_keys=sortKeys )
 
     '''
-    
+    Parses a json representation of the the schedule and returns a new BlindsSchedule object. 
+    Raises InvalidBlindsScheduleException for missing keys in the JSON string. 
     '''
     @staticmethod
     def fromJson( scheduleJson ): 
@@ -358,7 +359,7 @@ class BlindsSchedule:
             return blindsSchedule
 
         except KeyError as error:
-            print( "key error:", error)
+            raise InvalidBlindsScheduleException( "Missing key in json: " + str( error ) ) 
 
 # ---------- Custom Exception classes --------- #
 # Thrown when the BlindsSchedule object is invalid
