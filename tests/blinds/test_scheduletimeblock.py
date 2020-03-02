@@ -95,6 +95,55 @@ class TestScheduleTimeBlock:
             timeBlock.validate()
 
     '''
+    Test for the toDict helper function
+    '''
+    def test_toDict( self ):
+        expectedDict = {
+            "start": datetime.time( 8, 0 ),
+            "end": datetime.time( 19, 54 ),
+            "mode": "MANUAL",
+            "position": 52
+        }
+        
+        timeBlock = ScheduleTimeBlock( expectedDict[ "start" ], expectedDict[ "end" ], BlindMode[ expectedDict[ "mode" ] ], expectedDict[ "position" ] )
+        timeBlockDict = ScheduleTimeBlock.toDict( timeBlock )
+
+        assert( timeBlockDict[ "start" ] == str( expectedDict[ "start" ] ) )
+        assert( timeBlockDict[ "end" ] == str( expectedDict[ "end" ] ) )
+        assert( timeBlockDict[ "mode" ] == expectedDict[ "mode" ] )
+        assert( timeBlockDict[ "position" ] == expectedDict[ "position" ] )
+
+    '''
+    Test for fromDict with no errors
+    '''
+    def test_validFromDict( self ):
+        timeBlockDict = {
+            "start": "08:00:00",
+            "end": "22:11:00",
+            "mode": "MANUAL",
+            "position": 52
+        }
+
+        expectedBlock = ScheduleTimeBlock( datetime.time( 8, 0 ), datetime.time( 22, 11 ), BlindMode.MANUAL, 52 )
+
+        convertedBlock = ScheduleTimeBlock.fromDict( timeBlockDict )
+        
+        assert( convertedBlock == expectedBlock )
+
+    '''
+    Test for fromDict with invalid dictionary
+    '''
+    def test_invalidFromDict( self ):
+        timeBlockDict = {
+            "start": "08:00:00",
+            "mode": "MANUAL",
+            "position": 52
+        }
+
+        with pytest.raises( InvalidTimeBlockException ):
+            convertedBlock = ScheduleTimeBlock.fromDict( timeBlockDict )
+
+    '''
     Test for the toJson seralization function
     '''
     def test_serialize( self ):
