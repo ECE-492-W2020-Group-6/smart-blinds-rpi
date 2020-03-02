@@ -23,7 +23,12 @@ import json
 import datetime 
 
 '''
-Enum type for blind mode.
+Enum type for blind mode. 
+This is used to ensure consistent values for the mode. 
+    LIGHT : Maximum sunlight
+    DARK : Closed, minimum sunlight
+    GREEN : Energy efficiency mode
+    MANUAL : Set custom position
 '''
 class BlindMode( Enum ):
     LIGHT = 1
@@ -32,9 +37,13 @@ class BlindMode( Enum ):
     MANUAL = 4    
 
 '''
-Class represeting the time block elements for the schedule
+Class represeting the time block elements for the schedule. Contains a dictionary schedule mapping days of the week
+to a list of time blocks for that day. 
+A schedule consists of a default mode and position, indicating the state in which the blinds should take when there is no
+specified time block. Thus, time blocks constitute exceptions to the default. 
 '''
 class ScheduleTimeBlock:
+    # private atttributes
     _start = None
     _end = None 
     _mode = None
@@ -81,7 +90,9 @@ class ScheduleTimeBlock:
 
     # ---------- Static Helper Methods for Serialization/Deserialization --------- #
     '''
-    Converts a time block into a dictionary that can be easily translated to JSON
+    Converts a ScheduleTimeBlock into a dictionary that can be easily translated to JSON. 
+    This is also called by the BlindsSchedule toJson function in order to keep the time blocks as dictionaries rather 
+    than converting to escaped strings. 
     '''
     @staticmethod
     def toDict( timeBlock ):
@@ -97,7 +108,9 @@ class ScheduleTimeBlock:
         return jsonDict
 
     '''
-    Converts a dictionary into a ScheduleTimeBlock object
+    Converts a dictionary into a ScheduleTimeBlock object.
+    Missing keys will raise InvalidTimeBlockException, otherwise the new ScheduleTimeBlock object will be returned. 
+    The generated ScheduleTimeBlock will be validated during creation.
     '''
     @staticmethod
     def fromDict( timeBlockDict ):
@@ -116,17 +129,17 @@ class ScheduleTimeBlock:
 
         except KeyError as keyError:
             raise InvalidTimeBlockException( "Missing key in ScheduleTimeBlock json: " + str( keyError ) )
+
     '''
-    Serialize the time block to JSON format. This is done by generating a dictionary for the json.
-    TODO: Comment
+    Serialize the time block to JSON format. This is done by first generating a dictionary for the json.
+    Returns the json dump for the dictionary generated from toDict
     '''
     @staticmethod
     def toJson( timeBlock ):
         return json.dumps( ScheduleTimeBlock.toDict( timeBlock ) )
 
     '''
-    Deserializes the jsonStr into a ScheduleTimeBlock object. Calls validate on the generated ScheduleTimeBlock.
-    
+    Deserializes the json string into a ScheduleTimeBlock object by first converting it into a dictionary and calling fromDict    
     '''
     @staticmethod
     def fromJson( jsonStr ):
@@ -160,6 +173,7 @@ class ScheduleTimeBlock:
         return True
 
     '''
+    Returns whether or not the ScheduleTimeBlock is equal to other. 
     Override default equality check to check internal values of the ScheduleTimeBlock instead of the object identifier.
     '''
     def __eq__( self, other ):
@@ -179,7 +193,7 @@ days of the week mapping to an array of ScheduleTimeBlocks that define the blind
 during that time. That is, the time blocks define behavior differing from the default
 during the specified time block
 
-The general format is: 
+The general json format is: 
 {
     "default_mode": one of {"LIGHT", "DARK", "GREEN", "MANUAL"},
     "default_pos" [required only for default="custom"] : <int> position,
@@ -222,7 +236,8 @@ class BlindsSchedule:
     '''
     Constructor for BlindsSchedule. Initializes it with the default mode and position, and a 
     schedule of time blocks if provided. 
-    Calls self.validate at the end to ensure that the created object is valid. 
+    Calls self.validate at the end to ensure that the created object is valid.
+    The schedule is also sorted and checked for conflicts.  
     '''
     def __init__( self, default_mode, default_pos=None, schedule=None ):
         self._default_mode = default_mode
@@ -273,7 +288,9 @@ class BlindsSchedule:
         return True
 
     '''
-    Checks for scheduling conflicts. Will raise BlindSchedulingException when there conflicting time blocks on a given day. 
+    Checks for scheduling conflicts within a BlindsSchedule object. 
+    Will raise BlindSchedulingException when there conflicting time blocks on a given day. 
+    The should only be called after the time blocks for each day are sorted. 
     Otherwise, returns True when there are no conflicts. 
     '''
     def checkHasNoTimeConflicts( self ):
@@ -285,7 +302,7 @@ class BlindsSchedule:
         return True
 
     '''
-    Returns a list of ScheduleTimeBlocks sorted by start times. Does NOT check for time conflicts.
+    Returns timeBlockList of ScheduleTimeBlocks sorted by start times. Does NOT check for time conflicts.
     Assumes that all the time blocks are valid. 
     '''
     @staticmethod
@@ -310,7 +327,8 @@ class BlindsSchedule:
         return False
 
     '''
-    Returns a JSON representation of a valid BlindsSchedule object
+    Returns a JSON representation of a valid BlindsSchedule object.
+    Provides additional keyword arguments for pretty printing and sorting the json output's keys. 
     '''
     @staticmethod
     def toJson( schedule, pretty=False, sortKeys=False ): 
