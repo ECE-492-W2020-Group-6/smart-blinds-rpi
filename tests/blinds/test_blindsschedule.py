@@ -10,7 +10,11 @@ Creation Date: February 23, 2020
 import pytest
 import datetime
 import json
+import os
 from blinds.blinds_schedule import BlindMode, ScheduleTimeBlock, BlindsSchedule, BlindSchedulingException, InvalidBlindsScheduleException
+
+# path used for opening json files
+testFilePath = os.path.dirname( os.path.abspath( __file__ ) )
 
 class TestScheduleTimeBlock:
     '''
@@ -243,7 +247,7 @@ class TestScheduleTimeBlock:
 
         expectedSched = BlindsSchedule( default_mode, default_pos, sched )
 
-        with open( "schedule1.json", "r" ) as file:
+        with open( os.path.join( testFilePath, "schedule1.json" ), "r" ) as file:
             scheduleJson = file.read()
 
             parsedSched = BlindsSchedule.fromJson( scheduleJson )
@@ -256,7 +260,7 @@ class TestScheduleTimeBlock:
     Test parsing BlindsSchedule from Json with an invalid JSON
     '''
     def test_invalidDeserialization( self ):
-        with open( "schedule2.json", "r" ) as file:
+        with open( os.path.join( testFilePath, "schedule2.json" ), "r" ) as file:
             scheduleJson = file.read()
 
             with pytest.raises( InvalidBlindsScheduleException ):
