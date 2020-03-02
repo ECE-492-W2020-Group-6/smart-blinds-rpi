@@ -212,7 +212,7 @@ class TestScheduleTimeBlock:
         scheduleJson = BlindsSchedule.toJson( blindsSchedule, sortKeys=True )
 
         # open schedule1.json to compare 
-        with open( "schedule1.json", "r" ) as file:
+        with open( os.path.join( testFilePath, "schedule1.json" ), "r" ) as file:
             expectedJson = file.read()
 
             assert( scheduleJson == expectedJson )
