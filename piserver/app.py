@@ -7,12 +7,14 @@ Creation Date: February 1, 2020
 
 
 from flask import Flask, request
+from flask_cors import CORS
 from piserver.api_routes import *
 from blinds.blinds_api import Blinds, SmartBlindsSystem
 
 # flask setup
 app = Flask(__name__)
 app.config['TESTING'] = True
+CORS(app)
 
 # INIT BLINDS SYSTEM RELATED COMPONENTS #
 smart_blinds_system =  SmartBlindsSystem( Blinds( None ), None, None )
