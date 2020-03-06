@@ -89,6 +89,7 @@ class SmartBlindsSystem:
         #https://www.waveshare.com/w/upload/7/75/BME280_Environmental_Sensor_User_Manual_EN.pdf
         self.port = 1
         self.tempSensorAddress = 0x76
+        self.bus = smbus2.SMBus(port)
         self.calibrationParams = bme280.load_calibration_params(self.bus, self.tempSensorAddress)
 
     # ---------- API functions --------- #
@@ -101,7 +102,7 @@ class SmartBlindsSystem:
         print( "processing request for GET temperature")
 
         # take a single reading and return a compensated_reading object
-        sample = bme280.sample(self.bus, self.address, self.calibration_params)
+        sample = bme280.sample(self.bus, self.tempSensorAddress, self.calibrationParams)
 
         # get the temperature attribute from the compensated_reading class 
         int_temp = sample.temperature
