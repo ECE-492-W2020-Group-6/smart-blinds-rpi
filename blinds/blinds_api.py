@@ -82,6 +82,15 @@ class SmartBlindsSystem:
         self._blindsSchedule = blindsSchedule
         self._temperatureHandler = temperatureHandler
 
+        #Calibration parameters for the temperature sensor (Bosch BME280)
+        #i2cdetect -y 1
+        #https://pypi.org/project/RPi.bme280/
+        #https://www.waveshare.com/wiki/BME280_Environmental_Sensor
+        #https://www.waveshare.com/w/upload/7/75/BME280_Environmental_Sensor_User_Manual_EN.pdf
+        self.port = 1
+        self.tempSensorAddress = 0x76
+        self.calibrationParams = bme280.load_calibration_params(self.bus, self.tempSensorAddress)
+
     # ---------- API functions --------- #
     '''
     API GET request handler for temperature
@@ -91,18 +100,8 @@ class SmartBlindsSystem:
     def getTemperature( self ):
         print( "processing request for GET temperature")
 
-        #Calibration parameters for the temperature sensor (Bosch BME280)
-        #i2cdetect -y 1
-        #https://pypi.org/project/RPi.bme280/
-        #https://www.waveshare.com/wiki/BME280_Environmental_Sensor
-        #https://www.waveshare.com/w/upload/7/75/BME280_Environmental_Sensor_User_Manual_EN.pdf
-        port = 1
-        address = 0x76
-        bus = smbus2.SMBus(port)
-        calibration_params = bme280.load_calibration_params(bus, address)
-
         # take a single reading and return a compensated_reading object
-        sample = bme280.sample(bus, address, calibration_params)
+        sample = bme280.sample(self.bus, self.address, self.calibration_params)
 
         # get the temperature attribute from the compensated_reading class 
         int_temp = sample.temperature
