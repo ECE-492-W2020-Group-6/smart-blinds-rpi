@@ -14,6 +14,7 @@ from blinds.blinds_api import Blinds, SmartBlindsSystem
 # flask setup
 app = Flask(__name__)
 app.config['TESTING'] = True
+app.config['CORS_HEADERS'] = 'Content-Type'
 CORS(app)
 
 # INIT BLINDS SYSTEM RELATED COMPONENTS #
