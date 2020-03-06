@@ -6,7 +6,7 @@ pytz>=2017.2
 six>=1.5
 python-dateutil>=2.6.1
 numpy>=1.13.3
-pandas==1.0.1
+pandas>=1.0.1
 pvlib==0.7.1
 smbus2==0.3.0
 Flask-Cors==3.0.8
