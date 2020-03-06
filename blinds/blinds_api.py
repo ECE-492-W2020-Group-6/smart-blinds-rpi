@@ -97,7 +97,7 @@ class SmartBlindsSystem:
         #https://www.waveshare.com/wiki/BME280_Environmental_Sensor
         #https://www.waveshare.com/w/upload/7/75/BME280_Environmental_Sensor_User_Manual_EN.pdf
         port = 1
-        address = 0x77
+        address = 0x76
         bus = smbus2.SMBus(port)
         calibration_params = bme280.load_calibration_params(bus, address)
 
