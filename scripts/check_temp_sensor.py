@@ -5,12 +5,7 @@ Contents: Unit tests for the temperature sensor BME280
 """
 
 import bme280
-import datetime
-import dotenv
-import os
-import requests
 import smbus2
-import sys
 import time
 import unittest
 from blinds.blinds_api import SmartBlindsSystem
