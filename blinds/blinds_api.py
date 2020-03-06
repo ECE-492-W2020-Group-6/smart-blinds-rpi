@@ -18,6 +18,8 @@ from requests import codes as RESP_CODES
 from piserver.api_routes import *
 from enum import Enum
 from blinds.blinds_schedule import BlindsSchedule
+import bme280
+import smbus2
 
 '''
 Class to model blinds as an abstraction. 
@@ -88,10 +90,26 @@ class SmartBlindsSystem:
     '''
     def getTemperature( self ):
         print( "processing request for GET temperature")
-        
+
+        #Calibration parameters for the temperature sensor (Bosch BME280)
+        #i2cdetect -y 1
+        #https://pypi.org/project/RPi.bme280/
+        #https://www.waveshare.com/wiki/BME280_Environmental_Sensor
+        #https://www.waveshare.com/w/upload/7/75/BME280_Environmental_Sensor_User_Manual_EN.pdf
+        port = 1
+        address = 0x77
+        bus = smbus2.SMBus(port)
+        calibration_params = bme280.load_calibration_params(bus, address)
+
+        # take a single reading and return a compensated_reading object
+        sample = bme280.sample(bus, address, calibration_params)
+
+        # get the temperature attribute from the compensated_reading class 
+        int_temp = sample.temperature
+
         # dummy temporary data
         data = {
-            "temperature" : "20",
+            "temperature" : str(int_temp),
             "temp_units" : "C"
         }
 
