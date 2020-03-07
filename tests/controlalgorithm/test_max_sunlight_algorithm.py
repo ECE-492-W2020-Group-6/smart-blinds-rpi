@@ -5,9 +5,6 @@ Contents: Unit test for the Sunlight Algorithm
 for obtaining the optimal tilt angle for maximum sunlight for the user's convenience
 """
 
-import sys
-sys.path.append('../controlalgorithm')
-
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -19,7 +16,9 @@ Test class for the control algorithm tests.
 Inherits from the TestCase class
 
 Methods:
-test_max_sun: Tests the Sunlight Algorithm
+test_max_sun_normal_input: Tests the Sunlight Algorithm with normal inputs
+test_max_sun_edge_input: Edge case testing
+test_max_sun_exception: Test for invalid input
 """
 class TestMaxSun(TestCase):
 
