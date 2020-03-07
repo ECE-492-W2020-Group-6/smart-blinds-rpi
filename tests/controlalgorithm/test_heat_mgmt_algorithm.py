@@ -1,5 +1,5 @@
 """
-Date: Feb 2, 2020
+Date: Mar 7, 2020
 Author: Sam Wu
 Contents: Unit tests for the Heat Algorithm
 for obtaining the optimal tilt angle for minimum power consumption for energy efficiency
