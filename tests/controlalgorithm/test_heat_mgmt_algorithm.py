@@ -5,7 +5,7 @@ Contents: Unit tests for the Heat Algorithm
 for obtaining the optimal tilt angle for minimum power consumption for energy efficiency
 """
 
-from unittest import TestCase
+import unittest
 from unittest.mock import patch
 
 import controlalgorithm.user_defined_exceptions as exceptions
@@ -22,10 +22,10 @@ test_heat_mgmt_normal_input: Tests the Heat Algorithm with normal input
 test_heat_mgmt_exception: Test for invalid input
 test_heat_mgmt_equil: Test for equilibrium condition
 """
-class TestControlAlgorithms(TestCase):
-    @patch('p_data.get_cloud_cover_percentage_and_ext_temp')
-    @patch('temp.getSample')
-    @patch('heat_mgmt.get_solar_angle_weight')
+class TestControlAlgorithms(unittest.TestCase):
+    @patch('persistent_data.get_cloud_cover_percentage_and_ext_temp')
+    @patch('tempsensor.getSample')
+    @patch('heat_mgmt_algorithm.get_solar_angle_weight')
     def test_max_sun_normal_input(self, mock_get_cc_et, mock_get_sam, mock_get_weight):
         mock_get_cc_et.side_effect = [80, -10]
         mock_get_sam.return_value = 20
@@ -52,9 +52,9 @@ class TestControlAlgorithms(TestCase):
         mock_get_weight.return_value = 0.88
         self.assertAlmostEqual(heat_mgmt.heat_mgmt_algorithm(), 46, places=2)
 
-    @patch('p_data.get_cloud_cover_percentage_and_ext_temp')
-    @patch('temp.getSample')
-    @patch('heat_mgmt.get_solar_angle_weight')
+    @patch('persistent_data.get_cloud_cover_percentage_and_ext_temp')
+    @patch('tempsensor.getSample')
+    @patch('heat_mgmt_algorithm.get_solar_angle_weight')
     def test_max_sun_exception(self, mock_get_cc_et, mock_get_sam, mock_get_weight):
         mock_get_cc_et.side_effect = [101, 0]
         mock_get_sam.return_value = 23
@@ -62,9 +62,9 @@ class TestControlAlgorithms(TestCase):
         with self.assertRaises(exceptions.InputError):
             heat_mgmt.heat_mgmt_algorithm()
 
-    @patch('p_data.get_cloud_cover_percentage_and_ext_temp')
-    @patch('temp.getSample')
-    @patch('heat_mgmt.get_solar_angle_weight')
+    @patch('persistent_data.get_cloud_cover_percentage_and_ext_temp')
+    @patch('tempsensor.getSample')
+    @patch('heat_mgmt_algorithm.get_solar_angle_weight')
     def test_heat_mgmt_equil(self):
         mock_get_cc_et.side_effect = [87, 22]
         mock_get_sam.return_value = 22
