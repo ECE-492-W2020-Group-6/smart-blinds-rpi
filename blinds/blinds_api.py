@@ -76,11 +76,13 @@ class SmartBlindsSystem:
     _blinds = None
     _blindsSchedule = None
     _temperatureSensor = None
+    _motorDriver = None
 
-    def __init__( self, blinds, blindsSchedule, temperatureSensor ):
+    def __init__( self, blinds, blindsSchedule, temperatureSensor, motorDriver ):
         self._blinds = blinds 
         self._blindsSchedule = blindsSchedule
         self._temperatureSensor = temperatureSensor
+        self._motorDriver = motorDriver
 
     # ---------- API functions --------- #
     '''
@@ -160,6 +162,21 @@ class SmartBlindsSystem:
         # TODO: ERROR CASE 
 
         return resp
+
+    '''
+    API POST request handler for motor test
+    URL: MOTOR_TEST_ROUTE
+    '''
+    def testMotor( self ):
+        print( "processing request for POST motor test")
+        
+        try:
+            self._motorDriver.microstep_resolution = MicroStepResolution.FULL_STEP
+            self._motorDriver.step(steps=200, direction=StepDirection.FORWARD)
+
+            return ( RESP_CODES[ "OK" ] )
+        except Exception as err:
+            return ( str(err), RESP_CODES[ "BAD_REQUEST" ] )
 
     '''
     API POST request handler for schedule

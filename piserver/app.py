@@ -22,7 +22,27 @@ CORS(app)
 # INIT BLINDS SYSTEM RELATED COMPONENTS #
 temp_sensor = BME280TemperatureSensor() if app.config["USE_TEMP_SENSOR"] \
         else MockTemperatureSensor()
-smart_blinds_system =  SmartBlindsSystem( Blinds( None ), None, temp_sensor )
+
+# Init motor driver
+STEP_PIN = 20
+DIR_PIN = 21
+ENABLE_PIN = 25
+MS1_PIN = 24
+MS2_PIN = 23
+
+rpigpio.setmode(rpigpio.BCM)
+rpigpio.setwarnings(False)
+
+Device.pin_factory = RPiGPIOFactory()
+
+motor_driver = EasyDriver(step_pin=STEP_PIN,
+            dir_pin=DIR_PIN, 
+            ms1_pin=MS1_PIN, 
+            ms2_pin=MS2_PIN,
+            enable_pin=ENABLE_PIN)
+
+# Init SmartBlindsSystem object
+smart_blinds_system = SmartBlindsSystem( Blinds( None ), None, temp_sensor, motor_driver )
 
 @app.route('/')
 def index():
@@ -47,6 +67,12 @@ def handle_position():
 @app.route( STATUS_ROUTE, methods=[ 'GET' ] )
 def get_status():
     return smart_blinds_system.getStatus()
+
+@app.route( MOTOR_TEST_ROUTE, methods=[ 'POST' ] )
+def motor_test():
+    # run the motor test
+    smart_blinds_system.testMotor()
+    return 0    
 
 @app.route( SCHEDULE_ROUTE, methods=[ 'GET', 'POST', 'DELETE' ])
 def handle_schedule():
