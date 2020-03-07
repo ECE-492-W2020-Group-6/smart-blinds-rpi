@@ -18,7 +18,13 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 CORS(app)
 
 # INIT BLINDS SYSTEM RELATED COMPONENTS #
-smart_blinds_system =  SmartBlindsSystem( Blinds( None ), None, None )
+smart_blinds_system = None
+if app.config['ENV'] == "development":
+    from tempsensor.tempsensor import MockTemperatureSensor
+    smart_blinds_system =  SmartBlindsSystem( Blinds( None ), None, MockTemperatureSensor() )
+else:
+    from tempsensor.tempsensor import BME280TemperatureSensor
+    smart_blinds_system = SmartBlindsSystem( Blinds( None ), None, BME280TemperatureSensor() )
 
 @app.route('/')
 def index():

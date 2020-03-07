@@ -9,6 +9,7 @@ import pytest
 from blinds.blinds_api import Blinds, SmartBlindsSystem
 from tempsensor.tempsensor import MockTemperatureSensor
 from requests import codes as RESP_CODES
+from unittest.mock import MagicMock
 
 '''
 Class for testing the blinds API
@@ -30,6 +31,15 @@ class TestSmartBlindsSystemApi:
     '''
     def test_getTemperature( self, blindsSystem ):
         assert ( blindsSystem.getTemperature()[1] == RESP_CODES[ "OK" ] )
+
+    '''
+    Test the handler for GET requests for temperature when exception occurs
+    '''
+    def test_getTemperature_with_exception(self):
+        tempSensor = MockTemperatureSensor()
+        tempSensor.getSample = MagicMock(side_effect=Exception)
+        blindsSystem = SmartBlindsSystem( Blinds( None ), None, tempSensor )
+        assert ( blindsSystem.getTemperature()[1] == RESP_CODES[ "BAD_REQUEST" ] )
 
     '''
     Test the handler for GET requests for position
