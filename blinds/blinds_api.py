@@ -75,22 +75,12 @@ Provides functions for API requests
 class SmartBlindsSystem:
     _blinds = None
     _blindsSchedule = None
-    _temperatureHandler = None
+    _temperatureSensor = None
 
-    def __init__( self, blinds, blindsSchedule, temperatureHandler ):
+    def __init__( self, blinds, blindsSchedule, temperatureSensor ):
         self._blinds = blinds 
         self._blindsSchedule = blindsSchedule
-        self._temperatureHandler = temperatureHandler
-
-        #Calibration parameters for the temperature sensor (Bosch BME280)
-        #i2cdetect -y 1
-        #https://pypi.org/project/RPi.bme280/
-        #https://www.waveshare.com/wiki/BME280_Environmental_Sensor
-        #https://www.waveshare.com/w/upload/7/75/BME280_Environmental_Sensor_User_Manual_EN.pdf
-        self.port = 1
-        self.tempSensorAddress = 0x76
-        self.bus = smbus2.SMBus(self.port)
-        self.calibrationParams = bme280.load_calibration_params(self.bus, self.tempSensorAddress)
+        self._temperatureSensor = temperatureSensor
 
     # ---------- API functions --------- #
     '''
@@ -100,24 +90,16 @@ class SmartBlindsSystem:
     '''
     def getTemperature( self ):
         print( "processing request for GET temperature")
+        
+        try:
+            data = {
+                "temperature" : str(self._temperatureSensor.getSample()),
+                "temp_units" : "C"
+            }
 
-        # take a single reading and return a compensated_reading object
-        sample = bme280.sample(self.bus, self.tempSensorAddress, self.calibrationParams)
-
-        # get the temperature attribute from the compensated_reading class 
-        int_temp = sample.temperature
-
-        # dummy temporary data
-        data = {
-            "temperature" : str(int_temp),
-            "temp_units" : "C"
-        }
-
-        resp = ( data, RESP_CODES[ "OK" ])
-
-        # TODO: ERROR CASE 
-
-        return resp
+            return ( data, RESP_CODES[ "OK" ] )
+        except Exception as err:
+            return ( str(err), RESP_CODES[ "BAD_REQUEST" ] )
 
     '''
     API GET request handler for position
