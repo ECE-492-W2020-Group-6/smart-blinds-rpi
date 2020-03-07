@@ -154,9 +154,9 @@ solar_weight (float): weighting for the tilt angle determined by the cloud cover
 Output:
 tilt_angle_final (float): final tilt angle for maximum energy efficiency
 """
-def heat_mgmt_algorithm(ac_t):
+def heat_mgmt_algorithm():
     cloud_cover_percentage, ext_temp = p_data.get_cloud_cover_percentage_and_ext_temp()
-    act_int_temp = ac_t
+    act_int_temp = get_int_temp()
     des_int_temp = 22
 
     ext_vs_des = temp_to_temp_range(ext_temp - des_int_temp)
@@ -191,5 +191,6 @@ def heat_mgmt_algorithm(ac_t):
     
 if __name__ == "__main__":
     # result = heat_mgmt_algorithm(80, -10, 20, 0.88) # expect cold, overcast and cold, cool: 51*0.88 + (-20)*0.12 = 42.48
-    result = heat_mgmt_algorithm(20)
+    # result = heat_mgmt_algorithm(20)
+    result = heat_mgmt_algorithm()
     print(result)

@@ -24,9 +24,9 @@ solar_weight (float): weighting for the tilt angle determined by the max sunligh
 Output:
 tilt_angle_final (float): final tilt angle for maximum convenience and efficiency
 """
-def composite_algorithm(act_int_temp):
+def composite_algorithm():
     tilt_angle_sunlight = max_sun.max_sunlight_algorithm() 
-    tilt_angle_heat = heat_mgmt.heat_mgmt_algorithm(act_int_temp) 
+    tilt_angle_heat = heat_mgmt.heat_mgmt_algorithm() 
 
     solar_angle_weight = heat_mgmt.get_solar_angle_weight()
     heat_weight = 1 - solar_angle_weight
@@ -36,5 +36,6 @@ def composite_algorithm(act_int_temp):
 
 if __name__ == "__main__":
     # result = composite_algorithm(80, 80, -10, 20, 0.88) # expect -80*0.88 + 42.48*0.12 = -65.3024
-    result = composite_algorithm(20)
+    # result = composite_algorithm(20)
+    result = composite_algorithm()
     print(result)
