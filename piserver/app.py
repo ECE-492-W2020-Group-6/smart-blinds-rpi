@@ -9,13 +9,18 @@ Creation Date: February 1, 2020
 from flask import Flask, request
 from piserver.api_routes import *
 from blinds.blinds_api import Blinds, SmartBlindsSystem
+from blinds.blinds_schedule import BlindsSchedule, BlindMode
 
 # flask setup
 app = Flask(__name__)
 app.config['TESTING'] = True
 
 # INIT BLINDS SYSTEM RELATED COMPONENTS #
-smart_blinds_system =  SmartBlindsSystem( Blinds( None ), None, None )
+# blinds schedule with a default config 
+blindsSchedule = BlindsSchedule( BlindMode.DARK, None, None )
+
+smart_blinds_system = SmartBlindsSystem( Blinds( driver=None ), blindsSchedule, None )
+# END INIT BLINDS SYSTEM RELATED COMPONENTS #
 
 @app.route('/')
 def index():
