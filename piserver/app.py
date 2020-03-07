@@ -13,6 +13,11 @@ from blinds.blinds_api import Blinds, SmartBlindsSystem
 from piserver.config import DevelopmentConfig, ProductionConfig
 from tempsensor.tempsensor import BME280TemperatureSensor, MockTemperatureSensor
 
+from easydriver.easydriver import EasyDriver
+from gpiozero.pins.rpigpio import RPiGPIOFactory
+from gpiozero import Device
+import RPi.GPIO as rpigpio
+
 # flask setup
 app = Flask(__name__)
 cfg = DevelopmentConfig() if app.config["ENV"] == "development" else ProductionConfig()

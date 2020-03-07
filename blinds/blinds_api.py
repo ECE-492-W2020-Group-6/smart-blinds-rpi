@@ -20,6 +20,7 @@ from enum import Enum
 from blinds.blinds_schedule import BlindsSchedule
 import bme280
 import smbus2
+from easydriver.easydriver import MicroStepResolution, StepDirection
 
 '''
 Class to model blinds as an abstraction. 
