@@ -150,7 +150,7 @@ def set_motor_position(angle):
     with open("persistent_data.json", "r+") as fp:
         persistent_data_dict = json.load(fp)
 
-    persistent_data_dict["motor_position"] = 0
+    persistent_data_dict["motor_position"] = angle
 
     with open("persistent_data.json", "w") as fp:
         json.dump(persistent_data_dict, fp, indent=4)

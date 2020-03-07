@@ -4,7 +4,7 @@ Author: Ishaat Chowdhury
 Contents: Motor test script
 """
 
-from easydriver.easydriver import EasyDriver, PowerState, MicroStepResolution,  StepDirection
+from easydriver.easydriver import EasyDriver, PowerState, MicroStepResolution, StepDirection
 from gpiozero.pins.rpigpio import RPiGPIOFactory
 from gpiozero import Device
 import time

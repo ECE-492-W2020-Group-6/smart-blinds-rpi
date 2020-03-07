@@ -1,7 +1,7 @@
 '''
 File for blinds API related code. 
 Contains classes: 
-    Blinds: an abstraction to model the blinds, gives functions for rotation and callse the motor driver
+    Blinds: an abstraction to model the blinds, gives functions for rotation and calls the motor driver
     SmartBlindsSystem: class to model the whole system, provides functions to handle API requests. 
 
 Also contains custom exception classes to provide more specific exceptions for the smart blinds systems. 
@@ -18,6 +18,10 @@ from requests import codes as RESP_CODES
 from piserver.api_routes import *
 from enum import Enum
 from blinds.blinds_schedule import BlindsSchedule
+from controlalgorithm.angle_step_mapper import AngleStepMapper
+from controlalgorithm.persistent_data import get_motor_position
+from controlalgorithm.persistent_data import set_motor_position
+from easydriver.easydriver import EasyDriver, PowerState, MicroStepResolution, StepDirection
 
 '''
 Class to model blinds as an abstraction. 
@@ -25,9 +29,11 @@ Gives the ability to control blinds position
 '''
 class Blinds:
     # Public attributes
+    step_size = MicroStepResolution.FULL_STEP
 
     # Private attributes
     _motorDriver = None
+    _angleStepMapper = None
 
     # current position of the blinds as a rotational %
     # 0 is horizontal, 100 is fully closed "up" positioin, -100 is fully closed "down" position
@@ -37,8 +43,9 @@ class Blinds:
     Constuctor. Set the motor driver.
     TODO fill in other setup procedures for hardware. 
     '''
-    def __init__( self, driver, startingPos = 0 ):
+    def __init__( self, driver, mapper, startingPos = 0 ):
         self._motorDriver = driver
+        self._angleStepMapper = mapper
         self._currentPosition = startingPos
 
         # TODO: OTHER SETUP PROCEDURES
@@ -46,22 +53,40 @@ class Blinds:
 
     '''
     Resets the blinds to the 0% tilt position (horizontal slats)
-    TODO: METHOD STUB
+    TODO: Testing
     '''
     def reset_position( self ):
         print( "resetting to horizontal position" )
+
+        motor_position = get_motor_position() # in degrees from [-90,90]
+        angle_change = 0 - motor_position
+        if motor_position != 0:
+            num_steps, motor_dir = self._angleStepMapper.map_angle_to_step(angle_change, self.step_size)
+            self._motorDriver.microstep_resolution = self.step_size
+            self._motorDriver.step(steps=num_steps, direction=motor_dir)
+            set_motor_position(0)
+
         self._currentPosition = 0
         pass
 
     '''
     Adjust blinds to the position specified as a percentage in [-100%, 100%]
-    TODO: METHOD STUB 
+    TODO: Testing
     '''
     def rotateToPosition( self, position ):
         if ( position > 100 or position < -100 ):
             raise InvalidBlindPositionException( "Position must be between -100 and 100")
 
         print( "rotating to {}%".format( position ) )
+
+        desired_tilt_angle = position * 90 / 100
+        motor_position = get_motor_position() # in degrees from [-90,90]
+        angle_change = desired_tilt_angle - motor_position
+        num_steps, motor_dir = self._angleStepMapper.map_angle_to_step(angle_change, self.step_size)
+        self._motorDriver.microstep_resolution = self.step_size
+        self._motorDriver.step(steps=num_steps, direction=motor_dir)
+        set_motor_position(desired_tilt_angle)
+
         self._currentPosition = position
         pass
 
