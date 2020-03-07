@@ -14,10 +14,12 @@ the response data.
 Author: Alex (Yin) Chen
 Creation Date: February 1, 2020
 '''
+
 from requests import codes as RESP_CODES
 from piserver.api_routes import *
 from enum import Enum
 from blinds.blinds_schedule import BlindsSchedule
+import controlalgorithm.angle_step_mapper
 from controlalgorithm.angle_step_mapper import AngleStepMapper
 from controlalgorithm.persistent_data import get_motor_position
 from controlalgorithm.persistent_data import set_motor_position
@@ -79,7 +81,7 @@ class Blinds:
 
         print( "rotating to {}%".format( position ) )
 
-        desired_tilt_angle = position * 90 / 100
+        desired_tilt_angle = position * angle_step_mapper.ANGLE_POSITION_FACTOR
         motor_position = get_motor_position() # in degrees from [-90,90]
         angle_change = desired_tilt_angle - motor_position
         num_steps, motor_dir = self._angleStepMapper.map_angle_to_step(angle_change, self.step_size)

@@ -4,11 +4,19 @@ Author: Sam Wu
 Contents: Map blind slat tilt angle to stepper motor steps and vice-versa
 """
 
+from easydriver.easydriver import StepDirection
 import max_sunlight_algorithm as max_sun
 import heat_mgmt_algorithm as heat_mgmt
 import composite_algorithm as comp_alg
 import persistent_data as p_data
 import user_defined_exceptions as exceptions
+
+"""
+Constants
+
+ANGLE_POSITION_FACTOR: factor that maps angles to a position in percentage ranging from [-100%, 100%]
+"""
+ANGLE_POSITION_FACTOR = 90 / 100
 
 """
 Class to handle mapping of angle to steps and vice-versa
@@ -25,7 +33,7 @@ class AngleStepMapper:
         step_size (float): number of degrees in a full step of the motor
     Output:
         num_steps (int): discrete number of steps
-        direction (int): CW = 0, CCW = 1
+        direction (int): CW = 0, CCW = 1 (from easydriver.easydriver StepDirection class)
     """
     def map_angle_to_step(tilt_angle, step_size):
         motor_position = p_data.get_motor_position()
@@ -35,9 +43,9 @@ class AngleStepMapper:
         angle_change = tilt_angle - motor_position
 
         if angle_change < 0:
-            direction = 1
+            direction = StepDirection.REVERSE
         else:
-            direction = 0
+            direction = StepDirection.FORWARD
 
         num_steps = angle_change / step_size
 
@@ -48,7 +56,7 @@ class AngleStepMapper:
     For direction, negative tilt angle = CW, positive = CCW
     Inputs:
         num_steps (int): discrete number of steps
-        direction (int): CW = 0, CCW = 1
+        direction (int): CW = 0, CCW = 1 (from easydriver.easydriver StepDirection class)
         step_size (float): number of degrees in a full step of the motor
     Output:
         tilt_angle (float): the change in blind slat tilt angle
