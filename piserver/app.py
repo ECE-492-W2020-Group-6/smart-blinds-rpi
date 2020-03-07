@@ -10,21 +10,19 @@ from flask import Flask, request
 from flask_cors import CORS
 from piserver.api_routes import *
 from blinds.blinds_api import Blinds, SmartBlindsSystem
+from piserver.config import DevelopmentConfig, ProductionConfig
+from tempsensor.tempsensor import BME280TemperatureSensor, MockTemperatureSensor
 
 # flask setup
 app = Flask(__name__)
-app.config['TESTING'] = True
-app.config['CORS_HEADERS'] = 'Content-Type'
+cfg = DevelopmentConfig() if app.config["ENV"] == "development" else ProductionConfig()
+app.config.from_object(cfg)
 CORS(app)
 
 # INIT BLINDS SYSTEM RELATED COMPONENTS #
-smart_blinds_system = None
-if app.config['ENV'] == "development":
-    from tempsensor.tempsensor import MockTemperatureSensor
-    smart_blinds_system =  SmartBlindsSystem( Blinds( None ), None, MockTemperatureSensor() )
-else:
-    from tempsensor.tempsensor import BME280TemperatureSensor
-    smart_blinds_system = SmartBlindsSystem( Blinds( None ), None, BME280TemperatureSensor() )
+temp_sensor = BME280TemperatureSensor() if app.config["USE_TEMP_SENSOR"] \
+        else MockTemperatureSensor()
+smart_blinds_system =  SmartBlindsSystem( Blinds( None ), None, temp_sensor )
 
 @app.route('/')
 def index():
