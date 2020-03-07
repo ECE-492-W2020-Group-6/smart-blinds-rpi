@@ -130,3 +130,30 @@ def get_cloud_cover_percentage_and_ext_temp():
     else:
         cloud_cover_percentage, ext_temp_celsius = update_cloud_cover_percentage_and_ext_temp(lat, lon, timezone_adjustment)    
     return cloud_cover_percentage, ext_temp_celsius
+
+"""
+Read and return the motor position (constrained from -90 to 90 in degrees)
+"""
+def get_motor_position():
+    with open("persistent_data.json", "r+") as fp:
+        persistent_data_dict = json.load(fp)
+
+    if "motor_position" not in persistent_data_dict:
+        persistent_data_dict["motor_position"] = 0
+    
+    return persistent_data_dict["motor_position"]
+    
+"""
+Update the motor position (constrained from -90 to 90 in degrees)
+"""
+def set_motor_position(angle):
+    with open("persistent_data.json", "r+") as fp:
+        persistent_data_dict = json.load(fp)
+
+    persistent_data_dict["motor_position"] = 0
+
+    with open("persistent_data.json", "w") as fp:
+        json.dump(persistent_data_dict, fp, indent=4)
+    
+    return persistent_data_dict["motor_position"]
+    
