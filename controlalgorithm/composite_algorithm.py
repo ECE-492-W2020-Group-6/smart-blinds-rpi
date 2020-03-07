@@ -6,8 +6,8 @@ maximum sunlight for user convenience
 and minimum power consumption for energy efficiency
 """
 
-import max_sunlight_algorithm as max_sun
-import heat_mgmt_algorithm as heat_mgmt
+import controlalgorithm.max_sunlight_algorithm as max_sun
+import controlalgorithm.heat_mgmt_algorithm as heat_mgmt
 
 """
 Composite algorithm that uses the max_sunlight_algorithm and heat_mgmt_algorithm

@@ -12,9 +12,9 @@ import requests
 import smbus2
 import sys
 
-import max_sunlight_algorithm as max_sun
-import persistent_data as p_data
-import user_defined_exceptions as exceptions
+import controlalgorithm.max_sunlight_algorithm as max_sun
+import controlalgorithm.persistent_data as p_data
+import controlalgorithm.user_defined_exceptions as exceptions
 
 """
 Calibration parameters for the temperature sensor (Bosch BME280)

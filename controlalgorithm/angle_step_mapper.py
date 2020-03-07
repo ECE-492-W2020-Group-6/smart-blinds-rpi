@@ -5,11 +5,11 @@ Contents: Map blind slat tilt angle to stepper motor steps and vice-versa
 """
 
 from easydriver.easydriver import StepDirection
-import max_sunlight_algorithm as max_sun
-import heat_mgmt_algorithm as heat_mgmt
-import composite_algorithm as comp_alg
-import persistent_data as p_data
-import user_defined_exceptions as exceptions
+import controlalgorithm.max_sunlight_algorithm as max_sun
+import controlalgorithm.heat_mgmt_algorithm as heat_mgmt
+import controlalgorithm.composite_algorithm as comp_alg
+import controlalgorithm.persistent_data as p_data
+import controlalgorithm.user_defined_exceptions as exceptions
 
 """
 Constants
