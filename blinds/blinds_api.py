@@ -175,7 +175,7 @@ class SmartBlindsSystem:
             self._motorDriver.microstep_resolution = MicroStepResolution.FULL_STEP
             self._motorDriver.step(steps=200, direction=StepDirection.FORWARD)
 
-            return ( RESP_CODES[ "OK" ] )
+            return ( {}, RESP_CODES[ "OK" ] )
         except Exception as err:
             return ( str(err), RESP_CODES[ "BAD_REQUEST" ] )
 
