@@ -5,14 +5,13 @@ Author: Alex (Yin) Chen
 Creation Date: February 1, 2020
 '''
 
-
 from flask import Flask, request
 from flask_cors import CORS
 from piserver.api_routes import *
 from blinds.blinds_api import Blinds, SmartBlindsSystem
 from piserver.config import DevelopmentConfig, ProductionConfig
 from tempsensor.tempsensor import BME280TemperatureSensor, MockTemperatureSensor
-
+from gpiozero.pins.mock import MockFactory
 from easydriver.easydriver import EasyDriver
 from gpiozero.pins.rpigpio import RPiGPIOFactory
 from gpiozero import Device
@@ -35,10 +34,12 @@ ENABLE_PIN = 25
 MS1_PIN = 24
 MS2_PIN = 23
 
-rpigpio.setmode(rpigpio.BCM)
-rpigpio.setwarnings(False)
-
-Device.pin_factory = RPiGPIOFactory()
+if app.config["USE_MOTOR"]:
+    rpigpio.setmode(rpigpio.BCM)
+    rpigpio.setwarnings(False)
+    Device.pin_factory = RPiGPIOFactory()
+else:
+    Device.pin_factory = MockFactory()
 
 motor_driver = EasyDriver(step_pin=STEP_PIN,
             dir_pin=DIR_PIN, 
@@ -76,8 +77,7 @@ def get_status():
 @app.route( MOTOR_TEST_ROUTE, methods=[ 'POST' ] )
 def motor_test():
     # run the motor test
-    smart_blinds_system.testMotor()
-    return 0    
+    return smart_blinds_system.testMotor()
 
 @app.route( SCHEDULE_ROUTE, methods=[ 'GET', 'POST', 'DELETE' ])
 def handle_schedule():
