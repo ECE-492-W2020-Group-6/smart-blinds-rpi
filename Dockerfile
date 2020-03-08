@@ -46,3 +46,10 @@ FROM build-image as runtime-image
 # Copy source code to container
 WORKDIR /src
 COPY . .
+
+ENV FLASK_APP=./piserver/app.py
+ENV FLASK_ENV=development
+ENV USE_TEMP_SENSOR=false
+ENV USE_MOTOR=false
+EXPOSE 5000
+CMD ["flask", "run", "--host=0.0.0.0"]
