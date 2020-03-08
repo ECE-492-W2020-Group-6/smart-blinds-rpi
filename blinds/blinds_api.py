@@ -19,6 +19,8 @@ from piserver.api_routes import *
 from enum import Enum
 from blinds.blinds_schedule import BlindsSchedule, ScheduleTimeBlock
 from blinds.blinds_command import BlindsCommand
+import bme280
+import smbus2
 
 '''
 Class to model blinds as an abstraction. 
@@ -74,12 +76,12 @@ Provides functions for API requests
 class SmartBlindsSystem:
     _blinds = None
     _blindsSchedule = None
-    _temperatureHandler = None
+    _temperatureSensor = None
 
-    def __init__( self, blinds, blindsSchedule, temperatureHandler ):
+    def __init__( self, blinds, blindsSchedule, temperatureSensor ):
         self._blinds = blinds 
         self._blindsSchedule = blindsSchedule
-        self._temperatureHandler = temperatureHandler
+        self._temperatureSensor = temperatureSensor
 
         # the currently active manual command, if any 
         # self._activeCommandTimeBlock should be set to a ScheduleTimeBlock 
@@ -94,17 +96,15 @@ class SmartBlindsSystem:
     def getTemperature( self ):
         print( "processing request for GET temperature")
         
-        # dummy temporary data
-        data = {
-            "temperature" : "20",
-            "temp_units" : "C"
-        }
+        try:
+            data = {
+                "temperature" : str(self._temperatureSensor.getSample()),
+                "temp_units" : "C"
+            }
 
-        resp = ( data, RESP_CODES[ "OK" ])
-
-        # TODO: ERROR CASE 
-
-        return resp
+            return ( data, RESP_CODES[ "OK" ] )
+        except Exception as err:
+            return ( str(err), RESP_CODES[ "BAD_REQUEST" ] )
 
     '''
     API GET request handler for position
