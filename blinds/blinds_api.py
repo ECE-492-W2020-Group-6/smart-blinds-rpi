@@ -200,7 +200,8 @@ class SmartBlindsSystem:
         "position" : integer between -100 and 100
         "duration" : positive integer minutes
     }
-    if time is given value 0, this is change will not be reverted until the next day
+    if time is given value 0, this is change will remain until the next day
+
     URL: COMMAND_ROUTE
     TODO: Testing 
     '''
@@ -235,7 +236,7 @@ class SmartBlindsSystem:
 
         # TODO: ERROR CASE 
 
-        return "{}", RESP_CODES[ "OK" ]
+        return {}, RESP_CODES[ "OK" ]
     
     # ---------- END OF API functions --------- #
 
