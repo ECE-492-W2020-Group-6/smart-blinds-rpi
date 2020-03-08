@@ -9,7 +9,7 @@ import smbus2
 import time
 import unittest
 from blinds.blinds_api import SmartBlindsSystem
-from tempsensor.tempsensor import MockTemperatureSensor
+from tempsensor.tempsensor import BME280TemperatureSensor
 
 """
 Test class for the temp sensor.
@@ -18,7 +18,7 @@ Inherits from the TestCase class
 class TestControlAlgorithms(unittest.TestCase):
 
     def test_temp_sensor(self):
-        system = SmartBlindsSystem(None, None, MockTemperatureSensor()  )
+        system = SmartBlindsSystem(None, None, BME280TemperatureSensor()) 
         count = 0
         while(count < 60):
             int_temp = system.getTemperature()
