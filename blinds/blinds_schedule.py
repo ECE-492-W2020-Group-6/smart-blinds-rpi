@@ -43,6 +43,10 @@ A schedule consists of a default mode and position, indicating the state in whic
 specified time block. Thus, time blocks constitute exceptions to the default. 
 '''
 class ScheduleTimeBlock:
+    # public attributes
+    # static constant for end of day 
+    END_OF_DAY = datetime.time( 23, 59 )
+
     # private atttributes
     _start = None
     _end = None 
@@ -157,10 +161,10 @@ class ScheduleTimeBlock:
     '''
     def validate( self ): 
         if not ( isinstance( self._start, datetime.time ) and isinstance( self._start, datetime.time ) ):
-            raise InvalidTimeBlockException( "start and end times must be instances of datetime.time")
+            raise InvalidTimeBlockException( "start=%s, end=%s start and end times must be instances of datetime.time" % ( self._start, self._end ) )
 
         if self._start >= self._end:
-            raise InvalidTimeBlockException( "start time must be before the end time")
+            raise InvalidTimeBlockException( "start=%s, end=%s start time must be before the end time" % ( self._start, self._end ) )
 
         if not isinstance( self._mode, BlindMode ):
             raise InvalidTimeBlockException( "mode must be a value from the BlindMode enum" )

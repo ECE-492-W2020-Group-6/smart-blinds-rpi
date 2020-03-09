@@ -5,12 +5,10 @@
 # Get common definitions
 source common.sh
 
-# Run image in daemon mode
-docker run -it -d --name rpi-code $RPI_IMAGE
+# Run server if container doesn't exist
+if ! docker container inspect $CONTAINER_NAME > /dev/null 2>&1; then
+    ./run-server.sh
+fi
 
 # Execute shell in container
-docker exec -it rpi-code /bin/bash
-
-# Cleanup container
-docker stop rpi-code
-docker rm rpi-code
+docker exec -it $CONTAINER_NAME /bin/bash
