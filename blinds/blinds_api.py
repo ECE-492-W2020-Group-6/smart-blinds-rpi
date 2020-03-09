@@ -17,7 +17,10 @@ Creation Date: February 1, 2020
 from requests import codes as RESP_CODES
 from piserver.api_routes import *
 from enum import Enum
-from blinds.blinds_schedule import BlindsSchedule
+from blinds.blinds_schedule import BlindsSchedule, ScheduleTimeBlock
+from blinds.blinds_command import BlindsCommand
+import bme280
+import smbus2
 
 '''
 Class to model blinds as an abstraction. 
@@ -73,12 +76,16 @@ Provides functions for API requests
 class SmartBlindsSystem:
     _blinds = None
     _blindsSchedule = None
-    _temperatureHandler = None
+    _temperatureSensor = None
 
-    def __init__( self, blinds, blindsSchedule, temperatureHandler ):
+    def __init__( self, blinds, blindsSchedule, temperatureSensor ):
         self._blinds = blinds 
         self._blindsSchedule = blindsSchedule
-        self._temperatureHandler = temperatureHandler
+        self._temperatureSensor = temperatureSensor
+
+        # the currently active manual command, if any 
+        # self._activeCommandTimeBlock should be set to a ScheduleTimeBlock 
+        self._activeCommandTimeBlock = None
 
     # ---------- API functions --------- #
     '''
@@ -89,17 +96,15 @@ class SmartBlindsSystem:
     def getTemperature( self ):
         print( "processing request for GET temperature")
         
-        # dummy temporary data
-        data = {
-            "temperature" : "20",
-            "temp_units" : "C"
-        }
+        try:
+            data = {
+                "temperature" : str(self._temperatureSensor.getSample()),
+                "temp_units" : "C"
+            }
 
-        resp = ( data, RESP_CODES[ "OK" ])
-
-        # TODO: ERROR CASE 
-
-        return resp
+            return ( data, RESP_CODES[ "OK" ] )
+        except Exception as err:
+            return ( str(err), RESP_CODES[ "BAD_REQUEST" ] )
 
     '''
     API GET request handler for position
@@ -189,26 +194,50 @@ class SmartBlindsSystem:
 
     '''
     API POST request handler for command
-    Handles a command of the form 
+    Handles a command (dict) of the form 
     {
+        "mode" : a string name from the BlindMode enum
         "position" : integer between -100 and 100
-        "time" : positive integer minutes
+        "duration" : positive integer minutes
     }
-    if time is given value 0, this is change will not be reverted
-    URL: COMMAND_ROUTE
-    TODO: METHOD STUB 
-    '''
-    def postBlindsCommand( self, position, time ):
-        print( "processing request for POST command")
+    if time is given value 0, this is change will remain until the next day
 
-        # dummy data for return
-        data = {
-            "position" : position,
-            "time" : time
-        }
+    URL: COMMAND_ROUTE
+    TODO: Testing 
+    '''
+    def postBlindsCommand( self, command ):
+        print( "processing request for POST command")
+        try:
+            blindsCommand = BlindsCommand.fromDict( command )
+
+            # update active command 
+            self._activeCommandTimeBlock = blindsCommand.toTimeBlock()
+
+            # return the resulting time block from the command
+            data = ScheduleTimeBlock.toDict( self._activeCommandTimeBlock ) or {}
+            return data, RESP_CODES[ "ACCEPTED" ]   
+
+            # TODO: Update current state based on the command
+
+        except Exception as err:
+            return ( str(err), RESP_CODES[ "BAD_REQUEST" ] )
+
+    '''
+    API DELETE request handler for command 
+    This should be used to clear the currently active command, restoring the blinds to the scheduled behaviour.
+
+    URL: COMMAND_ROUTE
+    '''
+    def deleteBlindsCommand( self ): 
+        print( "processing request for DELETE command")
+        self._activeCommandTimeBlock = None
+
+        # TODO: Force system update to move blinds to desired position
+
         # TODO: ERROR CASE 
 
-        return data, RESP_CODES[ "ACCEPTED" ]   
+        return {}, RESP_CODES[ "OK" ]
+    
     # ---------- END OF API functions --------- #
 
 # ---------- Custom Exception classes --------- #
