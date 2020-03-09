@@ -59,14 +59,14 @@ def handle_schedule():
     if request.method == 'DELETE':
         return smart_blinds_system.deleteSchedule()
 
-@app.route( COMMAND_ROUTE, methods=[ 'POST' ] )
-def post_command():
-    # TODO parse command, likely extract to new function once we are more clear 
-    # on the schema
-    position = request.form[ 'position' ]
-    duration = request.form[ 'time' ]
+@app.route( COMMAND_ROUTE, methods=[ 'POST', 'DELETE' ] )
+def handle_command():
+    if request.method == 'POST':
+        command = request.json
+        return smart_blinds_system.postBlindsCommand( command )
 
-    return smart_blinds_system.postBlindsCommand( position, duration )
+    if request.method == 'DELETE':
+        return smart_blinds_system.deleteBlindsCommand()
 
 if __name__ == "__main__":
     app.run( debug=True )
