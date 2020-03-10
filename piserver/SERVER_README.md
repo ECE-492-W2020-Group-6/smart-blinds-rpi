@@ -8,7 +8,7 @@ For Linux, use:
     $ export USE_MOTOR=false
 ```
 
-On Windows, use either:
+On Windows(cmd), use either:
 ```
 > set FLASK_ENV=development
 > set FLASK_APP=app.py
@@ -16,10 +16,12 @@ On Windows, use either:
 > set USE_MOTOR=false
 ```
 
-or if the above doesn't work, use
+or if the above doesn't work, use (in powershell)
 ```
 > $env:FLASK_ENV = "development"
 > $env:FLASK_APP = "app.py"
+> $env:USE_TEMP_SENSOR=$false
+> $:env:USE_MOTOR=$false
 ```
 
 Then, the app can be run with 

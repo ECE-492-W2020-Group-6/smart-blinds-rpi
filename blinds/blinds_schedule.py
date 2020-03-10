@@ -27,13 +27,13 @@ Enum type for blind mode.
 This is used to ensure consistent values for the mode. 
     LIGHT : Maximum sunlight
     DARK : Closed, minimum sunlight
-    GREEN : Energy efficiency mode
+    ECO : Energy efficiency mode
     MANUAL : Set custom position
 '''
 class BlindMode( Enum ):
     LIGHT = 1
     DARK = 2 
-    GREEN = 3
+    ECO = 3
     MANUAL = 4    
 
 '''
@@ -199,7 +199,7 @@ during the specified time block
 
 The general json format is: 
 {
-    "default_mode": one of {"LIGHT", "DARK", "GREEN", "MANUAL"},
+    "default_mode": one of {"LIGHT", "DARK", "ECO", "MANUAL"},
     "default_pos" [required only for default="custom"] : <int> position,
     "schedule": {
         "sunday": [ <time block 1>, <time block 2>, ... ],
