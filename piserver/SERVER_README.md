@@ -21,7 +21,7 @@ or if the above doesn't work, use (in powershell)
 > $env:FLASK_ENV = "development"
 > $env:FLASK_APP = "app.py"
 > $env:USE_TEMP_SENSOR=$false
-> $:env:USE_MOTOR=$false
+> $env:USE_MOTOR=$false
 ```
 
 Then, the app can be run with 
