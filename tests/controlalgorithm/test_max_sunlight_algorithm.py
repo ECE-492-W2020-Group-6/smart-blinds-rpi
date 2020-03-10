@@ -22,7 +22,7 @@ test_max_sun_exception: Test for invalid input
 """
 class TestMaxSun(unittest.TestCase):
 
-    @patch('max_sunlight_algorithm.get_solar_angle')
+    @patch('controlalgorithm.max_sunlight_algorithm.get_solar_angle')
     def test_max_sun_normal_input(self, mock_get_solar_angle):
         mock_get_solar_angle.return_value = 80
         self.assertEqual(max_sun.max_sunlight_algorithm(), -80)
@@ -30,7 +30,7 @@ class TestMaxSun(unittest.TestCase):
         mock_get_solar_angle.return_value = 0
         self.assertEqual(max_sun.max_sunlight_algorithm(), 0)
     
-    @patch('max_sunlight_algorithm.get_solar_angle')
+    @patch('controlalgorithm.max_sunlight_algorithm.get_solar_angle')
     def test_max_sun_edge_input(self, mock_get_solar_angle):
         mock_get_solar_angle.return_value = 90
         self.assertEqual(max_sun.max_sunlight_algorithm(), -90)
@@ -38,7 +38,7 @@ class TestMaxSun(unittest.TestCase):
         mock_get_solar_angle.return_value = -90
         self.assertEqual(max_sun.max_sunlight_algorithm(), 90)
 
-    @patch('max_sunlight_algorithm.get_solar_angle')
+    @patch('controlalgorithm.max_sunlight_algorithm.get_solar_angle')
     def test_max_sun_exception(self, mock_get_solar_angle):
         mock_get_solar_angle.return_value = -100
         with self.assertRaises(exceptions.InputError):
