@@ -26,10 +26,10 @@ test_comp_normal: Tests the Composite Algorithm for normal input
 test_comp_exception: Test for invalid input
 """
 class TestControlAlgorithms(TestCase):
-    @patch('max_sunlight_algorithm.get_solar_angle')
-    @patch('persistent_data.get_cloud_cover_percentage_and_ext_temp')
+    @patch('controlalgorithm.max_sunlight_algorithm.get_solar_angle')
+    @patch('controlalgorithm.persistent_data.get_cloud_cover_percentage_and_ext_temp')
     @patch('tempsensor.getSample')
-    @patch('heat_mgmt_algorithm.get_solar_angle_weight')
+    @patch('controlalgorithm.heat_mgmt_algorithm.get_solar_angle_weight')
     def test_comp_normal(self, mock_get_solar_angle, mock_get_cc_et, mock_get_sam, mock_get_weight):
         mock_get_solar_angle = 80        
         mock_get_cc_et.side_effect = [80, -10]
@@ -37,10 +37,10 @@ class TestControlAlgorithms(TestCase):
         mock_get_weight.return_value = 0.88
         self.assertAlmostEqual(comp.composite_algorithm(), -65.3024, places=4)
 
-    @patch('max_sunlight_algorithm.get_solar_angle')
-    @patch('persistent_data.get_cloud_cover_percentage_and_ext_temp')
+    @patch('controlalgorithm.max_sunlight_algorithm.get_solar_angle')
+    @patch('controlalgorithm.persistent_data.get_cloud_cover_percentage_and_ext_temp')
     @patch('tempsensor.getSample')
-    @patch('heat_mgmt_algorithm.get_solar_angle_weight')
+    @patch('controlalgorithm.heat_mgmt_algorithm.get_solar_angle_weight')
     def test_comp_exception(self, mock_get_solar_angle, mock_get_cc_et, mock_get_sam, mock_get_weight):
         mock_get_solar_angle = 810        
         mock_get_cc_et.side_effect = [80, -10]

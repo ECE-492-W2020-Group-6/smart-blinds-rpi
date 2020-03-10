@@ -23,9 +23,9 @@ test_heat_mgmt_exception: Test for invalid input
 test_heat_mgmt_equil: Test for equilibrium condition
 """
 class TestControlAlgorithms(unittest.TestCase):
-    @patch('persistent_data.get_cloud_cover_percentage_and_ext_temp')
+    @patch('controlalgorithm.persistent_data.get_cloud_cover_percentage_and_ext_temp')
     @patch('tempsensor.getSample')
-    @patch('heat_mgmt_algorithm.get_solar_angle_weight')
+    @patch('controlalgorithm.heat_mgmt_algorithm.get_solar_angle_weight')
     def test_max_sun_normal_input(self, mock_get_cc_et, mock_get_sam, mock_get_weight):
         mock_get_cc_et.side_effect = [80, -10]
         mock_get_sam.return_value = 20
@@ -52,9 +52,9 @@ class TestControlAlgorithms(unittest.TestCase):
         mock_get_weight.return_value = 0.88
         self.assertAlmostEqual(heat_mgmt.heat_mgmt_algorithm(), 46, places=2)
 
-    @patch('persistent_data.get_cloud_cover_percentage_and_ext_temp')
+    @patch('controlalgorithm.persistent_data.get_cloud_cover_percentage_and_ext_temp')
     @patch('tempsensor.getSample')
-    @patch('heat_mgmt_algorithm.get_solar_angle_weight')
+    @patch('controlalgorithm.heat_mgmt_algorithm.get_solar_angle_weight')
     def test_max_sun_exception(self, mock_get_cc_et, mock_get_sam, mock_get_weight):
         mock_get_cc_et.side_effect = [101, 0]
         mock_get_sam.return_value = 23
@@ -62,9 +62,9 @@ class TestControlAlgorithms(unittest.TestCase):
         with self.assertRaises(exceptions.InputError):
             heat_mgmt.heat_mgmt_algorithm()
 
-    @patch('persistent_data.get_cloud_cover_percentage_and_ext_temp')
+    @patch('controlalgorithm.persistent_data.get_cloud_cover_percentage_and_ext_temp')
     @patch('tempsensor.getSample')
-    @patch('heat_mgmt_algorithm.get_solar_angle_weight')
+    @patch('controlalgorithm.heat_mgmt_algorithm.get_solar_angle_weight')
     def test_heat_mgmt_equil(self):
         mock_get_cc_et.side_effect = [87, 22]
         mock_get_sam.return_value = 22
