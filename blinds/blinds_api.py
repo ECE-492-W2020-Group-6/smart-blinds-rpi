@@ -180,14 +180,14 @@ class SmartBlindsSystem:
         
         try:
             # data =  BlindsSchedule.toJson( self._blindsSchedule )
-            data = json.loads( BlindsSchedule.toJson( self._blindsSchedule ) )
+            data = BlindsSchedule.toDict( self._blindsSchedule )
 
             resp = ( data, RESP_CODES[ "OK" ] )
 
         # TODO Other error cases
 
         except Exception as err: # catch all others and return an error message 
-            #TODO : More specialized handling for safety, we don't want just any error messages being spit to the user, for 
+            # TODO : More specialized handling for safety, we don't want just any error messages being spit to the user, for 
             # now, in the testing phase we return the error 
             return str( err ), RESP_CODES[ "BAD_REQUEST" ]
 
@@ -203,7 +203,7 @@ class SmartBlindsSystem:
         print( "received schedule=\n", schedule )
 
         try:
-            self._blindsSchedule = BlindsSchedule.fromJson( schedule )
+            self._blindsSchedule = BlindsSchedule.fromDict( schedule )
             return schedule, RESP_CODES[ "ACCEPTED" ]
 
         except ( InvalidBlindsScheduleException, BlindSchedulingException ) as err:
@@ -228,7 +228,7 @@ class SmartBlindsSystem:
             curr_default_pos = self._blindsSchedule._default_pos
             self._blindsSchedule = BlindsSchedule( curr_default_mode, curr_default_pos )
 
-            return BlindsSchedule.toJson( self._blindsSchedule ), RESP_CODES[ "OK" ]
+            return BlindsSchedule.toDict( self._blindsSchedule ), RESP_CODES[ "OK" ]
 
         # TODO Other error cases
 

@@ -23,15 +23,14 @@ CORS(app)
 # INIT BLINDS SYSTEM RELATED COMPONENTS #
 temp_sensor = BME280TemperatureSensor() if app.config["USE_TEMP_SENSOR"] \
         else MockTemperatureSensor()
-smart_blinds_system =  SmartBlindsSystem( Blinds( None ), None, temp_sensor )
+#TODO: Init a motor hanndler here
 
-@app.route('/')
-def index():
-    return 'Server Works!'
-  
-@app.route('/greet')
-def say_hello():
-    return 'Hello from Server'
+# default empty schedule 
+app_schedule = BlindsSchedule( BlindMode.DARK, None, None )
+
+smart_blinds_system =  SmartBlindsSystem( Blinds( None ), app_schedule, temp_sensor )
+
+# END OF INIT BLINDS SYSTEM RELATED COMPONENTS #
 
 @app.route( TEMPERATURE_ROUTE, methods=[ 'GET' ] )
 def get_temperature():
@@ -49,13 +48,13 @@ def handle_position():
 def get_status():
     return smart_blinds_system.getStatus()
 
-@app.route( SCHEDULE_ROUTE, methods=[ 'GET', 'POST', 'DELETE' ])
+@app.route( SCHEDULE_ROUTE, methods=[ 'GET', 'POST', 'DELETE' ] )
 def handle_schedule():
     if request.method == 'GET':
         return smart_blinds_system.getSchedule()
     
     if request.method == 'POST':
-        return smart_blinds_system.postSchedule( request.form )
+        return smart_blinds_system.postSchedule( request.json )
 
     if request.method == 'DELETE':
         return smart_blinds_system.deleteSchedule()
