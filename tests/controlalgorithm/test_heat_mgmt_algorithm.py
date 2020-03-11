@@ -27,6 +27,8 @@ class TestControlAlgorithms(unittest.TestCase):
     @patch('tempsensor.getSample')
     @patch('controlalgorithm.heat_mgmt_algorithm.get_solar_angle_weight')
     def test_max_sun_normal_input(self, mock_get_cc_et, mock_get_sam, mock_get_weight):
+        tempSensor = MockTemperatureSensor()
+
         mock_get_cc_et.side_effect = [80, -10]
         mock_get_sam.return_value = 20
         mock_get_weight.return_value = 0.88
@@ -56,6 +58,8 @@ class TestControlAlgorithms(unittest.TestCase):
     @patch('tempsensor.getSample')
     @patch('controlalgorithm.heat_mgmt_algorithm.get_solar_angle_weight')
     def test_max_sun_exception(self, mock_get_cc_et, mock_get_sam, mock_get_weight):
+        tempSensor = MockTemperatureSensor()
+
         mock_get_cc_et.side_effect = [101, 0]
         mock_get_sam.return_value = 23
         mock_get_weight.return_value = 0.5
@@ -66,6 +70,8 @@ class TestControlAlgorithms(unittest.TestCase):
     @patch('tempsensor.getSample')
     @patch('controlalgorithm.heat_mgmt_algorithm.get_solar_angle_weight')
     def test_heat_mgmt_equil(self):
+        tempSensor = MockTemperatureSensor()
+        
         mock_get_cc_et.side_effect = [87, 22]
         mock_get_sam.return_value = 22
         mock_get_weight.return_value = 0.88
