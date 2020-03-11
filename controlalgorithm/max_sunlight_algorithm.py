@@ -11,8 +11,8 @@ import pandas
 import pvlib.solarposition
 import requests
 
-import persistent_data as p_data
-import user_defined_exceptions as exceptions
+import controlalgorithm.persistent_data as p_data
+import controlalgorithm.user_defined_exceptions as exceptions
 
 """
 Given a lat/lon, get the solar angle from pvlib.solarposition

@@ -4,25 +4,15 @@ Author: Sam Wu
 Contents: Algorithm for obtaining the optimal tilt angle for minimum power consumption for energy efficiency
 """
 
-import bme280
 import datetime
 import dotenv
 import os
 import requests
-import smbus2
 import sys
 
-import max_sunlight_algorithm as max_sun
-import persistent_data as p_data
-import user_defined_exceptions as exceptions
-
-"""
-Calibration parameters for the temperature sensor (Bosch BME280)
-"""
-port = 1
-address = 0x77
-bus = smbus2.SMBus(port)
-calibration_params = bme280.load_calibration_params(bus, address)
+import controlalgorithm.max_sunlight_algorithm as max_sun
+import controlalgorithm.persistent_data as p_data
+import controlalgorithm.user_defined_exceptions as exceptions
 
 """
 API Keys and Endpoints
@@ -121,17 +111,6 @@ def evd_avd_to_tilt_angle(evd, avd):
         ("equilibrium", "cold"): -10,
     }
     return mapping[evd, avd]
-
-"""
-Get the internal temperature from the Bosch BME280 digital sensor module
-"""
-def get_int_temp():
-    # take a single reading and return a compensated_reading object
-    data = bme280.sample(bus, address, calibration_params)
-
-    # get the temperature attribute from the compensated_reading class 
-    int_temp = data.temperature
-    return int_temp
 
 # formula to determine the weight for cloud cover in the algorithm based on angle of the sun
 def get_solar_angle_weight():
