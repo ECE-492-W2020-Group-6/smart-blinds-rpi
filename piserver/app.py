@@ -7,15 +7,22 @@ Creation Date: February 1, 2020
 
 
 from flask import Flask, request
+from flask_cors import CORS
 from piserver.api_routes import *
 from blinds.blinds_api import Blinds, SmartBlindsSystem
+from piserver.config import DevelopmentConfig, ProductionConfig
+from tempsensor.tempsensor import BME280TemperatureSensor, MockTemperatureSensor
 
 # flask setup
 app = Flask(__name__)
-app.config['TESTING'] = True
+cfg = DevelopmentConfig() if app.config["ENV"] == "development" else ProductionConfig()
+app.config.from_object(cfg)
+CORS(app)
 
 # INIT BLINDS SYSTEM RELATED COMPONENTS #
-smart_blinds_system =  SmartBlindsSystem( Blinds( None ), None, None )
+temp_sensor = BME280TemperatureSensor() if app.config["USE_TEMP_SENSOR"] \
+        else MockTemperatureSensor()
+smart_blinds_system =  SmartBlindsSystem( Blinds( None ), None, temp_sensor )
 
 @app.route('/')
 def index():
@@ -52,14 +59,14 @@ def handle_schedule():
     if request.method == 'DELETE':
         return smart_blinds_system.deleteSchedule()
 
-@app.route( COMMAND_ROUTE, methods=[ 'POST' ] )
-def post_command():
-    # TODO parse command, likely extract to new function once we are more clear 
-    # on the schema
-    position = request.form[ 'position' ]
-    duration = request.form[ 'time' ]
+@app.route( COMMAND_ROUTE, methods=[ 'POST', 'DELETE' ] )
+def handle_command():
+    if request.method == 'POST':
+        command = request.json
+        return smart_blinds_system.postBlindsCommand( command )
 
-    return smart_blinds_system.postBlindsCommand( position, duration )
+    if request.method == 'DELETE':
+        return smart_blinds_system.deleteBlindsCommand()
 
 if __name__ == "__main__":
     app.run( debug=True )
