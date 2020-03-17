@@ -17,7 +17,8 @@ Creation Date: February 1, 2020
 from requests import codes as RESP_CODES
 from piserver.api_routes import *
 from enum import Enum
-from blinds.blinds_schedule import BlindsSchedule, ScheduleTimeBlock
+from blinds.blinds_schedule import BlindsSchedule, ScheduleTimeBlock, InvalidBlindsScheduleException, BlindSchedulingException
+import json
 from blinds.blinds_command import BlindsCommand
 import bme280
 import smbus2
@@ -38,6 +39,7 @@ class Blinds:
 
     '''
     Constuctor. Set the motor driver.
+    Set driver to None to allow for testing without a driver. 
     TODO fill in other setup procedures for hardware. 
     '''
     def __init__( self, driver, startingPos = 0 ):
@@ -53,7 +55,13 @@ class Blinds:
     '''
     def reset_position( self ):
         print( "resetting to horizontal position" )
+
+        if self._motorDriver is not None: 
+            # control motor using the driver
+            pass
+
         self._currentPosition = 0
+
         pass
 
     '''
@@ -65,7 +73,13 @@ class Blinds:
             raise InvalidBlindPositionException( "Position must be between -100 and 100")
 
         print( "rotating to {}%".format( position ) )
+
+        if self._motorDriver is not None: 
+            # control motor using the driver
+            pass
+
         self._currentPosition = position
+        
         pass
 
 
@@ -78,6 +92,16 @@ class SmartBlindsSystem:
     _blindsSchedule = None
     _temperatureSensor = None
 
+    '''
+    Costructor for modelling the system of blinds as a whole. 
+    Provides functions for API requests
+
+    Arguments:
+        blinds : a Blinds object for controlling the blinds themselves. This is currently left as a single object for proof 
+            concept, but can be extended to a list of Blinds objects for controlling multiple blinds throughout the house
+        blindsSchedule : a BlindsSchedule object to control the schedule of the blinds
+        temperatureSensor : an abstraction of the temperature sensor controls 
+    '''
     def __init__( self, blinds, blindsSchedule, temperatureSensor ):
         self._blinds = blinds 
         self._blindsSchedule = blindsSchedule
@@ -154,31 +178,41 @@ class SmartBlindsSystem:
     def getSchedule( self ):
         print( "processing request for GET schedule")
         
-        # dummy temporary data
-        # TODO: schedule will likely need to be serialized
-        data = {
-            "schedule" : "SCHEDULE"
-        }
+        try:
+            # data =  BlindsSchedule.toJson( self._blindsSchedule )
+            data = BlindsSchedule.toDict( self._blindsSchedule )
 
-        resp = ( data, RESP_CODES[ "OK" ] )
+            resp = ( data, RESP_CODES[ "OK" ] )
 
-        # TODO: ERROR CASE 
+        # TODO Other error cases
+
+        except Exception as err: # catch all others and return an error message 
+            # TODO : More specialized handling for safety, we don't want just any error messages being spit to the user, for 
+            # now, in the testing phase we return the error 
+            return str( err ), RESP_CODES[ "BAD_REQUEST" ]
 
         return resp
 
     '''
-    API POST request handler for schedule
+    API POST request handler for schedule. For now accept only POST request of a full schedule
     URL: SCHEDULE_ROUTE
     TODO: METHOD STUB 
     '''
     def postSchedule( self, schedule ):
         print( "processing request for POST schedule")
-        print( "schedule=\n", schedule )
+        print( "received schedule=\n", schedule )
 
-        # TODO: ERROR CASE 
-        # TODO: CREATE CASE RESP_CODES[ "CREATED" ] (201)
+        try:
+            self._blindsSchedule = BlindsSchedule.fromDict( schedule )
+            return schedule, RESP_CODES[ "ACCEPTED" ]
 
-        return schedule, RESP_CODES[ "ACCEPTED" ]
+        except ( InvalidBlindsScheduleException, BlindSchedulingException ) as err:
+            return str( err ), RESP_CODES[ "BAD_REQUEST" ]
+
+        except Exception as err: # catch all others and return an error message 
+            #TODO : More specialized handling for safety, we don't want just any error messages being spit to the user, for 
+            # now, in the testing phase we return the error 
+            return str( err ), RESP_CODES[ "BAD_REQUEST" ]
 
     '''
     API DELETE request handler for schedule
@@ -188,10 +222,29 @@ class SmartBlindsSystem:
     def deleteSchedule( self ):
         print( "processing request for DELETE schedule")
 
-        # TODO: ERROR CASE 
+        try:
+            # reset the schedule to an empty schedule, but keep the current default behavior 
+            self._blindsSchedule._schedule = {
+                BlindsSchedule.SUNDAY : [],
+                BlindsSchedule.MONDAY : [],
+                BlindsSchedule.TUESDAY : [],
+                BlindsSchedule.WEDNESDAY : [],
+                BlindsSchedule.THURSDAY : [],
+                BlindsSchedule.FRIDAY : [],
+                BlindsSchedule.SATURDAY : []
+            }
 
-        return "{}", RESP_CODES[ "OK" ]
+            # TODO: force update on current state
 
+            return BlindsSchedule.toDict( self._blindsSchedule ), RESP_CODES[ "OK" ]
+
+        # TODO Other error cases
+
+        except Exception as err: # catch all others and return an error message 
+            #TODO : More specialized handling for safety, we don't want just any error messages being spit to the user, for 
+            # now, in the testing phase we return the error 
+            return str( err ), RESP_CODES[ "BAD_REQUEST" ]
+ 
     '''
     API POST request handler for command
     Handles a command (dict) of the form 

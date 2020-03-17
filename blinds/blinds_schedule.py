@@ -27,13 +27,13 @@ Enum type for blind mode.
 This is used to ensure consistent values for the mode. 
     LIGHT : Maximum sunlight
     DARK : Closed, minimum sunlight
-    GREEN : Energy efficiency mode
+    ECO : Energy efficiency mode
     MANUAL : Set custom position
 '''
 class BlindMode( Enum ):
     LIGHT = 1
     DARK = 2 
-    GREEN = 3
+    ECO = 3
     MANUAL = 4    
 
 '''
@@ -199,7 +199,7 @@ during the specified time block
 
 The general json format is: 
 {
-    "default_mode": one of {"LIGHT", "DARK", "GREEN", "MANUAL"},
+    "default_mode": one of {"LIGHT", "DARK", "ECO", "MANUAL"},
     "default_pos" [required only for default="custom"] : <int> position,
     "schedule": {
         "sunday": [ <time block 1>, <time block 2>, ... ],
@@ -331,44 +331,36 @@ class BlindsSchedule:
         return False
 
     '''
-    Returns a JSON representation of a valid BlindsSchedule object.
-    Provides additional keyword arguments for pretty printing and sorting the json output's keys. 
+    Returns a JSON-like dictionary representation of the BlindsSchedule object.
     '''
     @staticmethod
-    def toJson( schedule, pretty=False, sortKeys=False ): 
-        if schedule is None: 
-            return "{}"
-
+    def toDict( schedule ):
         jsonDict = dict()
-        jsonDict[ "default_mode" ] = schedule._default_mode.name 
+        if schedule is not None: 
+            jsonDict[ "default_mode" ] = schedule._default_mode.name 
 
-        jsonDict[ "default_pos" ] = schedule._default_pos
-        
-        jsonDict[ "schedule" ] = dict() 
-        for day in BlindsSchedule.DAYS_OF_WEEK: 
-            jsonDict[ "schedule" ][ day ] = list( map( lambda x : ScheduleTimeBlock.toDict( x ), schedule._schedule[ day ] ) )
+            jsonDict[ "default_pos" ] = schedule._default_pos
+            
+            jsonDict[ "schedule" ] = dict() 
+            for day in BlindsSchedule.DAYS_OF_WEEK: 
+                jsonDict[ "schedule" ][ day ] = list( map( lambda x : ScheduleTimeBlock.toDict( x ), schedule._schedule[ day ] ) )
 
-        if pretty:
-            return json.dumps( jsonDict, sort_keys=sortKeys, indent=4 )
-        else:
-            return json.dumps( jsonDict, sort_keys=sortKeys )
+        return jsonDict
 
     '''
-    Parses a json representation of the the schedule and returns a new BlindsSchedule object. 
-    Raises InvalidBlindsScheduleException for missing keys in the JSON string. 
+    Returns a BlindsSchedule object based on the provided JSON-like dictionary. 
+    Raises InvalidBlindsScheduleException for missing keys.
     '''
     @staticmethod
-    def fromJson( scheduleJson ): 
-        parsedDict = json.loads( scheduleJson )
-
+    def fromDict( jsonDict ):
         try:
-            default_mode = BlindMode[ parsedDict[ "default_mode" ] ]
-            default_pos = parsedDict[ "default_pos" ]
+            default_mode = BlindMode[ jsonDict[ "default_mode" ] ]
+            default_pos = jsonDict[ "default_pos" ]
             # account for integer casee
             if default_pos is not None: 
                 default_pos = int( default_pos )
 
-            parsed_sched = parsedDict[ "schedule" ]
+            parsed_sched = jsonDict[ "schedule" ]
 
             blindsSchedule = BlindsSchedule( default_mode, default_pos )
             for day in BlindsSchedule.DAYS_OF_WEEK:
@@ -382,6 +374,27 @@ class BlindsSchedule:
 
         except KeyError as error:
             raise InvalidBlindsScheduleException( "Missing key in json: " + str( error ) ) 
+
+    '''
+    Returns a JSON representation of a valid BlindsSchedule object.
+    Provides additional keyword arguments for pretty printing and sorting the json output's keys. 
+    '''
+    @staticmethod
+    def toJson( schedule, pretty=False, sortKeys=False ): 
+        if pretty:
+            return json.dumps( BlindsSchedule.toDict( schedule ), sort_keys=sortKeys, indent=4 )
+        else:
+            return json.dumps( BlindsSchedule.toDict( schedule ), sort_keys=sortKeys )
+
+    '''
+    Parses a json representation of the the schedule and returns a new BlindsSchedule object. 
+    Raises InvalidBlindsScheduleException for missing keys in the JSON string. 
+    '''
+    @staticmethod
+    def fromJson( scheduleJson ): 
+        parsedDict = json.loads( scheduleJson )
+
+        return BlindsSchedule.fromDict( parsedDict )
 
 # ---------- Custom Exception classes --------- #
 # Thrown when the BlindsSchedule object is invalid

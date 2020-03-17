@@ -8,7 +8,7 @@ Creation Date: February 2, 2020
 import pytest
 import datetime
 from blinds.blinds_api import Blinds, SmartBlindsSystem
-from blinds.blinds_schedule import BlindMode, ScheduleTimeBlock
+from blinds.blinds_schedule import BlindMode, ScheduleTimeBlock, BlindsSchedule
 from blinds.blinds_command import BlindsCommand
 from tempsensor.tempsensor import MockTemperatureSensor
 from requests import codes as RESP_CODES
@@ -27,7 +27,7 @@ class TestSmartBlindsSystemApi:
     '''
     @pytest.fixture()
     def blindsSystem( self ):
-        yield SmartBlindsSystem( Blinds( None ), None, MockTemperatureSensor() )
+        yield SmartBlindsSystem( Blinds( None ), BlindsSchedule( BlindMode.DARK ), MockTemperatureSensor() )
 
     '''
     Test the handler for GET requests for temperature
@@ -63,10 +63,33 @@ class TestSmartBlindsSystemApi:
         assert ( blindsSystem.getSchedule()[1] == RESP_CODES[ "OK" ] )
 
     '''
-    Test the handler for POST requests for schedule
+    Test the handler for POST requests for schedule. Uses an arbitrary schedule
     '''
     def test_postSchedule( self, blindsSystem ):
-        assert ( blindsSystem.postSchedule( "SCHEDULE" )[1] == RESP_CODES[ "ACCEPTED" ] )
+        test_sched = BlindsSchedule( BlindMode.DARK, schedule={
+            BlindsSchedule.SUNDAY: [
+                ScheduleTimeBlock( datetime.time( 23, 38), datetime.time( 23, 59 ), BlindMode.LIGHT, None ), 
+                ScheduleTimeBlock( datetime.time( 5, 00), datetime.time( 7, 00 ), BlindMode.MANUAL, 15 )
+            ],
+            BlindsSchedule.MONDAY : [ 
+                ScheduleTimeBlock( datetime.time( 12, 00), datetime.time( 15, 00 ), BlindMode.LIGHT, None ),
+                ScheduleTimeBlock( datetime.time( 4, 3), datetime.time( 6, 00 ), BlindMode.LIGHT, None )
+            ],
+            BlindsSchedule.TUESDAY: [
+                ScheduleTimeBlock( datetime.time( 10, 22), datetime.time( 12, 00 ), BlindMode.DARK, None )
+            ],
+            BlindsSchedule.WEDNESDAY: [],
+            BlindsSchedule.THURSDAY: [],
+            BlindsSchedule.FRIDAY: [
+                ScheduleTimeBlock( datetime.time( 22, 44), datetime.time(23, 00 ), BlindMode.LIGHT, None ), 
+                ScheduleTimeBlock( datetime.time( 23, 38), datetime.time( 23, 59 ), BlindMode.ECO, None ), 
+                ScheduleTimeBlock( datetime.time( 00, 32), datetime.time( 1, 00 ), BlindMode.LIGHT, None )
+            ],
+            BlindsSchedule.SATURDAY: []
+        } )
+
+
+        assert ( blindsSystem.postSchedule( BlindsSchedule.toDict( test_sched ) )[1] == RESP_CODES[ "ACCEPTED" ] )
 
     '''
     Test the handler for DELETE requests for schedule
