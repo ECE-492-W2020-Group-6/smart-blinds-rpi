@@ -34,7 +34,7 @@ class MockTemperatureSensor(TemperatureSensor):
         int - temperature sample
     """
     def getSample(self):
-        return 25
+        return 20
 
 """ BME 280 Temperature Sensor """
 class BME280TemperatureSensor(TemperatureSensor):

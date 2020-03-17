@@ -11,6 +11,7 @@ from unittest.mock import patch
 import controlalgorithm.user_defined_exceptions as exceptions
 import controlalgorithm.heat_mgmt_algorithm as heat_mgmt
 import controlalgorithm.persistent_data as p_data
+from tempsensor.tempsensor import MockTemperatureSensor
 
 """
 Test class for the control algorithm tests.
@@ -27,23 +28,19 @@ class TestControlAlgorithms(unittest.TestCase):
     def test_max_sun_normal_input(self, mock_get_weight, mock_get_cc_et):
         mock_get_cc_et.return_value = (80, -10)
         mock_get_weight.return_value = 0.88
-        self.assertAlmostEqual(heat_mgmt.heat_mgmt_algorithm(20), 42.48, places=2)
+        self.assertAlmostEqual(heat_mgmt.heat_mgmt_algorithm( MockTemperatureSensor() ), 42.48, places=2)
 
         mock_get_cc_et.return_value = (80, -10)
         mock_get_weight.return_value = 0
-        self.assertAlmostEqual(heat_mgmt.heat_mgmt_algorithm(20), -20, places=2)
+        self.assertAlmostEqual(heat_mgmt.heat_mgmt_algorithm( MockTemperatureSensor() ), -20, places=2)
 
         mock_get_cc_et.return_value = (80, -10)
         mock_get_weight.return_value = 1
-        self.assertAlmostEqual(heat_mgmt.heat_mgmt_algorithm(20), 51, places=2)
+        self.assertAlmostEqual(heat_mgmt.heat_mgmt_algorithm( MockTemperatureSensor() ), 51, places=2)
 
         mock_get_cc_et.return_value = (87, 22)
         mock_get_weight.return_value = 0.88
-        self.assertAlmostEqual(heat_mgmt.heat_mgmt_algorithm(20), -10, places=2)
-
-        mock_get_cc_et.return_value = (87, 20)
-        mock_get_weight.return_value = 0.88
-        self.assertAlmostEqual(heat_mgmt.heat_mgmt_algorithm(22), 46, places=2)
+        self.assertAlmostEqual(heat_mgmt.heat_mgmt_algorithm( MockTemperatureSensor() ), -10, places=2)
 
     @patch('controlalgorithm.persistent_data.get_cloud_cover_percentage_and_ext_temp')
     @patch('controlalgorithm.heat_mgmt_algorithm.get_solar_angle_weight')
@@ -51,15 +48,15 @@ class TestControlAlgorithms(unittest.TestCase):
         mock_get_cc_et.return_value = (101, 0)
         mock_get_weight.return_value = 0.5
         with self.assertRaises(exceptions.InputError):
-            heat_mgmt.heat_mgmt_algorithm(23)
+            heat_mgmt.heat_mgmt_algorithm( MockTemperatureSensor() )
 
     @patch('controlalgorithm.persistent_data.get_cloud_cover_percentage_and_ext_temp')
     @patch('controlalgorithm.heat_mgmt_algorithm.get_solar_angle_weight')
     def test_heat_mgmt_equil(self, mock_get_weight, mock_get_cc_et):
-        mock_get_cc_et.return_value = (87, 22)
+        mock_get_cc_et.return_value = (87, 20)
         mock_get_weight.return_value = 0.88
         # in actuality motor should do nothing
-        self.assertAlmostEqual(heat_mgmt.heat_mgmt_algorithm(22), 0, places=0)
+        self.assertAlmostEqual(heat_mgmt.heat_mgmt_algorithm( MockTemperatureSensor() ), 0, places=0)
 
 if __name__ == "__main__":
     unittest.main()
