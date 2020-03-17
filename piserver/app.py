@@ -32,6 +32,16 @@ smart_blinds_system =  SmartBlindsSystem( Blinds( None ), app_schedule, temp_sen
 
 # END OF INIT BLINDS SYSTEM RELATED COMPONENTS #
 
+# Basic response routes for testing purposes 
+@app.route('/')
+def index():
+    return 'Server Works!'
+
+@app.route('/greet')
+def say_hello():
+    return 'Hello from Server'
+
+# Routes for blinds system
 @app.route( TEMPERATURE_ROUTE, methods=[ 'GET' ] )
 def get_temperature():
     return smart_blinds_system.getTemperature()

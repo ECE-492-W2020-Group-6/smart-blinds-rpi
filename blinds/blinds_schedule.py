@@ -331,7 +331,7 @@ class BlindsSchedule:
         return False
 
     '''
-    Returns a JSON-like dictionary representation of the BllindsSchedule object.
+    Returns a JSON-like dictionary representation of the BlindsSchedule object.
     '''
     @staticmethod
     def toDict( schedule ):

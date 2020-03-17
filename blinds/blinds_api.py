@@ -99,8 +99,8 @@ class SmartBlindsSystem:
     Arguments:
         blinds : a Blinds object for controlling the blinds themselves. This is currently left as a single object for proof 
             concept, but can be extended to a list of Blinds objects for controlling multiple blinds throughout the house
-        blindsSchedule : a BlidnsSchedule object to control the schedule of the blinds
-        temperatureHandler : an abstraction of the temperature sensor controls 
+        blindsSchedule : a BlindsSchedule object to control the schedule of the blinds
+        temperatureSensor : an abstraction of the temperature sensor controls 
     '''
     def __init__( self, blinds, blindsSchedule, temperatureSensor ):
         self._blinds = blinds 
