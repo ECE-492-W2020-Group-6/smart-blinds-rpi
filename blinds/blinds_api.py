@@ -224,9 +224,17 @@ class SmartBlindsSystem:
 
         try:
             # reset the schedule to an empty schedule, but keep the current default behavior 
-            curr_default_mode = self._blindsSchedule._default_mode
-            curr_default_pos = self._blindsSchedule._default_pos
-            self._blindsSchedule = BlindsSchedule( curr_default_mode, curr_default_pos )
+            self._blindsSchedule._schedule = {
+                BlindsSchedule.SUNDAY : [],
+                BlindsSchedule.MONDAY : [],
+                BlindsSchedule.TUESDAY : [],
+                BlindsSchedule.WEDNESDAY : [],
+                BlindsSchedule.THURSDAY : [],
+                BlindsSchedule.FRIDAY : [],
+                BlindsSchedule.SATURDAY : []
+            }
+
+            # TODO: force update on current state
 
             return BlindsSchedule.toDict( self._blindsSchedule ), RESP_CODES[ "OK" ]
 
