@@ -88,7 +88,7 @@ class Blinds:
 
         print( "rotating to {}%".format( position ) )
 
-        desired_tilt_angle = position * angle_step_mapper.ANGLE_POSITION_FACTOR
+        desired_tilt_angle = position * ANGLE_POSITION_FACTOR
         motor_position = get_motor_position() # in degrees from [-90,90]
         angle_change = desired_tilt_angle - motor_position
         num_steps, motor_dir = self._angleStepMapper.map_angle_to_step(angle_change, self.step_size)
