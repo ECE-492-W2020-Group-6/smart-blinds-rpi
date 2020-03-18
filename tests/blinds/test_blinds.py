@@ -9,6 +9,7 @@ Creation Date: February 1, 2020
 
 import pytest
 from blinds.blinds_api import Blinds, InvalidBlindPositionException
+from controlalgorithm.angle_step_mapper import AngleStepMapper
 
 class TestBlinds:
 
@@ -16,7 +17,9 @@ class TestBlinds:
     Test rotateToPosition to check that the internal position is updated. 
     '''
     def test_rotate( self ):
-        blinds = Blinds( None, None )
+        mapper = AngleStepMapper()
+        blinds = Blinds( None, mapper )
+        
         assert ( blinds._currentPosition == 0 )
 
         blinds.rotateToPosition( 12 )
