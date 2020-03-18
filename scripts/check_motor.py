@@ -4,7 +4,7 @@ Author: Ishaat Chowdhury
 Contents: Motor test script
 """
 
-from easydriver.easydriver import EasyDriver, PowerState, MicroStepResolution,  StepDirection
+from easydriver.easydriver import EasyDriver, PowerState, MicroStepResolution, StepDirection
 from gpiozero.pins.rpigpio import RPiGPIOFactory
 from gpiozero import Device
 import time
@@ -49,11 +49,11 @@ if __name__ == "__main__":
     print("quarter-step reverse")
     driver.step(steps=200, direction=StepDirection.REVERSE)
 
-    print("eigth-step fwd")
+    print("eighth-step fwd")
     driver.microstep_resolution = MicroStepResolution.EIGHTH_STEP
     driver.step(steps=200, direction=StepDirection.FORWARD)
 
-    print("eigth-step rev")
+    print("eighth-step rev")
     driver.microstep_resolution = MicroStepResolution.EIGHTH_STEP
     driver.step(steps=200, direction=StepDirection.REVERSE)
 

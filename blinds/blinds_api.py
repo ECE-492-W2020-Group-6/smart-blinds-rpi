@@ -22,6 +22,7 @@ import json
 from blinds.blinds_command import BlindsCommand
 import bme280
 import smbus2
+from easydriver.easydriver import MicroStepResolution, StepDirection
 
 '''
 Class to model blinds as an abstraction. 
@@ -192,6 +193,21 @@ class SmartBlindsSystem:
             return str( err ), RESP_CODES[ "BAD_REQUEST" ]
 
         return resp
+
+    '''
+    API POST request handler for motor test
+    URL: MOTOR_TEST_ROUTE
+    '''
+    def testMotor( self ):
+        print( "processing request for POST motor test")
+        
+        try:
+            self._blinds._motorDriver.microstep_resolution = MicroStepResolution.FULL_STEP
+            self._blinds._motorDriver.step(steps=200, direction=StepDirection.FORWARD)
+
+            return ( {}, RESP_CODES[ "OK" ] )
+        except Exception as err:
+            return ( str(err), RESP_CODES[ "BAD_REQUEST" ] )
 
     '''
     API POST request handler for schedule. For now accept only POST request of a full schedule
