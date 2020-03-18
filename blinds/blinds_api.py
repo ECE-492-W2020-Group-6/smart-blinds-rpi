@@ -23,7 +23,7 @@ import smbus2
 
 from blinds.blinds_command import BlindsCommand
 from blinds.blinds_schedule import BlindsSchedule, ScheduleTimeBlock, InvalidBlindsScheduleException, BlindSchedulingException
-import controlalgorithm.angle_step_mapper
+from controlalgorithm.angle_step_mapper import ANGLE_POSITION_FACTOR
 from controlalgorithm.angle_step_mapper import AngleStepMapper
 from controlalgorithm.persistent_data import get_motor_position
 from controlalgorithm.persistent_data import set_motor_position
