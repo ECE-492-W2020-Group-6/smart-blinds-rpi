@@ -16,7 +16,7 @@ class TestBlinds:
     Test rotateToPosition to check that the internal position is updated. 
     '''
     def test_rotate( self ):
-        blinds = Blinds( None )
+        blinds = Blinds( None, None )
         assert ( blinds._currentPosition == 0 )
 
         blinds.rotateToPosition( 12 )
@@ -36,7 +36,7 @@ class TestBlinds:
     These are expected to throw InvalidBlindPositionException
     '''
     def test_invalid_rotation( self ):
-        blinds = Blinds( None )
+        blinds = Blinds( None, None )
         with pytest.raises( InvalidBlindPositionException ):
             blinds.rotateToPosition( 101 )
 
@@ -53,7 +53,7 @@ class TestBlinds:
     Test for resetPosition. Checks that the internal position was reset to 0. 
     '''
     def test_reset_position( self ):
-        blinds = Blinds( None )
+        blinds = Blinds( None, None )
         blinds._currentPosition = 20
         blinds.reset_position()
 
