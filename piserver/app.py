@@ -9,6 +9,7 @@ from flask import Flask, request
 from flask_cors import CORS
 from piserver.api_routes import *
 from blinds.blinds_api import Blinds, SmartBlindsSystem
+from blinds.blinds_schedule import BlindsSchedule, BlindMode
 from piserver.config import DevelopmentConfig, ProductionConfig
 from tempsensor.tempsensor import BME280TemperatureSensor, MockTemperatureSensor
 from gpiozero.pins.mock import MockFactory
@@ -49,15 +50,25 @@ motor_driver = EasyDriver(step_pin=STEP_PIN,
 
 # Init SmartBlindsSystem object
 smart_blinds_system = SmartBlindsSystem( Blinds( None ), None, temp_sensor, motor_driver )
+#TODO: Init a motor handler here
 
+# default empty schedule 
+app_schedule = BlindsSchedule( BlindMode.DARK, None, None )
+
+smart_blinds_system =  SmartBlindsSystem( Blinds( None ), app_schedule, temp_sensor )
+
+# END OF INIT BLINDS SYSTEM RELATED COMPONENTS #
+
+# Basic response routes for testing purposes 
 @app.route('/')
 def index():
     return 'Server Works!'
-  
+
 @app.route('/greet')
 def say_hello():
     return 'Hello from Server'
 
+# Routes for blinds system
 @app.route( TEMPERATURE_ROUTE, methods=[ 'GET' ] )
 def get_temperature():
     return smart_blinds_system.getTemperature()
@@ -85,7 +96,7 @@ def handle_schedule():
         return smart_blinds_system.getSchedule()
     
     if request.method == 'POST':
-        return smart_blinds_system.postSchedule( request.form )
+        return smart_blinds_system.postSchedule( request.json )
 
     if request.method == 'DELETE':
         return smart_blinds_system.deleteSchedule()
