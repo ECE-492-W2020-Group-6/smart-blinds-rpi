@@ -53,7 +53,7 @@ class TestControlAlgorithms(unittest.TestCase):
 
     @patch('controlalgorithm.persistent_data.get_cloud_cover_percentage_and_ext_temp')
     @patch('controlalgorithm.heat_mgmt_algorithm.get_solar_angle_weight')
-    @patch.object(tempsensor.tempsensor.MockTemperatureSensor, 'getSample')
+    @patch.object(tempsensor.MockTemperatureSensor, 'getSample')
     def test_heat_mgmt_equil(self, mock_get_temp, mock_get_weight, mock_get_cc_et):
         mock_get_cc_et.return_value = (87, 22)
         mock_get_weight.return_value = 0.88
