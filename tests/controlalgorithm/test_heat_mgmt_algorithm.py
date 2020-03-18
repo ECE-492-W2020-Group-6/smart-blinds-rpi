@@ -6,6 +6,7 @@ for obtaining the optimal tilt angle for minimum power consumption for energy ef
 """
 
 import unittest
+from unittest.mock import MagicMock
 from unittest.mock import patch
 
 import controlalgorithm.user_defined_exceptions as exceptions
@@ -52,11 +53,16 @@ class TestControlAlgorithms(unittest.TestCase):
 
     @patch('controlalgorithm.persistent_data.get_cloud_cover_percentage_and_ext_temp')
     @patch('controlalgorithm.heat_mgmt_algorithm.get_solar_angle_weight')
-    def test_heat_mgmt_equil(self, mock_get_weight, mock_get_cc_et):
-        mock_get_cc_et.return_value = (87, 20)
+    @patch('')
+    def test_heat_mgmt_equil(self, mock_get_temp, mock_get_weight, mock_get_cc_et):
+        mock_get_cc_et.return_value = (87, 22)
         mock_get_weight.return_value = 0.88
+
+        tempsensor = MockTemperatureSensor()
+        tempsensor.getSample = MagicMock(return_value=22)
+        
         # in actuality motor should do nothing
-        self.assertAlmostEqual(heat_mgmt.heat_mgmt_algorithm( MockTemperatureSensor() ), 0, places=0)
+        self.assertAlmostEqual(heat_mgmt.heat_mgmt_algorithm( tempsensor ), 0, places=0)
 
 if __name__ == "__main__":
     unittest.main()
