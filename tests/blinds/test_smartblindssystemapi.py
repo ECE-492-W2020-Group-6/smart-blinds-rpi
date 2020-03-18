@@ -27,7 +27,7 @@ class TestSmartBlindsSystemApi:
     '''
     @pytest.fixture()
     def blindsSystem( self ):
-        yield SmartBlindsSystem( Blinds( None ), BlindsSchedule( BlindMode.DARK ), MockTemperatureSensor() )
+        yield SmartBlindsSystem( Blinds( None ), BlindsSchedule( BlindMode.DARK ), MockTemperatureSensor(), None )
 
     '''
     Test the handler for GET requests for temperature

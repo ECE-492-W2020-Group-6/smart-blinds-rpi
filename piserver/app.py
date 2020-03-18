@@ -48,14 +48,13 @@ motor_driver = EasyDriver(step_pin=STEP_PIN,
             ms2_pin=MS2_PIN,
             enable_pin=ENABLE_PIN)
 
-# Init SmartBlindsSystem object
-smart_blinds_system = SmartBlindsSystem( Blinds( None ), None, temp_sensor, motor_driver )
 #TODO: Init a motor handler here
 
 # default empty schedule 
 app_schedule = BlindsSchedule( BlindMode.DARK, None, None )
 
-smart_blinds_system =  SmartBlindsSystem( Blinds( None ), app_schedule, temp_sensor )
+# Init SmartBlindsSystem object
+smart_blinds_system =  SmartBlindsSystem( Blinds( motor_driver ), app_schedule, temp_sensor )
 
 # END OF INIT BLINDS SYSTEM RELATED COMPONENTS #
 

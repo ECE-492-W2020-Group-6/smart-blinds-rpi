@@ -92,7 +92,6 @@ class SmartBlindsSystem:
     _blinds = None
     _blindsSchedule = None
     _temperatureSensor = None
-    _motorDriver = None
 
     '''
     Costructor for modelling the system of blinds as a whole. 
@@ -104,11 +103,10 @@ class SmartBlindsSystem:
         blindsSchedule : a BlindsSchedule object to control the schedule of the blinds
         temperatureSensor : an abstraction of the temperature sensor controls 
     '''
-    def __init__( self, blinds, blindsSchedule, temperatureSensor, motorDriver ):
+    def __init__( self, blinds, blindsSchedule, temperatureSensor ):
         self._blinds = blinds 
         self._blindsSchedule = blindsSchedule
         self._temperatureSensor = temperatureSensor
-        self._motorDriver = motorDriver
 
         # the currently active manual command, if any 
         # self._activeCommandTimeBlock should be set to a ScheduleTimeBlock 
@@ -204,8 +202,8 @@ class SmartBlindsSystem:
         print( "processing request for POST motor test")
         
         try:
-            self._motorDriver.microstep_resolution = MicroStepResolution.FULL_STEP
-            self._motorDriver.step(steps=200, direction=StepDirection.FORWARD)
+            self._blinds._motorDriver.microstep_resolution = MicroStepResolution.FULL_STEP
+            self._blinds._motorDriver.step(steps=200, direction=StepDirection.FORWARD)
 
             return ( {}, RESP_CODES[ "OK" ] )
         except Exception as err:
