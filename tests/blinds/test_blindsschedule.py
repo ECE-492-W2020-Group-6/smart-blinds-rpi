@@ -40,7 +40,7 @@ class TestScheduleTimeBlock:
             BlindsSchedule.THURSDAY: [],
             BlindsSchedule.FRIDAY: [
                 ScheduleTimeBlock( datetime.time( 22, 44), datetime.time(23, 00 ), BlindMode.LIGHT, None ), 
-                ScheduleTimeBlock( datetime.time( 23, 38), datetime.time( 23, 59 ), BlindMode.GREEN, None ), 
+                ScheduleTimeBlock( datetime.time( 23, 38), datetime.time( 23, 59 ), BlindMode.ECO, None ), 
                 ScheduleTimeBlock( datetime.time( 00, 32), datetime.time( 1, 00 ), BlindMode.LIGHT, None )
             ],
             BlindsSchedule.SATURDAY: []
@@ -151,7 +151,7 @@ class TestScheduleTimeBlock:
             BlindsSchedule.FRIDAY: [
                 ScheduleTimeBlock( datetime.time( 00, 32), datetime.time( 6, 00 ), BlindMode.LIGHT, None ),
                 ScheduleTimeBlock( datetime.time( 16, 44), datetime.time(23, 00 ), BlindMode.LIGHT, None ), 
-                ScheduleTimeBlock( datetime.time( 23, 38), datetime.time( 23, 59 ), BlindMode.GREEN, None )
+                ScheduleTimeBlock( datetime.time( 23, 38), datetime.time( 23, 59 ), BlindMode.ECO, None )
             ],
             BlindsSchedule.SATURDAY: []
         }
@@ -169,7 +169,7 @@ class TestScheduleTimeBlock:
             BlindsSchedule.FRIDAY: [
                 ScheduleTimeBlock( datetime.time( 00, 32), datetime.time( 20, 00 ), BlindMode.LIGHT, None ),
                 ScheduleTimeBlock( datetime.time( 16, 44), datetime.time(23, 00 ), BlindMode.LIGHT, None ), 
-                ScheduleTimeBlock( datetime.time( 23, 38), datetime.time( 23, 59 ), BlindMode.GREEN, None )
+                ScheduleTimeBlock( datetime.time( 23, 38), datetime.time( 23, 59 ), BlindMode.ECO, None )
             ],
             BlindsSchedule.SATURDAY: []
         }
@@ -200,7 +200,7 @@ class TestScheduleTimeBlock:
             BlindsSchedule.THURSDAY: [],
             BlindsSchedule.FRIDAY: [
                 ScheduleTimeBlock( datetime.time( 22, 44), datetime.time(23, 00 ), BlindMode.LIGHT, None ), 
-                ScheduleTimeBlock( datetime.time( 23, 38), datetime.time( 23, 59 ), BlindMode.GREEN, None ), 
+                ScheduleTimeBlock( datetime.time( 23, 38), datetime.time( 23, 59 ), BlindMode.ECO, None ), 
                 ScheduleTimeBlock( datetime.time( 00, 32), datetime.time( 1, 00 ), BlindMode.LIGHT, None )
             ],
             BlindsSchedule.SATURDAY: []
@@ -239,7 +239,7 @@ class TestScheduleTimeBlock:
             BlindsSchedule.THURSDAY: [],
             BlindsSchedule.FRIDAY: [
                 ScheduleTimeBlock( datetime.time( 22, 44), datetime.time(23, 00 ), BlindMode.LIGHT, None ), 
-                ScheduleTimeBlock( datetime.time( 23, 38), datetime.time( 23, 59 ), BlindMode.GREEN, None ), 
+                ScheduleTimeBlock( datetime.time( 23, 38), datetime.time( 23, 59 ), BlindMode.ECO, None ), 
                 ScheduleTimeBlock( datetime.time( 00, 32), datetime.time( 1, 00 ), BlindMode.LIGHT, None )
             ],
             BlindsSchedule.SATURDAY: []
