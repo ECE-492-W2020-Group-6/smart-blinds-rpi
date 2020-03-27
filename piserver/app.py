@@ -7,6 +7,7 @@ Creation Date: February 1, 2020
 
 from flask import Flask, request
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
 from piserver.api_routes import *
 from blinds.blinds_api import Blinds, SmartBlindsSystem
 from blinds.blinds_schedule import BlindsSchedule, BlindMode
