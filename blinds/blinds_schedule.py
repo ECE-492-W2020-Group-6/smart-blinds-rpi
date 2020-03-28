@@ -345,6 +345,16 @@ class BlindsSchedule:
     '''
     @staticmethod
     def tzFromGmtString( gmtStr ):
+        tzLocationRegex = r"\S+\/\S+" # matches things like Canada/Mountain
+        matches = re.search( tzLocationRegex, gmtStr)
+        if matches:
+            try:
+                fullStr = matches.group(0)
+                tz = timezone( fullStr )
+                return tz
+            except Exception as e:
+                raise InvalidTimeZoneStringException( "Invalid timezone string: " + gmtStr + ", causing error: " + str(e) )
+
         tzRegex = r"GMT([+-])(\d{4})" # matches things like GMT-0600
         gmtTimezoneBase = "Etc/GMT"
         
@@ -356,7 +366,7 @@ class BlindsSchedule:
         plusminus = matches.group(1)
         offset = int( matches.group(2) ) / 100
 
-        if ( offset != int( offset ) or offset > 12 or offset < -14 ):
+        if ( offset != int( offset ) or ( plusminus == "+" and offset > 12 ) or ( plusminus == "-" and offset > 14 ) ):
             raise InvalidTimeZoneStringException( "Offset must be an integer number of hours between -14 and 12" )
         
         return timezone( gmtTimezoneBase + plusminus + str( int( offset ) ) )
@@ -366,19 +376,24 @@ class BlindsSchedule:
     '''
     @staticmethod
     def tzToGmtString( tz ):
-        tzNameRegex = r"Etc/GMT([+-])(\d+)"
-        matches = re.search( tzNameRegex, tz.zone)
-        plusminus = matches.group(1)
-        offset = int( matches.group(2) )
+        tzGmtNameRegex = r"Etc/GMT([+-])(\d+)"
+        matches = re.search( tzGmtNameRegex, tz.zone)
 
-        # convert offset to the 4 digit form
-        offset = offset * 100
-        if offset >= 1000:
-            offset_str = str( offset )
+        if matches:
+            plusminus = matches.group(1)
+            offset = int( matches.group(2) )
+
+            # convert offset to the 4 digit form
+            offset = offset * 100
+            if offset >= 1000:
+                offset_str = str( offset )
+            else:
+                offset_str = "0" + str( offset )
+
+            return "GMT" + plusminus + offset_str
+
         else:
-            offset_str = "0" + str( offset )
-
-        return "GMT" + plusminus + offset_str
+            return tz.zone
 
     '''
     Returns a JSON-like dictionary representation of the BlindsSchedule object.

@@ -197,17 +197,18 @@ class TestScheduleTimeBlock:
         parsedTz = BlindsSchedule.tzFromGmtString( tzString )
         assert( parsedTz.zone == expectedTzName )
 
+        # Timezone using name
+        tzString = "Canada/Mountain"
+        expectedTzName = "Canada/Mountain"
+        parsedTz = BlindsSchedule.tzFromGmtString( tzString )
+        assert( parsedTz.zone == expectedTzName )
+
     '''
     Test for timezone string parsing with error. This tests highlights unsupported formats
     '''    
     def test_invalidTzParsing( self ):
         # Timezone with improper formatting
         tzString = "GMT+2"
-        with pytest.raises( InvalidTimeZoneStringException ):
-            parsedTz = BlindsSchedule.tzFromGmtString( tzString )
-        
-        # Timezone using name
-        tzString = "Canada/Mountain"
         with pytest.raises( InvalidTimeZoneStringException ):
             parsedTz = BlindsSchedule.tzFromGmtString( tzString )
 
