@@ -12,11 +12,8 @@ from blinds.blinds_api import Blinds, SmartBlindsSystem
 from blinds.blinds_schedule import BlindsSchedule, BlindMode
 from piserver.config import DevelopmentConfig, ProductionConfig
 from tempsensor.tempsensor import BME280TemperatureSensor, MockTemperatureSensor
-from gpiozero.pins.mock import MockFactory
 from easydriver.easydriver import EasyDriver
-from gpiozero.pins.rpigpio import RPiGPIOFactory
 from gpiozero import Device
-import RPi.GPIO as rpigpio
 
 # flask setup
 app = Flask(__name__)
@@ -35,11 +32,16 @@ ENABLE_PIN = 25
 MS1_PIN = 24
 MS2_PIN = 23
 
+# Guard imports behind config flag
+# This ensures that server can be run in Docker container
 if app.config["USE_MOTOR"]:
+    import RPi.GPIO as rpigpio
+    from gpiozero.pins.rpigpio import RPiGPIOFactory
     rpigpio.setmode(rpigpio.BCM)
     rpigpio.setwarnings(False)
     Device.pin_factory = RPiGPIOFactory()
 else:
+    from gpiozero.pins.mock import MockFactory
     Device.pin_factory = MockFactory()
 
 motor_driver = EasyDriver(step_pin=STEP_PIN,
