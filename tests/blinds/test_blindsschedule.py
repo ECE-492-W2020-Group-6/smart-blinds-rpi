@@ -12,6 +12,7 @@ import datetime
 import json
 import os
 from blinds.blinds_schedule import BlindMode, ScheduleTimeBlock, BlindsSchedule, BlindSchedulingException, InvalidBlindsScheduleException
+from pytz import timezone
 
 # path used for opening json files
 testFilePath = os.path.dirname( os.path.abspath( __file__ ) )
@@ -24,6 +25,7 @@ class TestScheduleTimeBlock:
     def test_constructor( self ):
         default_mode = BlindMode.LIGHT
         default_pos = -45
+        tz = timezone( "Etc/GMT-6" )
         sched = {
             BlindsSchedule.SUNDAY: [
                 ScheduleTimeBlock( datetime.time( 23, 38), datetime.time( 23, 59 ), BlindMode.LIGHT, None ), 
@@ -46,9 +48,10 @@ class TestScheduleTimeBlock:
             BlindsSchedule.SATURDAY: []
         }
 
-        blindsSchedule = BlindsSchedule( default_mode, default_pos, sched )
+        blindsSchedule = BlindsSchedule( default_mode, default_pos, sched, timezone=tz )
         assert( blindsSchedule._default_mode == default_mode )
         assert( blindsSchedule._default_pos == default_pos )
+        assert( blindsSchedule._timezone.zone == tz.zone )
 
         for day in BlindsSchedule.DAYS_OF_WEEK:
             assert( len( blindsSchedule._schedule[ day ] ) == len( sched[ day ] ) )
