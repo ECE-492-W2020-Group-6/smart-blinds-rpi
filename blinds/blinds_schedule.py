@@ -250,7 +250,9 @@ class BlindsSchedule:
     def __init__( self, default_mode, default_pos=None, schedule=None, timezone=None ):
         self._default_mode = default_mode
         self._default_pos = default_pos
-        self._timezone = timezone
+
+        if timezone is not None:
+            self._timezone = timezone
 
         if schedule is not None:
             self._schedule = schedule
@@ -357,7 +359,7 @@ class BlindsSchedule:
         if ( offset != int( offset ) or offset > 12 or offset < -14 ):
             raise InvalidTimeZoneStringException( "Offset must be an integer number of hours between -14 and 12" )
         
-        return timezone( gmtTimezoneBase + gmtTimezoneBase + str( int( offset ) ) )
+        return timezone( gmtTimezoneBase + plusminus + str( int( offset ) ) )
 
     '''
     Converts a pytz timezone of the type Etc/GMT-X to a string formatted like "GMT-XXXX" 
