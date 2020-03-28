@@ -11,7 +11,8 @@ import pytest
 import datetime
 import json
 import os
-from blinds.blinds_schedule import BlindMode, ScheduleTimeBlock, BlindsSchedule, BlindSchedulingException, InvalidBlindsScheduleException
+from blinds.blinds_schedule import BlindMode, ScheduleTimeBlock, BlindsSchedule, BlindSchedulingException, InvalidBlindsScheduleException, InvalidTimeZoneStringException
+from pytz import timezone
 
 # path used for opening json files
 testFilePath = os.path.dirname( os.path.abspath( __file__ ) )
@@ -24,6 +25,7 @@ class TestScheduleTimeBlock:
     def test_constructor( self ):
         default_mode = BlindMode.LIGHT
         default_pos = -45
+        tz = timezone( "Etc/GMT-6" )
         sched = {
             BlindsSchedule.SUNDAY: [
                 ScheduleTimeBlock( datetime.time( 23, 38), datetime.time( 23, 59 ), BlindMode.LIGHT, None ), 
@@ -46,9 +48,10 @@ class TestScheduleTimeBlock:
             BlindsSchedule.SATURDAY: []
         }
 
-        blindsSchedule = BlindsSchedule( default_mode, default_pos, sched )
+        blindsSchedule = BlindsSchedule( default_mode, default_pos, sched, timezone=tz )
         assert( blindsSchedule._default_mode == default_mode )
         assert( blindsSchedule._default_pos == default_pos )
+        assert( blindsSchedule._timezone.zone == tz.zone )
 
         for day in BlindsSchedule.DAYS_OF_WEEK:
             assert( len( blindsSchedule._schedule[ day ] ) == len( sched[ day ] ) )
@@ -179,11 +182,57 @@ class TestScheduleTimeBlock:
             blindsSchedule.checkHasNoTimeConflicts()
 
     '''
+    Test for timezone string parsing without error
+    '''
+    def test_validTzParsing( self ): 
+        # Timezone with positive offset
+        tzString = "GMT+0200"
+        expectedTzName = "Etc/GMT+2"
+        parsedTz = BlindsSchedule.tzFromGmtString( tzString )
+        assert( parsedTz.zone == expectedTzName )
+
+        # Timezone with negative offset
+        tzString = "GMT-0600"
+        expectedTzName = "Etc/GMT-6"
+        parsedTz = BlindsSchedule.tzFromGmtString( tzString )
+        assert( parsedTz.zone == expectedTzName )
+
+        # Timezone using name
+        tzString = "Canada/Mountain"
+        expectedTzName = "Canada/Mountain"
+        parsedTz = BlindsSchedule.tzFromGmtString( tzString )
+        assert( parsedTz.zone == expectedTzName )
+
+    '''
+    Test for timezone string parsing with error. This tests highlights unsupported formats
+    '''    
+    def test_invalidTzParsing( self ):
+        # Timezone with improper formatting
+        tzString = "GMT+2"
+        with pytest.raises( InvalidTimeZoneStringException ):
+            parsedTz = BlindsSchedule.tzFromGmtString( tzString )
+
+        # Timezone with half hour offset
+        tzString = "GMT-0730"
+        with pytest.raises( InvalidTimeZoneStringException ):
+            parsedTz = BlindsSchedule.tzFromGmtString( tzString )
+
+        # Timezones with too high offsets
+        tzString = "GMT+1700"
+        with pytest.raises( InvalidTimeZoneStringException ):
+            parsedTz = BlindsSchedule.tzFromGmtString( tzString )
+
+        tzString = "GMT-1700"
+        with pytest.raises( InvalidTimeZoneStringException ):
+            parsedTz = BlindsSchedule.tzFromGmtString( tzString )
+
+    '''
     Test for BlindSchedule serialization with toJson
     '''
     def test_serialization( self ):
         default_mode = BlindMode.LIGHT
         default_pos = None
+        tz = timezone( "Etc/GMT-6" )
         sched = {
             BlindsSchedule.SUNDAY: [
                 ScheduleTimeBlock( datetime.time( 23, 38), datetime.time( 23, 59 ), BlindMode.LIGHT, None ), 
@@ -206,7 +255,7 @@ class TestScheduleTimeBlock:
             BlindsSchedule.SATURDAY: []
         }
 
-        blindsSchedule = BlindsSchedule( default_mode, default_pos, sched )
+        blindsSchedule = BlindsSchedule( default_mode, default_pos, sched, timezone=tz )
 
         # use the sortKeys flag to allow deterministic output for comparison
         scheduleJson = BlindsSchedule.toJson( blindsSchedule, sortKeys=True )
@@ -223,6 +272,7 @@ class TestScheduleTimeBlock:
     def test_validDeserialization( self ):
         default_mode = BlindMode.LIGHT
         default_pos = None
+        tz = timezone( "Etc/GMT-6" )
         sched = {
             BlindsSchedule.SUNDAY: [
                 ScheduleTimeBlock( datetime.time( 23, 38), datetime.time( 23, 59 ), BlindMode.LIGHT, None ), 
@@ -254,6 +304,7 @@ class TestScheduleTimeBlock:
 
             assert( parsedSched._default_mode == expectedSched._default_mode )
             assert( parsedSched._default_pos == expectedSched._default_pos )
+            assert( parsedSched._timezone.zone == tz.zone )
             assert( parsedSched._schedule == expectedSched._schedule )
     
     '''
