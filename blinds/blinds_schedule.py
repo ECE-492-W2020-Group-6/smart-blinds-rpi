@@ -21,6 +21,9 @@ Creation Date: February 19, 2020
 from enum import Enum
 import json
 import datetime 
+from pytz import timezone
+from tzlocal import get_localzone
+import re
 
 '''
 Enum type for blind mode. 
@@ -227,6 +230,7 @@ class BlindsSchedule:
     # object attributes describing the schedule
     _default_mode = None 
     _default_pos = None
+    _timezone = get_localzone()
     _schedule = {
         SUNDAY : [],
         MONDAY : [],
@@ -243,9 +247,12 @@ class BlindsSchedule:
     Calls self.validate at the end to ensure that the created object is valid.
     The schedule is also sorted and checked for conflicts.  
     '''
-    def __init__( self, default_mode, default_pos=None, schedule=None ):
+    def __init__( self, default_mode, default_pos=None, schedule=None, timezone=None ):
         self._default_mode = default_mode
         self._default_pos = default_pos
+
+        if timezone is not None:
+            self._timezone = timezone
 
         if schedule is not None:
             self._schedule = schedule
@@ -331,6 +338,64 @@ class BlindsSchedule:
         return False
 
     '''
+    Parses a timezone formatted like GMT-0600 and returns a pytz timezone for it. 
+    Currently does not support half hour differences from GMT, as these are not included in the 
+    list of supported timezones in pytz for Etc/GMT-X. While they do exist for the specific place names, the conversion 
+    is much more difficult.
+    '''
+    @staticmethod
+    def tzFromGmtString( gmtStr ):
+        tzLocationRegex = r"\S+\/\S+" # matches things like Canada/Mountain
+        matches = re.search( tzLocationRegex, gmtStr)
+        if matches:
+            try:
+                fullStr = matches.group(0)
+                tz = timezone( fullStr )
+                return tz
+            except Exception as e:
+                raise InvalidTimeZoneStringException( "Invalid timezone string: " + gmtStr + ", causing error: " + str(e) )
+
+        tzRegex = r"GMT([+-])(\d{4})" # matches things like GMT-0600
+        gmtTimezoneBase = "Etc/GMT"
+        
+        matches = re.search( tzRegex, gmtStr)
+
+        if not matches:
+            raise InvalidTimeZoneStringException( "Invalid timezone string: " + gmtStr )
+
+        plusminus = matches.group(1)
+        offset = int( matches.group(2) ) / 100
+
+        if ( offset != int( offset ) or ( plusminus == "+" and offset > 12 ) or ( plusminus == "-" and offset > 14 ) ):
+            raise InvalidTimeZoneStringException( "Offset must be an integer number of hours between -14 and 12" )
+        
+        return timezone( gmtTimezoneBase + plusminus + str( int( offset ) ) )
+
+    '''
+    Converts a pytz timezone of the type Etc/GMT-X to a string formatted like "GMT-XXXX" 
+    '''
+    @staticmethod
+    def tzToGmtString( tz ):
+        tzGmtNameRegex = r"Etc/GMT([+-])(\d+)"
+        matches = re.search( tzGmtNameRegex, tz.zone)
+
+        if matches:
+            plusminus = matches.group(1)
+            offset = int( matches.group(2) )
+
+            # convert offset to the 4 digit form
+            offset = offset * 100
+            if offset >= 1000:
+                offset_str = str( offset )
+            else:
+                offset_str = "0" + str( offset )
+
+            return "GMT" + plusminus + offset_str
+
+        else:
+            return tz.zone
+
+    '''
     Returns a JSON-like dictionary representation of the BlindsSchedule object.
     '''
     @staticmethod
@@ -340,6 +405,8 @@ class BlindsSchedule:
             jsonDict[ "default_mode" ] = schedule._default_mode.name 
 
             jsonDict[ "default_pos" ] = schedule._default_pos
+
+            jsonDict[ "timezone" ] = BlindsSchedule.tzToGmtString( schedule._timezone )
             
             jsonDict[ "schedule" ] = dict() 
             for day in BlindsSchedule.DAYS_OF_WEEK: 
@@ -360,9 +427,11 @@ class BlindsSchedule:
             if default_pos is not None: 
                 default_pos = int( default_pos )
 
+            tz = BlindsSchedule.tzFromGmtString( jsonDict[ "timezone" ] )
+
             parsed_sched = jsonDict[ "schedule" ]
 
-            blindsSchedule = BlindsSchedule( default_mode, default_pos )
+            blindsSchedule = BlindsSchedule( default_mode, default_pos, timezone=tz )
             for day in BlindsSchedule.DAYS_OF_WEEK:
                 blindsSchedule._schedule[ day ] = list( map( lambda x: ScheduleTimeBlock.fromDict( x ), parsed_sched[ day ] ) )
 
@@ -407,5 +476,9 @@ class BlindSchedulingException( Exception ):
 
 # Thrown when a time block is improperly set
 class InvalidTimeBlockException( Exception ):
+    pass
+
+# thrown for invalid timezone strings
+class InvalidTimeZoneStringException( Exception ):
     pass
 # ---------- END OF Custom Exception classes --------- #
