@@ -60,7 +60,7 @@ class AngleStepMapper:
         else:
             direction = StepDirection.FORWARD
 
-        step_size = self.step_resolution_to_angle(self, step_resolution)
+        step_size = self.step_resolution_to_angle(step_resolution)
         num_steps = angle_change / step_size
 
         return num_steps, direction
@@ -76,7 +76,7 @@ class AngleStepMapper:
         tilt_angle (float): the change in blind slat tilt angle
     """
     def map_step_to_angle(self, num_steps, direction, step_resolution):
-        step_size = self.step_resolution_to_angle(self, step_resolution)
+        step_size = self.step_resolution_to_angle(step_resolution)
         tilt_angle = num_steps * step_size
 
         if direction == 1:
