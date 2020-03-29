@@ -115,6 +115,7 @@ def token_required( fxn ):
 app_schedule = BlindsSchedule( BlindMode.DARK, None, None )
 
 mapper = AngleStepMapper() 
+
 # Init SmartBlindsSystem object
 smart_blinds_system =  SmartBlindsSystem( Blinds( motor_driver, mapper ), app_schedule, temp_sensor )
 
@@ -140,10 +141,14 @@ def get_temperature():
 '''
 API handler to return the current position of the blinds
 '''
-@app.route( POSITION_ROUTE, methods=[ 'GET' ] )
+@app.route( POSITION_ROUTE, methods=[ 'GET', 'POST' ] if app.config[ 'ENABLE_POST_POSITION' ] else [ 'GET' ] )
 def handle_position():
     if request.method == 'GET':
         return smart_blinds_system.getPosition()
+    
+    # For testing only
+    if request.method == 'POST' and app.config[ 'ENABLE_POST_POSITION' ]:
+        return smart_blinds_system.postPosition( request.json )
 
 '''
 API hander to return the current status of the system. This includes the position and temperature. 

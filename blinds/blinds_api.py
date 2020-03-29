@@ -173,7 +173,6 @@ class SmartBlindsSystem:
     '''
     API GET request handler for position
     URL: POSITION_ROUTE
-    TODO: METHOD STUB 
     '''
     def getPosition( self ):
         print( "processing request for GET position")
@@ -185,6 +184,20 @@ class SmartBlindsSystem:
             return ( data, RESP_CODES[ "OK" ] )
         except Exception as err:
             return ( str(err), RESP_CODES[ "BAD_REQUEST" ] )
+
+    '''
+    API POST request handler for position
+    URL: POSITION_ROUTE
+    '''
+    def postPosition( self, data ):
+        print( f"processing request for POST position, data: {data}" )
+        try:
+            position = data["position"]
+            self._blinds.rotateToPosition(position)
+            return ( {}, RESP_CODES[ "OK" ] )
+        except Exception as err:
+            return ( str(err), RESP_CODES[ "BAD_REQUEST" ] )
+
 
     '''
     API GET request handler for status
