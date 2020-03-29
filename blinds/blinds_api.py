@@ -37,7 +37,7 @@ Gives the ability to control blinds position
 '''
 class Blinds:
     # Public attributes
-    step_size = MicroStepResolution.FULL_STEP
+    step_resolution = MicroStepResolution.FULL_STEP
 
     # Private attributes
     _motorDriver = None
@@ -70,8 +70,8 @@ class Blinds:
         motor_position = get_motor_position() # in degrees from [-90,90]
         angle_change = 0 - motor_position
         if motor_position != 0:
-            num_steps, motor_dir = self._angleStepMapper.map_angle_to_step(angle_change, self.step_size)
-            self._motorDriver.microstep_resolution = self.step_size
+            num_steps, motor_dir = self._angleStepMapper.map_angle_to_step(angle_change, self.step_resolution)
+            self._motorDriver.microstep_resolution = self.step_resolution
             self._motorDriver.step(steps=num_steps, direction=motor_dir)
             set_motor_position(0)
 
@@ -92,8 +92,8 @@ class Blinds:
         desired_tilt_angle = position * ANGLE_POSITION_FACTOR
         motor_position = get_motor_position() # in degrees from [-90,90]
         angle_change = desired_tilt_angle - motor_position
-        num_steps, motor_dir = self._angleStepMapper.map_angle_to_step(angle_change, self.step_size)
-        self._motorDriver.microstep_resolution = self.step_size
+        num_steps, motor_dir = self._angleStepMapper.map_angle_to_step(angle_change, self.step_resolution)
+        self._motorDriver.microstep_resolution = self.step_resolution
         self._motorDriver.step(steps=num_steps, direction=motor_dir)
         set_motor_position(desired_tilt_angle)
 
