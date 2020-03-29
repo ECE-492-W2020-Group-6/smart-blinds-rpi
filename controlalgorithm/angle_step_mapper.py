@@ -35,7 +35,7 @@ class AngleStepMapper:
         num_steps (int): discrete number of steps
         direction (int): CW = 0, CCW = 1 (from easydriver.easydriver StepDirection class)
     """
-    def map_angle_to_step(tilt_angle, step_size):
+    def map_angle_to_step(self, tilt_angle, step_size):
         motor_position = p_data.get_motor_position()
         p_data.set_motor_position(tilt_angle)
 
@@ -61,7 +61,7 @@ class AngleStepMapper:
     Output:
         tilt_angle (float): the change in blind slat tilt angle
     """
-    def map_step_to_angle(num_steps, direction, step_size):
+    def map_step_to_angle(self, num_steps, direction, step_size):
         tilt_angle = num_steps * step_size
 
         if direction == 1:
