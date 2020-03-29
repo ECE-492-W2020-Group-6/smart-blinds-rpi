@@ -64,7 +64,4 @@ def max_sunlight_algorithm():
         raise exceptions.InputError("get_solar_angle()", "Solar Angle may only be between -90 and 90 degrees inclusive")
     tilt_angle = -solar_angle
     return tilt_angle
-    
-if __name__ == "__main__":
-    result = max_sunlight_algorithm()
-    print(result)
+  

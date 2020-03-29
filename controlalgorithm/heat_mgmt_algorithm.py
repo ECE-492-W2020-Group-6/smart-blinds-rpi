@@ -170,8 +170,4 @@ def heat_mgmt_algorithm(tempsensor):
 
     tilt_angle_final = tilt_angle_cc * solar_angle_weight + tilt_angle_temp * temp_weight
     return tilt_angle_final
-    
-if __name__ == "__main__":
-    # result = heat_mgmt_algorithm(80, -10, 20, 0.88) # expect cold, overcast and cold, cool: 51*0.88 + (-20)*0.12 = 42.48
-    result = heat_mgmt_algorithm()
-    print(result)
+ 

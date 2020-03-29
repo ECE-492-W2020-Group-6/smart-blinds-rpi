@@ -36,8 +36,3 @@ def composite_algorithm(tempsensor):
 
     tilt_angle_final = tilt_angle_sunlight * solar_angle_weight + tilt_angle_heat * heat_weight
     return tilt_angle_final
-
-if __name__ == "__main__":
-    # result = composite_algorithm(80, 80, -10, 20, 0.88) # expect -80*0.88 + 42.48*0.12 = -65.3024
-    result = composite_algorithm()
-    print(result)
