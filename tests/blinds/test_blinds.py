@@ -56,7 +56,8 @@ class TestBlinds:
     Test for resetPosition. Checks that the internal position was reset to 0. 
     '''
     def test_reset_position( self ):
-        blinds = Blinds( None, None )
+        mapper = AngleStepMapper()
+        blinds = Blinds( None, mapper )
         blinds._currentPosition = 20
         blinds.reset_position()
 
