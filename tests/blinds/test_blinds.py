@@ -19,15 +19,27 @@ class TestBlinds:
     MS1_PIN = 24
     MS2_PIN = 23
 
-    '''
-    Test rotateToPosition to check that the internal position is updated. 
-    '''
-    def test_rotate( self ):
+    """Creates and returns a fresh instance of a driver for tests.
+
+    Also handles cleanup after the yield.
+    
+    Yields:
+        EasyDriver -- fresh instance of driver for each test
+    """
+    @pytest.fixture()
+    def driver(self):
         driver = EasyDriver(step_pin=self.STEP_PIN,
                     dir_pin=self.DIR_PIN, 
                     ms1_pin=self.MS1_PIN, 
                     ms2_pin=self.MS2_PIN,
                     enable_pin=self.ENABLE_PIN)
+        yield driver
+        driver.close()
+
+    '''
+    Test rotateToPosition to check that the internal position is updated. 
+    '''
+    def test_rotate( self, driver ):
         mapper = AngleStepMapper()
         blinds = Blinds( driver, mapper )
         
@@ -49,12 +61,7 @@ class TestBlinds:
     Test for invalid rotational positions given to rotateToPosition. 
     These are expected to throw InvalidBlindPositionException
     '''
-    def test_invalid_rotation( self ):
-        driver = EasyDriver(step_pin=self.STEP_PIN,
-                    dir_pin=self.DIR_PIN, 
-                    ms1_pin=self.MS1_PIN, 
-                    ms2_pin=self.MS2_PIN,
-                    enable_pin=self.ENABLE_PIN)
+    def test_invalid_rotation( self, driver ):
         mapper = AngleStepMapper()
         blinds = Blinds( driver, mapper )
         with pytest.raises( InvalidBlindPositionException ):
@@ -72,12 +79,7 @@ class TestBlinds:
     '''
     Test for resetPosition. Checks that the internal position was reset to 0. 
     '''
-    def test_reset_position( self ):
-        driver = EasyDriver(step_pin=self.STEP_PIN,
-                    dir_pin=self.DIR_PIN, 
-                    ms1_pin=self.MS1_PIN, 
-                    ms2_pin=self.MS2_PIN,
-                    enable_pin=self.ENABLE_PIN)
+    def test_reset_position( self, driver ):
         mapper = AngleStepMapper()
         blinds = Blinds( driver, mapper )
         blinds._currentPosition = 20
