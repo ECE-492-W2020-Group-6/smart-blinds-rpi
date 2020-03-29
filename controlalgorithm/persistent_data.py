@@ -19,6 +19,13 @@ import sys
 import controlalgorithm.user_defined_exceptions as exceptions
 
 """
+Path pointing to the directory where the persistent_data.json file is read/written
+For main program, will be smart-blinds-rpi folder
+For tests, will be tests folder
+"""
+persistent_data_path = os.path.join(os.path.dirname(__file__), "..")
+
+"""
 API Keys and Endpoints
 """
 dotenv.load_dotenv()
