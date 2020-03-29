@@ -10,6 +10,7 @@ Creation Date: February 1, 2020
 import pytest
 from blinds.blinds_api import Blinds, InvalidBlindPositionException
 from controlalgorithm.angle_step_mapper import AngleStepMapper
+from easydriver.easydriver import EasyDriver, MicroStepResolution, StepDirection
 
 class TestBlinds:
     STEP_PIN = 20
