@@ -56,7 +56,8 @@ def get_lat_lon():
     else:
         persistent_data_dict = dict()
 
-        place_name = input("Enter location or place name: ")
+        # place_name = input("Enter location or place name: ")
+        place_name = "Edmonton AB"
 
         OPENCAGE_URL = "https://api.opencagedata.com/geocode/v1/json?key={}&q={}&pretty=1".format(OPENCAGE_API_KEY, place_name)
         # print(OPENCAGE_URL)
