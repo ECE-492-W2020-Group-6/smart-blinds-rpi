@@ -12,13 +12,23 @@ from blinds.blinds_api import Blinds, InvalidBlindPositionException
 from controlalgorithm.angle_step_mapper import AngleStepMapper
 
 class TestBlinds:
+    STEP_PIN = 20
+    DIR_PIN = 21
+    ENABLE_PIN = 25
+    MS1_PIN = 24
+    MS2_PIN = 23
 
     '''
     Test rotateToPosition to check that the internal position is updated. 
     '''
     def test_rotate( self ):
+        driver = EasyDriver(step_pin=self.STEP_PIN,
+                    dir_pin=self.DIR_PIN, 
+                    ms1_pin=self.MS1_PIN, 
+                    ms2_pin=self.MS2_PIN,
+                    enable_pin=self.ENABLE_PIN)
         mapper = AngleStepMapper()
-        blinds = Blinds( None, mapper )
+        blinds = Blinds( driver, mapper )
         
         assert ( blinds._currentPosition == 0 )
 
@@ -39,7 +49,13 @@ class TestBlinds:
     These are expected to throw InvalidBlindPositionException
     '''
     def test_invalid_rotation( self ):
-        blinds = Blinds( None, None )
+        driver = EasyDriver(step_pin=self.STEP_PIN,
+                    dir_pin=self.DIR_PIN, 
+                    ms1_pin=self.MS1_PIN, 
+                    ms2_pin=self.MS2_PIN,
+                    enable_pin=self.ENABLE_PIN)
+        mapper = AngleStepMapper()
+        blinds = Blinds( driver, mapper )
         with pytest.raises( InvalidBlindPositionException ):
             blinds.rotateToPosition( 101 )
 
@@ -56,8 +72,13 @@ class TestBlinds:
     Test for resetPosition. Checks that the internal position was reset to 0. 
     '''
     def test_reset_position( self ):
+        driver = EasyDriver(step_pin=self.STEP_PIN,
+                    dir_pin=self.DIR_PIN, 
+                    ms1_pin=self.MS1_PIN, 
+                    ms2_pin=self.MS2_PIN,
+                    enable_pin=self.ENABLE_PIN)
         mapper = AngleStepMapper()
-        blinds = Blinds( None, mapper )
+        blinds = Blinds( driver, mapper )
         blinds._currentPosition = 20
         blinds.reset_position()
 
