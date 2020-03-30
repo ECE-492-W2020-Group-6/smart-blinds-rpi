@@ -47,7 +47,7 @@ class BME280TemperatureSensor(TemperatureSensor):
         # https://www.waveshare.com/wiki/BME280_Environmental_Sensor
         # https://www.waveshare.com/w/upload/7/75/BME280_Environmental_Sensor_User_Manual_EN.pdf
         self.port = 1
-        self.tempSensorAddress = 0x76
+        self.tempSensorAddress = 0x77
         self.bus = smbus2.SMBus(self.port)
         self.calibrationParams = bme280.load_calibration_params(self.bus, self.tempSensorAddress)
 
