@@ -92,18 +92,20 @@ def token_required( fxn ):
     def decorated( *args, **kwargs ):
         token = None
 
-        if 'x-access-token' in request.headers:
-            token = request.headers[ 'x-access-token' ]
+        # skip if running in testing mode 
+        if not app.config[ "SMART_BLINDS_TESTING" ]:
+            if 'x-access-token' in request.headers:
+                token = request.headers[ 'x-access-token' ]
 
-        if not token:
-            return jsonify( {"message": "missing token"} ), RESP_CODES[ "UNAUTHORIZED" ]
+            if not token:
+                return jsonify( {"message": "missing token"} ), RESP_CODES[ "UNAUTHORIZED" ]
 
-        try:
-            data = jwt.decode( token, app.config[ "PISERVER_SECRET_KEY" ] )
-            current_user = User.query.filter_by( public_id=data[ 'public_id' ] ).first()
+            try:
+                data = jwt.decode( token, app.config[ "PISERVER_SECRET_KEY" ] )
+                current_user = User.query.filter_by( public_id=data[ 'public_id' ] ).first()
 
-        except Exception as e:
-            return jsonify( {"message": "invalid token", "error": str(e) } ), RESP_CODES[ "UNAUTHORIZED" ]
+            except Exception as e:
+                return jsonify( {"message": "invalid token", "error": str(e) } ), RESP_CODES[ "UNAUTHORIZED" ]
 
         return fxn( *args, **kwargs )
 
