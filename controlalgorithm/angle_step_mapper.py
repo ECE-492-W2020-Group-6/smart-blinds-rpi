@@ -50,7 +50,6 @@ class AngleStepMapper:
     """
     def map_angle_to_step(self, tilt_angle, step_resolution):
         motor_position = p_data.get_motor_position()
-        p_data.set_motor_position(tilt_angle)
 
         # change in angle = desired tilt angle - motor position
         angle_change = tilt_angle - motor_position
