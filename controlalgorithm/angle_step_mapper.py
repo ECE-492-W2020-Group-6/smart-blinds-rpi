@@ -15,8 +15,10 @@ from easydriver.easydriver import MicroStepResolution, StepDirection
 Constants
 
 ANGLE_POSITION_FACTOR: factor that maps angles to a position in percentage ranging from [-100%, 100%]
+NUM_STEPS_FACTOR: factor that is multiplied by the number of steps to get the actual angle, to overcome friction
 """
 ANGLE_POSITION_FACTOR = 90 / 100
+NUM_STEPS_FACTOR = 1.3
 
 """
 Class to handle mapping of angle to steps and vice-versa
