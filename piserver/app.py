@@ -69,10 +69,10 @@ if not "TOKEN_DURATION_MINUTES" in app.config.keys():
     app.config[ "TOKEN_DURATION_MINUTES" ] = 10
 else:
     app.config[ "TOKEN_DURATION_MINUTES" ] = int( app.config[ "TOKEN_DURATION_MINUTES" ] )
-if not "SECRET_KEY" in app.config.keys():
-    app.config[ "SECRET_KEY" ] = "willekeurigegeheimesleutel"
+if not "PISERVER_SECRET_KEY" in app.config.keys():
+    app.config[ "PISERVER_SECRET_KEY" ] = "willekeurigegeheimesleutel"
 else:
-    app.config[ "SECRET_KEY" ] = str( app.config[ "SECRET_KEY" ] )
+    app.config[ "PISERVER_SECRET_KEY" ] = str( app.config[ "PISERVER_SECRET_KEY" ] )
 
 '''
 Small database model for the users.
@@ -89,23 +89,25 @@ Decorator for using the JWT token
 '''
 def token_required( fxn ):
     @wraps(fxn)
-    def decorator( *args, **kwargs ):
+    def decorated( *args, **kwargs ):
         token = None
 
         if 'x-access-token' in request.headers:
-            token - request.headers[ 'x-access-token' ]
+            token = request.headers[ 'x-access-token' ]
 
         if not token:
             return jsonify( {"message": "missing token"} ), RESP_CODES[ "UNAUTHORIZED" ]
 
         try:
-            data = jwt.decode( token, app.config[ "SECRET_KEY" ] )
+            data = jwt.decode( token, app.config[ "PISERVER_SECRET_KEY" ] )
             current_user = User.query.filter_by( public_id=data[ 'public_id' ] ).first()
 
-        except:
-            return jsonify( {"message": "invalid token"} ), RESP_CODES[ "UNAUTHORIZED" ]
+        except Exception as e:
+            return jsonify( {"message": "invalid token", "error": str(e) } ), RESP_CODES[ "UNAUTHORIZED" ]
 
         return fxn( *args, **kwargs )
+
+    return decorated
 
 # default empty schedule 
 app_schedule = BlindsSchedule( BlindMode.DARK, None, None )
@@ -144,6 +146,7 @@ def motor_test():
     return smart_blinds_system.testMotor()
 
 @app.route( SCHEDULE_ROUTE, methods=[ 'GET', 'POST', 'DELETE' ])
+@token_required
 def handle_schedule():
     if request.method == 'GET':
         return smart_blinds_system.getSchedule()
@@ -155,6 +158,7 @@ def handle_schedule():
         return smart_blinds_system.deleteSchedule()
 
 @app.route( COMMAND_ROUTE, methods=[ 'POST', 'DELETE' ] )
+@token_required
 def handle_command():
     if request.method == 'POST':
         command = request.json
@@ -225,7 +229,7 @@ def login():
 
     # validate password 
     if check_password_hash( user.password, auth.password ):
-        token = jwt.encode({'public_id' : user.public_id, 'exp' : str( datetime.datetime.utcnow() + datetime.timedelta(minutes=app.config[ "TOKEN_DURATION_MINUTES" ]))}, app.config['SECRET_KEY'] )
+        token = jwt.encode({'public_id' : user.public_id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=app.config[ "TOKEN_DURATION_MINUTES" ])}, app.config['PISERVER_SECRET_KEY'] )
         return jsonify( {"token": token.decode( 'UTF-8' ) } )
 
     # password check failed
