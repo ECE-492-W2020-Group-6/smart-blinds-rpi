@@ -46,13 +46,16 @@ class AngleStepMapper:
         step_resolution (float): step resolution
     Output:
         num_steps (int): discrete number of steps
-        direction (int): CW = 0, CCW = 1 (from easydriver.easydriver StepDirection class)
+        direction (int): FORWARD/CW = 0, REVERSE/CCW = 1 (from easydriver.easydriver StepDirection class)
     """
     def map_angle_to_step(self, tilt_angle, step_resolution):
         motor_position = p_data.get_motor_position()
 
         # change in angle = desired tilt angle - motor position
         angle_change = tilt_angle - motor_position
+
+        #DEBUG
+        print("desired tilt angle: ", tilt_angle, "current motor position: ", motor_position, "change in angle: ", angle_change)
 
         if angle_change < 0:
             direction = StepDirection.REVERSE
