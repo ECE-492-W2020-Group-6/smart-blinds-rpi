@@ -1,6 +1,11 @@
 '''
 File for basic webserver on the Raspberry Pi to handle API requests. 
 
+Attributions: 
+Code for authentication with JWT's taken from Pretty Printed's YouTube tutorial 
+at https://www.youtube.com/watch?v=WxGBoY5iNXY and adapted 
+Original source code from tutorial can be found at: https://s3.us-east-2.amazonaws.com/prettyprinted/jwt_api_example.zip
+
 Author: Alex (Yin) Chen
 Creation Date: February 1, 2020
 '''
@@ -92,13 +97,15 @@ def token_required( fxn ):
     def decorated( *args, **kwargs ):
         token = None
 
-        # skip if running in testing mode 
-        if app.config[ "USE_JWT" ]:
+        src_addr = request.remote_addr
+        
+        # we skip jwt check for localhost for voice control, but it can be enabled for easier testing
+        if ( not app.config[ "JWT_BYPASS_LOCALHOST" ] or ( app.config[ "JWT_BYPASS_LOCALHOST" ] and src_addr != '127.0.0.1' ) ):
             if 'x-access-token' in request.headers:
                 token = request.headers[ 'x-access-token' ]
 
             if not token:
-                return jsonify( {"message": "missing token"} ), RESP_CODES[ "UNAUTHORIZED" ]
+                return make_response( "Missing token", RESP_CODES[ "UNAUTHORIZED" ] )
 
             try:
                 data = jwt.decode( token, app.config[ "PISERVER_SECRET_KEY" ] )

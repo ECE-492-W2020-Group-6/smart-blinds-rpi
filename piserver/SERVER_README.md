@@ -13,11 +13,11 @@ To set non-default values for authentication parameters, use:
     $ export TOKEN_DURATION_MINUTES=<integer number of minutes>
 ```
 
-For TESTING purposes, the JWT auth can be bypassed by running the server with
+For TESTING purposes, the JWT auth on localhost can be enforced by running the server with
 ```
-    $ export USE_JWT=false
+    $ export JWT_BYPASS_LOCALHOST=false
 ```
-Otherwise, the default is to use JWT authentication.
+Otherwise, the default is to ignore JWT for localhost requests, mainly for the purpose of voice control.
 
 On Windows(cmd), use either:
 ```

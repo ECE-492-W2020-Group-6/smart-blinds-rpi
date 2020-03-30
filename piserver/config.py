@@ -11,7 +11,7 @@ class Config:
     USE_TEMP_SENSOR = bool(strtobool(os.environ.get("USE_TEMP_SENSOR", "false").lower()))
     USE_MOTOR =  bool(strtobool(os.environ.get("USE_MOTOR", "false").lower()))
     CORS_HEADERS = "Content-Type"
-    USE_JWT = bool(strtobool(os.environ.get("USE_JWT", "true").lower()))
+    JWT_BYPASS_LOCALHOST = bool(strtobool(os.environ.get("JWT_BYPASS_LOCALHOST", "true").lower()))
 
 class DevelopmentConfig(Config):
     DEBUG = True
