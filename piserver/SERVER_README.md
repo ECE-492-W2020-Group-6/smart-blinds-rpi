@@ -7,6 +7,11 @@ For Linux, use:
     $ export USE_TEMP_SENSOR=false
     $ export USE_MOTOR=false
 ```
+To set non-default values for authentication parameters, use:
+```
+    $ export SECRET_KEY=<a secret key>
+    $ export TOKEN_DURATION_MINUTES=<integer number of minutes>
+```
 
 On Windows(cmd), use either:
 ```

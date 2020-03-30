@@ -66,7 +66,9 @@ motor_driver = EasyDriver(step_pin=STEP_PIN,
 
 # setup for auth with jwt
 if not "TOKEN_DURATION_MINUTES" in app.config.keys():
-    app.config[ "TOKEN_DURATION_MINUTES" ] = 30
+    app.config[ "TOKEN_DURATION_MINUTES" ] = 10
+else:
+    app.config[ "TOKEN_DURATION_MINUTES" ] = int( app.config[ "TOKEN_DURATION_MINUTES" ] )
 if not "SECRET_KEY" in app.config.keys():
     app.config[ "SECRET_KEY" ] = "willekeurigegeheimesleutel"
 else:
