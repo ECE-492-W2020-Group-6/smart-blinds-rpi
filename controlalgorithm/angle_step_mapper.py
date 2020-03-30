@@ -65,7 +65,7 @@ class AngleStepMapper:
             direction = StepDirection.FORWARD
 
         step_size = self.step_resolution_to_angle(step_resolution)
-        num_steps = round(angle_change / step_size)
+        num_steps = abs(round(angle_change / step_size))
 
         return num_steps, direction
 
