@@ -129,13 +129,10 @@ def say_hello():
 def get_temperature():
     return smart_blinds_system.getTemperature()
 
-@app.route( POSITION_ROUTE, methods=[ 'GET', 'POST' ] )
+@app.route( POSITION_ROUTE, methods=[ 'GET' ] )
 def handle_position():
     if request.method == 'GET':
         return smart_blinds_system.getPosition()
-
-    if request.method == 'POST':
-        pass 
 
 @app.route( STATUS_ROUTE, methods=[ 'GET' ] )
 def get_status():
