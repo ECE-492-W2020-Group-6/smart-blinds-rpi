@@ -93,7 +93,7 @@ def token_required( fxn ):
         token = None
 
         # skip if running in testing mode 
-        if not app.config[ "SMART_BLINDS_TESTING" ]:
+        if app.config[ "USE_JWT" ]:
             if 'x-access-token' in request.headers:
                 token = request.headers[ 'x-access-token' ]
 

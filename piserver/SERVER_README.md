@@ -13,6 +13,12 @@ To set non-default values for authentication parameters, use:
     $ export TOKEN_DURATION_MINUTES=<integer number of minutes>
 ```
 
+For TESTING purposes, the JWT auth can be bypassed by running the server with
+```
+    $ export USE_JWT=false
+```
+Otherwise, the default is to use JWT authentication.
+
 On Windows(cmd), use either:
 ```
 > set FLASK_ENV=development
