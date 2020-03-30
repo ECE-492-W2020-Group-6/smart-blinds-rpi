@@ -100,7 +100,7 @@ class Blinds:
         self._motorDriver.step(steps=num_steps, direction=motor_dir)
 
         #DEBUG
-        print("resolution: ", resolution, "num_steps: ", num_steps, "direction: ", motor_dir)
+        print("resolution: ", step_resolution, "num_steps: ", num_steps, "direction: ", motor_dir)
 
         set_motor_position(desired_tilt_angle)
 
