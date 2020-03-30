@@ -68,9 +68,9 @@ class Blinds:
         print( "resetting to horizontal position" )
 
         motor_position = get_motor_position() # in degrees from [-90,90]
-        angle_change = 0 - motor_position
+
         if motor_position != 0:
-            num_steps, motor_dir = self._angleStepMapper.map_angle_to_step(angle_change, self.step_resolution)
+            num_steps, motor_dir = self._angleStepMapper.map_angle_to_step(0, self.step_resolution)
             self._motorDriver.microstep_resolution = self.step_resolution
             self._motorDriver.step(steps=num_steps, direction=motor_dir)
             set_motor_position(0)
@@ -90,9 +90,8 @@ class Blinds:
         print( "rotating to {}%".format( position ) )
 
         desired_tilt_angle = position * ANGLE_POSITION_FACTOR
-        motor_position = get_motor_position() # in degrees from [-90,90]
-        angle_change = desired_tilt_angle - motor_position
-        num_steps, motor_dir = self._angleStepMapper.map_angle_to_step(angle_change, self.step_resolution)
+        
+        num_steps, motor_dir = self._angleStepMapper.map_angle_to_step(desired_tilt_angle, self.step_resolution)
         self._motorDriver.microstep_resolution = self.step_resolution
         self._motorDriver.step(steps=num_steps, direction=motor_dir)
         set_motor_position(desired_tilt_angle)
