@@ -1,7 +1,7 @@
 '''
 File for blinds API related code. 
 Contains classes: 
-    Blinds: an abstraction to model the blinds, gives functions for rotation and callse the motor driver
+    Blinds: an abstraction to model the blinds, gives functions for rotation and calls the motor driver
     SmartBlindsSystem: class to model the whole system, provides functions to handle API requests. 
 
 Also contains custom exception classes to provide more specific exceptions for the smart blinds systems. 
@@ -14,15 +14,23 @@ the response data.
 Author: Alex (Yin) Chen
 Creation Date: February 1, 2020
 '''
-from requests import codes as RESP_CODES
-from piserver.api_routes import *
-from enum import Enum
-from blinds.blinds_schedule import BlindsSchedule, ScheduleTimeBlock, InvalidBlindsScheduleException, BlindSchedulingException
-import json
-from blinds.blinds_command import BlindsCommand
+
 import bme280
+from enum import Enum
+import json
+from requests import codes as RESP_CODES
 import smbus2
 from easydriver.easydriver import MicroStepResolution, StepDirection
+
+from blinds.blinds_command import BlindsCommand
+from blinds.blinds_schedule import BlindsSchedule, ScheduleTimeBlock, InvalidBlindsScheduleException, BlindSchedulingException
+from controlalgorithm.angle_step_mapper import ANGLE_POSITION_FACTOR
+from controlalgorithm.angle_step_mapper import NUM_STEPS_FACTOR
+from controlalgorithm.angle_step_mapper import AngleStepMapper
+from controlalgorithm.persistent_data import get_motor_position
+from controlalgorithm.persistent_data import set_motor_position
+from easydriver.easydriver import EasyDriver, PowerState, MicroStepResolution, StepDirection
+from piserver.api_routes import *
 
 '''
 Class to model blinds as an abstraction. 
@@ -30,9 +38,11 @@ Gives the ability to control blinds position
 '''
 class Blinds:
     # Public attributes
+    step_resolution = MicroStepResolution.FULL_STEP
 
     # Private attributes
     _motorDriver = None
+    _angleStepMapper = None
 
     # current position of the blinds as a rotational %
     # 0 is horizontal, 100 is fully closed "up" positioin, -100 is fully closed "down" position
@@ -43,8 +53,9 @@ class Blinds:
     Set driver to None to allow for testing without a driver. 
     TODO fill in other setup procedures for hardware. 
     '''
-    def __init__( self, driver, startingPos = 0 ):
+    def __init__( self, driver, mapper, startingPos = 0 ):
         self._motorDriver = driver
+        self._angleStepMapper = mapper
         self._currentPosition = startingPos
 
         # TODO: OTHER SETUP PROCEDURES
@@ -52,14 +63,18 @@ class Blinds:
 
     '''
     Resets the blinds to the 0% tilt position (horizontal slats)
-    TODO: METHOD STUB
+    TODO: Testing
     '''
     def reset_position( self ):
         print( "resetting to horizontal position" )
 
-        if self._motorDriver is not None: 
-            # control motor using the driver
-            pass
+        motor_position = get_motor_position() # in degrees from [-90,90]
+
+        if motor_position != 0:
+            num_steps, motor_dir = self._angleStepMapper.map_angle_to_step(0, self.step_resolution)
+            self._motorDriver.microstep_resolution = self.step_resolution
+            self._motorDriver.step(steps=num_steps, direction=motor_dir)
+            set_motor_position(0)
 
         self._currentPosition = 0
 
@@ -67,7 +82,7 @@ class Blinds:
 
     '''
     Adjust blinds to the position specified as a percentage in [-100%, 100%]
-    TODO: METHOD STUB 
+    TODO: Testing
     '''
     def rotateToPosition( self, position ):
         if ( position > 100 or position < -100 ):
@@ -75,9 +90,19 @@ class Blinds:
 
         print( "rotating to {}%".format( position ) )
 
-        if self._motorDriver is not None: 
-            # control motor using the driver
-            pass
+        desired_tilt_angle = position * ANGLE_POSITION_FACTOR
+        
+        num_steps, motor_dir = self._angleStepMapper.map_angle_to_step(desired_tilt_angle, self.step_resolution)
+
+        num_steps = round(num_steps * NUM_STEPS_FACTOR)
+
+        self._motorDriver.microstep_resolution = self.step_resolution
+        self._motorDriver.step(steps=num_steps, direction=motor_dir)
+
+        #DEBUG
+        print("resolution: ", self.step_resolution, "num_steps: ", num_steps, "direction: ", motor_dir)
+
+        set_motor_position(desired_tilt_angle)
 
         self._currentPosition = position
         

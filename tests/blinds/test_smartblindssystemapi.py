@@ -27,7 +27,7 @@ class TestSmartBlindsSystemApi:
     '''
     @pytest.fixture()
     def blindsSystem( self ):
-        yield SmartBlindsSystem( Blinds( None ), BlindsSchedule( BlindMode.DARK ), MockTemperatureSensor() )
+        yield SmartBlindsSystem( Blinds( None, None ), BlindsSchedule( BlindMode.DARK ), MockTemperatureSensor() )
 
     '''
     Test the handler for GET requests for temperature
@@ -41,7 +41,7 @@ class TestSmartBlindsSystemApi:
     def test_getTemperature_with_exception(self):
         tempSensor = MockTemperatureSensor()
         tempSensor.getSample = MagicMock(side_effect=Exception)
-        blindsSystem = SmartBlindsSystem( Blinds( None ), None, tempSensor )
+        blindsSystem = SmartBlindsSystem( Blinds( None, None ), None, tempSensor )
         assert ( blindsSystem.getTemperature()[1] == RESP_CODES[ "BAD_REQUEST" ] )
 
     '''

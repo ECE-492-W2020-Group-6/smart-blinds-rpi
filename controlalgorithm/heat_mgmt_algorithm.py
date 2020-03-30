@@ -124,18 +124,21 @@ def get_solar_angle_weight():
 """
 Determine the optimal tilt angle for minimum power consumption for energy efficiency
 
-Inputs:
-cloud_cover (int): cloud coverage in percentage
-ext_temp (float): external temperature
-act_int_temp (float): actual internal temperature
+Variables used in tilt angle calculation:
+cloud_cover (float): cloud coverage in percentage
+ext_temp (float): external temperature in Celsius
+act_int_temp (float): actual internal temperature in Celsius
 solar_weight (float): weighting for the tilt angle determined by the cloud coverage
+
+Inputs:
+tempsensor (TemperatureSensor): an object that handles the internal temp measurement for act_int_temp
 
 Output:
 tilt_angle_final (float): final tilt angle for maximum energy efficiency
 """
-def heat_mgmt_algorithm(ac_t):
+def heat_mgmt_algorithm(tempsensor):
     cloud_cover_percentage, ext_temp = p_data.get_cloud_cover_percentage_and_ext_temp()
-    act_int_temp = ac_t
+    act_int_temp = tempsensor.getSample()
     des_int_temp = 22
 
     ext_vs_des = temp_to_temp_range(ext_temp - des_int_temp)
@@ -167,8 +170,4 @@ def heat_mgmt_algorithm(ac_t):
 
     tilt_angle_final = tilt_angle_cc * solar_angle_weight + tilt_angle_temp * temp_weight
     return tilt_angle_final
-    
-if __name__ == "__main__":
-    # result = heat_mgmt_algorithm(80, -10, 20, 0.88) # expect cold, overcast and cold, cool: 51*0.88 + (-20)*0.12 = 42.48
-    result = heat_mgmt_algorithm(20)
-    print(result)
+ 

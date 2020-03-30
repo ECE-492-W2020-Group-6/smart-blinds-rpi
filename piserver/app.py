@@ -13,6 +13,7 @@ from blinds.blinds_schedule import BlindsSchedule, BlindMode
 from piserver.config import DevelopmentConfig, ProductionConfig
 from tempsensor.tempsensor import BME280TemperatureSensor, MockTemperatureSensor
 from easydriver.easydriver import EasyDriver
+from controlalgorithm.angle_step_mapper import AngleStepMapper
 from gpiozero import Device
 
 # flask setup
@@ -55,8 +56,9 @@ motor_driver = EasyDriver(step_pin=STEP_PIN,
 # default empty schedule 
 app_schedule = BlindsSchedule( BlindMode.DARK, None, None )
 
+mapper = AngleStepMapper() 
 # Init SmartBlindsSystem object
-smart_blinds_system =  SmartBlindsSystem( Blinds( motor_driver ), app_schedule, temp_sensor )
+smart_blinds_system =  SmartBlindsSystem( Blinds( motor_driver, mapper ), app_schedule, temp_sensor )
 
 # END OF INIT BLINDS SYSTEM RELATED COMPONENTS #
 
