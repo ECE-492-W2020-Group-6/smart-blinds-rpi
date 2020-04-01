@@ -69,16 +69,6 @@ motor_driver = EasyDriver(step_pin=STEP_PIN,
             ms2_pin=MS2_PIN,
             enable_pin=ENABLE_PIN)
 
-# setup for auth with jwt
-if not "TOKEN_DURATION_MINUTES" in app.config.keys():
-    app.config[ "TOKEN_DURATION_MINUTES" ] = 10
-else:
-    app.config[ "TOKEN_DURATION_MINUTES" ] = int( app.config[ "TOKEN_DURATION_MINUTES" ] )
-if not "PISERVER_SECRET_KEY" in app.config.keys():
-    app.config[ "PISERVER_SECRET_KEY" ] = "willekeurigegeheimesleutel"
-else:
-    app.config[ "PISERVER_SECRET_KEY" ] = str( app.config[ "PISERVER_SECRET_KEY" ] )
-
 '''
 Small database model for the users.
 Used for authentication with JSON web tokens
@@ -112,7 +102,7 @@ def token_required( fxn ):
                 current_user = User.query.filter_by( public_id=data[ 'public_id' ] ).first()
 
             except Exception as e:
-                return jsonify( {"message": "invalid token", "error": str(e) } ), RESP_CODES[ "UNAUTHORIZED" ]
+                return make_response( "INVALID TOKEN", RESP_CODES[ "UNAUTHORIZED" ] )
 
         return fxn( *args, **kwargs )
 
@@ -136,24 +126,41 @@ def say_hello():
     return 'Hello from Server'
 
 # Routes for blinds system
+'''
+API handler to return the current temperature
+'''
 @app.route( TEMPERATURE_ROUTE, methods=[ 'GET' ] )
 def get_temperature():
     return smart_blinds_system.getTemperature()
 
+'''
+API handler to return the current position of the blinds
+'''
 @app.route( POSITION_ROUTE, methods=[ 'GET' ] )
 def handle_position():
     if request.method == 'GET':
         return smart_blinds_system.getPosition()
 
+'''
+API hander to return the current status of the system. This includes the position and temperature. 
+'''
 @app.route( STATUS_ROUTE, methods=[ 'GET' ] )
 def get_status():
     return smart_blinds_system.getStatus()
 
+'''
+API handler to run the motor test program
+'''
 @app.route( MOTOR_TEST_ROUTE, methods=[ 'POST' ] )
 def motor_test():
     # run the motor test
     return smart_blinds_system.testMotor()
 
+'''
+API handler for endpoints relating to the schedule. This allows for 
+getting, setting and deleting the currently active schedule. 
+Requires authenticated user's JWT to use.
+'''
 @app.route( SCHEDULE_ROUTE, methods=[ 'GET', 'POST', 'DELETE' ])
 @token_required
 def handle_schedule():
@@ -166,6 +173,10 @@ def handle_schedule():
     if request.method == 'DELETE':
         return smart_blinds_system.deleteSchedule()
 
+'''
+API handler for setting and clearing manual override commands.
+Requires authenticated user's JWT to use.
+'''
 @app.route( COMMAND_ROUTE, methods=[ 'POST', 'DELETE' ] )
 @token_required
 def handle_command():
@@ -178,6 +189,10 @@ def handle_command():
 
 
 ### ======== BEGIN AUTH RELATED ROUTES ======== ###
+'''
+API route handler for listing all users. Mainly serves testing and verification purposes
+to allow vieing all current user information. 
+'''
 @app.route( USER_ROUTE, methods=[ 'GET' ] )
 def get_all_users():
     users = User.query.all()
@@ -192,8 +207,11 @@ def get_all_users():
 
         response_data.append( user_data )
 
-    return jsonify( { "users":response_data } ), RESP_CODES[ "OK" ]
+    return { "users" : response_data }, RESP_CODES[ "OK" ]
 
+'''
+API route handler for creating a new user. 
+'''
 @app.route( USER_ROUTE, methods=[ 'POST' ] )
 def create_user():
     user_data = request.json
@@ -204,8 +222,15 @@ def create_user():
     db.session.add( new_user )
     db.session.commit()
 
-    return jsonify( { "message": "New user created." } ), RESP_CODES[ 'CREATED' ]
+    resp_data = {}
+    resp_data[ "name" ] = name=user_data[ 'name' ]
+    resp_data[ "public_id" ] = new_user.public_id
 
+    return resp_data, RESP_CODES[ 'CREATED' ]
+
+'''
+Api route handler for deleting an existing user 
+'''
 @app.route( USER_ROUTE, methods=[ 'DELETE' ] )
 def delete_user():
     data = request.json
@@ -214,13 +239,18 @@ def delete_user():
     user = User.query.filter_by( public_id=public_id_to_delete ).first()
 
     if not user:
-        return jsonify( {"message": "user with id=" + public_id_to_delete + " not found."} ), RESP_CODES[ "BAD_REQUEST" ]
+        return "User with id=" + public_id_to_delete + " not found.", RESP_CODES[ "BAD_REQUEST" ]
 
     db.session.delete( user )
     db.session.commit()
 
-    return jsonify( {"message":"user deleted"}), RESP_CODES[ "OK" ]
+    return {}, RESP_CODES[ "OK" ]
 
+'''
+Api route handler for login. Generates are returns a JWT to be used for authentication required requests. 
+Token duration is controlled by app.config[ "TOKEN_DURATION_MINUTES" ] through the TOKEN_DURATION_MINUTES 
+environment variable. 
+'''
 @app.route( LOGIN_ROUTE )
 def login():
     auth = request.authorization
@@ -239,7 +269,7 @@ def login():
     # validate password 
     if check_password_hash( user.password, auth.password ):
         token = jwt.encode({'public_id' : user.public_id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=app.config[ "TOKEN_DURATION_MINUTES" ])}, app.config['PISERVER_SECRET_KEY'] )
-        return jsonify( {"token": token.decode( 'UTF-8' ) } )
+        return jsonify( {"token": token.decode( 'UTF-8' ) } ), RESP_CODES[ 'OK' ]
 
     # password check failed
     return make_response( "Could not verify", RESP_CODES[ "UNAUTHORIZED" ], {'WWW-Authenticate' : 'Basic realm="Login required!"'} )
