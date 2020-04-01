@@ -80,7 +80,9 @@ class User( db.Model ):
     password = db.Column( db.String(50) )
 
 '''
-Decorator for using the JWT token
+Decorator for using the JWT token. 
+Add the @token_required annotation to force that handler to 
+require a token. 
 '''
 def token_required( fxn ):
     @wraps(fxn)
@@ -207,7 +209,7 @@ def get_all_users():
 
         response_data.append( user_data )
 
-    return { "users" : response_data }, RESP_CODES[ "OK" ]
+    return make_response( { "users" : response_data }, RESP_CODES[ "OK" ] )
 
 '''
 API route handler for creating a new user. 
@@ -215,36 +217,51 @@ API route handler for creating a new user.
 @app.route( USER_ROUTE, methods=[ 'POST' ] )
 def create_user():
     user_data = request.json
+    if user_data is None: 
+        return make_response( "Missing data for user creation", RESP_CODES[ "BAD_REQUEST" ] )
 
-    hashed_password = generate_password_hash( user_data[ 'password' ], method='sha256' )
+    try:
+        hashed_password = generate_password_hash( user_data[ 'password' ], method='sha256' )
+        
+        new_user = User( public_id=str( uuid.uuid4() ), name=user_data[ 'name' ], password=hashed_password )
+        db.session.add( new_user )
+        db.session.commit()
+
+        resp_data = {}
+        resp_data[ "name" ] = name=user_data[ 'name' ]
+        resp_data[ "public_id" ] = new_user.public_id
+
+        return make_response( resp_data, RESP_CODES[ 'CREATED' ] )
+
+    except Exception as err:
+        return make_response( str(err), RESP_CODES[ "BAD_REQUEST" ] )
     
-    new_user = User( public_id=str( uuid.uuid4() ), name=user_data[ 'name' ], password=hashed_password )
-    db.session.add( new_user )
-    db.session.commit()
-
-    resp_data = {}
-    resp_data[ "name" ] = name=user_data[ 'name' ]
-    resp_data[ "public_id" ] = new_user.public_id
-
-    return resp_data, RESP_CODES[ 'CREATED' ]
 
 '''
 Api route handler for deleting an existing user 
 '''
 @app.route( USER_ROUTE, methods=[ 'DELETE' ] )
 def delete_user():
-    data = request.json
-    public_id_to_delete = data[ "public_id" ]
+    user_data = request.json
 
-    user = User.query.filter_by( public_id=public_id_to_delete ).first()
+    if user_data is None or "public_id" not in user_data.keys(): 
+        return make_response( "Missing data for user deletion", RESP_CODES[ "BAD_REQUEST" ] )
 
-    if not user:
-        return "User with id=" + public_id_to_delete + " not found.", RESP_CODES[ "BAD_REQUEST" ]
+    try:
+        public_id_to_delete = user_data[ "public_id" ]
 
-    db.session.delete( user )
-    db.session.commit()
+        user = User.query.filter_by( public_id=public_id_to_delete ).first()
 
-    return {}, RESP_CODES[ "OK" ]
+        if not user:
+            return make_response( "User with id=" + public_id_to_delete + " not found.", RESP_CODES[ "BAD_REQUEST" ] )
+
+        db.session.delete( user )
+        db.session.commit()
+
+        return make_response( {}, RESP_CODES[ "OK" ] )
+
+    except Exception as err:
+        return make_response( str(err), RESP_CODES[ "BAD_REQUEST" ] )
 
 '''
 Api route handler for login. Generates are returns a JWT to be used for authentication required requests. 
