@@ -7,6 +7,17 @@ For Linux, use:
     $ export USE_TEMP_SENSOR=false
     $ export USE_MOTOR=false
 ```
+To set non-default values for authentication parameters, use:
+```
+    $ export SECRET_KEY=<a secret key>
+    $ export TOKEN_DURATION_MINUTES=<integer number of minutes>
+```
+
+For TESTING purposes, the JWT auth on localhost can be enforced by running the server with
+```
+    $ export JWT_BYPASS_LOCALHOST=false
+```
+Otherwise, the default is to ignore JWT for localhost requests, mainly for the purpose of voice control.
 
 On Windows(cmd), use either:
 ```

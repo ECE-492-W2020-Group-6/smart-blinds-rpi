@@ -21,4 +21,7 @@ STATUS_ROUTE = API_BASE_ROUTE + "/status"
 SCHEDULE_ROUTE = API_BASE_ROUTE + "/schedule"
 COMMAND_ROUTE = API_BASE_ROUTE + "/command"
 
+USER_ROUTE = API_BASE_ROUTE + "/user"
+LOGIN_ROUTE = "/login"
+
 # ---------- END OF API Constants ---------- #
