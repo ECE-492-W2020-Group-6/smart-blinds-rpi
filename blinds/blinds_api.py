@@ -178,16 +178,13 @@ class SmartBlindsSystem:
     def getPosition( self ):
         print( "processing request for GET position")
         
-        # dummy temporary data
-        data = {
-            "position" : "15"
-        }
-
-        resp = ( data, RESP_CODES[ "OK" ] )
-
-        # TODO: ERROR CASE 
-
-        return resp
+        try:
+            data = {
+                "position" : str(self._blinds.currentPosition),
+            }
+            return ( data, RESP_CODES[ "OK" ] )
+        except Exception as err:
+            return ( str(err), RESP_CODES[ "BAD_REQUEST" ] )
 
     '''
     API GET request handler for status
