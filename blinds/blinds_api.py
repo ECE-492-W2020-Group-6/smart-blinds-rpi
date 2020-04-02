@@ -14,7 +14,7 @@ the response data.
 Author: Alex (Yin) Chen
 Creation Date: February 1, 2020
 '''
-
+   
 import bme280
 from enum import Enum
 import json
@@ -70,7 +70,6 @@ class Blinds:
 
     '''
     Resets the blinds to the 0% tilt position (horizontal slats)
-    TODO: Testing
     '''
     def reset_position( self ):
         print( "resetting to horizontal position" )
@@ -89,7 +88,6 @@ class Blinds:
 
     '''
     Adjust blinds to the position specified as a percentage in [-100%, 100%]
-    TODO: Testing
     '''
     def rotateToPosition( self, position ):
         if ( position > 100 or position < -100 ):
@@ -112,8 +110,13 @@ class Blinds:
         set_motor_position(desired_tilt_angle)
 
         self._currentPosition = position
-        
-        pass
+
+    '''
+    Re-define 0 position after user manually places blinds
+    '''
+    def calibratePosition( self ):
+        set_motor_position( 0 )
+        self._currentPosition = 0
 
 
 '''
@@ -191,6 +194,16 @@ class SmartBlindsSystem:
         except Exception as err:
             return ( str(err), RESP_CODES[ "BAD_REQUEST" ] )
 
+    '''
+    API POST request handler for position calibration
+    URL: CALIBRATE_POSITION_ROUTE
+    '''
+    def postCalibratePosition( self ):
+        try:
+            self._blinds.calibratePosition()
+            return ( {}, RESP_CODES[ "OK" ] )
+        except Exception as err:
+            return ( str(err), RESP_CODES[ "BAD_REQUEST" ] )
 
     '''
     API GET request handler for status

@@ -151,6 +151,13 @@ def handle_position():
         return smart_blinds_system.postPosition( request.json )
 
 '''
+API handler to handle request to calibrate blind position
+'''
+@app.route( CALIBRATE_POSITION_ROUTE, methods=[ 'POST' ] )
+def handle_position_calibration():
+    return smart_blinds_system.postCalibratePosition()
+
+'''
 API hander to return the current status of the system. This includes the position and temperature. 
 '''
 @app.route( STATUS_ROUTE, methods=[ 'GET' ] )
