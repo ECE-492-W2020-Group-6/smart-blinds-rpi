@@ -295,6 +295,14 @@ def login():
 
 ### ======== END AUTH RELATED ROUTES ======== ###
 
+'''
+Perform setup for running the main loop for the server system. 
+
+'''
+def start_main_loop():
+    pass
+
 
 if __name__ == "__main__":
+    start_main_loop()
     app.run( debug=True )

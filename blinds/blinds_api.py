@@ -21,6 +21,8 @@ import json
 from requests import codes as RESP_CODES
 import smbus2
 from easydriver.easydriver import MicroStepResolution, StepDirection
+import time
+import datetime
 
 from blinds.blinds_command import BlindsCommand
 from blinds.blinds_schedule import BlindsSchedule, ScheduleTimeBlock, InvalidBlindsScheduleException, BlindSchedulingException
@@ -333,6 +335,39 @@ class SmartBlindsSystem:
         return {}, RESP_CODES[ "OK" ]
     
     # ---------- END OF API functions --------- #
+
+    '''
+    Main loop for the system. This performs checks of the system state, ie. what is currently scheduled and  
+    
+    This performs checks of the "environment", such as the temperature and weather data
+    '''
+    def main_loop( self, iter_per_min=1 ): 
+        sleep_time = 60 / iter_per_min
+
+        while True: 
+            print( "Performing main loop iteration" )
+            # TODO: what happens in an iteration
+            self.check_state_and_update()
+            time.sleep( sleep_time )
+
+    '''
+    Single loop of the main loop.
+    
+    '''
+    def check_state_and_update( self ): 
+        current_time = datetime.datetime.now( self._blindsSchedule._timezone )
+        print( current_time )
+        return 
+
+
+    '''
+    Perform update to motor and controls as needed.
+    '''
+    def do_blinds_update( self, target_pos ):
+        pass
+
+
+
 
 # ---------- Custom Exception classes --------- #
 # Thrown when an position outside of [-100, 100] is given to rotateToPositions
