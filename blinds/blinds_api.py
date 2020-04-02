@@ -69,13 +69,6 @@ class Blinds:
         return self._currentPosition
 
     '''
-    Updates the current position.
-    '''
-    @currentPosition.setter
-    def currentPosition( self, position ):
-        self._currentPosition = position
-
-    '''
     Resets the blinds to the 0% tilt position (horizontal slats)
     TODO: Testing
     '''
