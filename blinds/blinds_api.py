@@ -14,7 +14,7 @@ the response data.
 Author: Alex (Yin) Chen
 Creation Date: February 1, 2020
 '''
-
+   
 import bme280
 from enum import Enum
 import json
@@ -45,27 +45,27 @@ class Blinds:
     # Private attributes
     _motorDriver = None
     _angleStepMapper = None
-
-    # current position of the blinds as a rotational %
-    # 0 is horizontal, 100 is fully closed "up" positioin, -100 is fully closed "down" position
+    # current position of the blinds as a rotational % 0 is horizontal, 100 is fully closed "up" positioin, -100 is fully closed "down" position
     _currentPosition = None 
 
     '''
     Constuctor. Set the motor driver.
     Set driver to None to allow for testing without a driver. 
-    TODO fill in other setup procedures for hardware. 
     '''
-    def __init__( self, driver, mapper, startingPos = 0 ):
+    def __init__( self, driver, mapper ):
         self._motorDriver = driver
         self._angleStepMapper = mapper
-        self._currentPosition = startingPos
+        self._currentPosition = get_motor_position() * ( 1/ANGLE_POSITION_FACTOR )
 
-        # TODO: OTHER SETUP PROCEDURES
-        pass
+    '''
+    Gets current position of blinds.
+    '''
+    @property 
+    def currentPosition( self ):
+        return self._currentPosition
 
     '''
     Resets the blinds to the 0% tilt position (horizontal slats)
-    TODO: Testing
     '''
     def reset_position( self ):
         print( "resetting to horizontal position" )
@@ -84,7 +84,6 @@ class Blinds:
 
     '''
     Adjust blinds to the position specified as a percentage in [-100%, 100%]
-    TODO: Testing
     '''
     def rotateToPosition( self, position ):
         if ( position > 100 or position < -100 ):
@@ -107,8 +106,13 @@ class Blinds:
         set_motor_position(desired_tilt_angle)
 
         self._currentPosition = position
-        
-        pass
+
+    '''
+    Re-define 0 position after user manually places blinds
+    '''
+    def calibratePosition( self ):
+        set_motor_position( 0 )
+        self._currentPosition = 0
 
 
 '''
@@ -161,42 +165,56 @@ class SmartBlindsSystem:
     '''
     API GET request handler for position
     URL: POSITION_ROUTE
-    TODO: METHOD STUB 
     '''
     def getPosition( self ):
         print( "processing request for GET position")
         
-        # dummy temporary data
-        data = {
-            "position" : "15"
-        }
+        try:
+            data = {
+                "position" : str(self._blinds.currentPosition),
+            }
+            return ( data, RESP_CODES[ "OK" ] )
+        except Exception as err:
+            return ( str(err), RESP_CODES[ "BAD_REQUEST" ] )
 
-        resp = ( data, RESP_CODES[ "OK" ] )
+    '''
+    API POST request handler for position
+    URL: POSITION_ROUTE
+    '''
+    def postPosition( self, data ):
+        print( f"processing request for POST position, data: {data}" )
+        try:
+            position = data["position"]
+            self._blinds.rotateToPosition(position)
+            return ( {}, RESP_CODES[ "OK" ] )
+        except Exception as err:
+            return ( str(err), RESP_CODES[ "BAD_REQUEST" ] )
 
-        # TODO: ERROR CASE 
-
-        return resp
+    '''
+    API POST request handler for position calibration
+    URL: CALIBRATE_POSITION_ROUTE
+    '''
+    def postCalibratePosition( self ):
+        try:
+            self._blinds.calibratePosition()
+            return ( {}, RESP_CODES[ "OK" ] )
+        except Exception as err:
+            return ( str(err), RESP_CODES[ "BAD_REQUEST" ] )
 
     '''
     API GET request handler for status
     URL: STATUS_ROUTE
-    TODO: METHOD STUB 
     '''
     def getStatus( self ):
-        print( "processing request for GET status")
-        
-        # dummy temporary data
-        data = {
-            "position" : "-30",
-            "temperature" : "18",
-            "temp_units" : "C"
-        }
-
-        resp = ( data, RESP_CODES[ "OK" ] )
-
-        # TODO: ERROR CASE 
-
-        return resp
+        try:
+            data = {
+                "position" : str(self._blinds.currentPosition),
+                "temperature" : str(self._temperatureSensor.getSample()),
+                "temp_units" : "C"
+            }
+            return ( data, RESP_CODES[ "OK" ] )
+        except Exception as err:
+            return ( str(err), RESP_CODES[ "BAD_REQUEST" ] )
     
     '''
     API GET request handler for schedule

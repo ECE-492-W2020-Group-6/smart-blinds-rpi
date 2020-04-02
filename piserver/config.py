@@ -15,6 +15,7 @@ class Config:
     PISERVER_SECRET_KEY = os.environ.get("TOKEN_DURATION_MINUTES", "willekeurigegeheimesleutel" )
     JWT_BYPASS_LOCALHOST = bool(strtobool(os.environ.get("JWT_BYPASS_LOCALHOST", "true").lower()))
     SQLALCHEMY_TRACK_MODIFICATIONS = False # Prevent deprecation warning by explicitly setting false
+    ENABLE_POST_POSITION = bool(strtobool(os.environ.get("ENABLE_POST_POSITION", "true").lower()))
 
 class DevelopmentConfig(Config):
     DEBUG = True
