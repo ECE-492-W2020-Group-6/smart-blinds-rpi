@@ -208,23 +208,17 @@ class SmartBlindsSystem:
     '''
     API GET request handler for status
     URL: STATUS_ROUTE
-    TODO: METHOD STUB 
     '''
     def getStatus( self ):
-        print( "processing request for GET status")
-        
-        # dummy temporary data
-        data = {
-            "position" : "-30",
-            "temperature" : "18",
-            "temp_units" : "C"
-        }
-
-        resp = ( data, RESP_CODES[ "OK" ] )
-
-        # TODO: ERROR CASE 
-
-        return resp
+        try:
+            data = {
+                "position" : str(self._blinds.currentPosition),
+                "temperature" : str(self._temperatureSensor.getSample()),
+                "temp_units" : "C"
+            }
+            return ( data, RESP_CODES[ "OK" ] )
+        except Exception as err:
+            return ( str(err), RESP_CODES[ "BAD_REQUEST" ] )
     
     '''
     API GET request handler for schedule
