@@ -43,23 +43,17 @@ class Blinds:
     # Private attributes
     _motorDriver = None
     _angleStepMapper = None
-
-    # current position of the blinds as a rotational %
-    # 0 is horizontal, 100 is fully closed "up" positioin, -100 is fully closed "down" position
+    # current position of the blinds as a rotational % 0 is horizontal, 100 is fully closed "up" positioin, -100 is fully closed "down" position
     _currentPosition = None 
 
     '''
     Constuctor. Set the motor driver.
     Set driver to None to allow for testing without a driver. 
-    TODO fill in other setup procedures for hardware. 
     '''
-    def __init__( self, driver, mapper, startingPos = 0 ):
+    def __init__( self, driver, mapper ):
         self._motorDriver = driver
         self._angleStepMapper = mapper
-        self._currentPosition = startingPos
-
-        # TODO: OTHER SETUP PROCEDURES
-        pass
+        self._currentPosition = get_motor_position() * ( 1/ANGLE_POSITION_FACTOR )
 
     '''
     Gets current position of blinds.
