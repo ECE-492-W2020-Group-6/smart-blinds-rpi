@@ -4,5 +4,6 @@
     "timezone_adjustment": -6,
     "minute": 55,
     "cloud_cover_percentage": 28.000000000000004,
-    "ext_temp_celsius": -2.872222222222223
+    "ext_temp_celsius": -2.872222222222223,
+    "motor_position": 0.0
 }
