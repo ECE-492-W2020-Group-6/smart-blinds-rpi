@@ -33,6 +33,7 @@ from controlalgorithm.persistent_data import get_motor_position
 from controlalgorithm.persistent_data import set_motor_position
 from easydriver.easydriver import EasyDriver, PowerState, MicroStepResolution, StepDirection
 from piserver.api_routes import *
+import threading
 
 '''
 Class to model blinds as an abstraction. 
@@ -355,18 +356,27 @@ class SmartBlindsSystem:
     # ---------- END OF API functions --------- #
 
     '''
-    Main loop for the system. This performs checks of the system state, ie. what is currently scheduled and  
+    Start the main loop for the system. This performs checks of the system state, ie. what is currently scheduled or
+    current commands and defaults. This will generate a new thread (thus sharing the memory space) to allow the same 
+    SmartBlindsSystem object.  
     
     This performs checks of the "environment", such as the temperature and weather data
     '''
-    def main_loop( self, iter_per_min=1 ): 
+    def activate_main_loop( self, iter_per_min=1 ): 
         sleep_time = 60 / iter_per_min
 
-        while True: 
-            print( "Performing main loop iteration" )
-            # TODO: what happens in an iteration
-            self.check_state_and_update()
-            time.sleep( sleep_time )
+        '''
+        Inner function of the actual main loop to execute.        
+        '''
+        def main_loop():   
+            while True: 
+                print( "Performing main loop iteration" )
+                # TODO: what happens in an iteration
+                self.check_state_and_update()
+                time.sleep( sleep_time )
+
+        thread = threading.Thread(target=main_loop)
+        thread.start()
 
     '''
     Single loop of the main loop.
