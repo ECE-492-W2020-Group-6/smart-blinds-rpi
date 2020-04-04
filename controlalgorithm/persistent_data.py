@@ -25,7 +25,7 @@ For tests, will be tests folder
 """
 # persistent_data_path = os.path.join(os.path.dirname(__file__), "..")
 persistent_data_path = os.path.dirname(os.path.abspath( __file__ ))
-persistent_data_file = os.path.join(persistent_data_path, "persistent_data.json")
+persistent_data_file = os.path.join(persistent_data_path, "..", "persistent_data.json")
 
 """
 API Keys and Endpoints
