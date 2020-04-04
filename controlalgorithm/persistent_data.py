@@ -19,11 +19,13 @@ import sys
 import controlalgorithm.user_defined_exceptions as exceptions
 
 """
-Path pointing to the directory where the persistent_data.json file is read/written
+Path pointing to the directory where the persistent_data json file is read/written
 For main program, will be smart-blinds-rpi folder
 For tests, will be tests folder
 """
-persistent_data_path = os.path.join(os.path.dirname(__file__), "..")
+# persistent_data_path = os.path.join(os.path.dirname(__file__), "..")
+persistent_data_path = os.path.dirname(os.path.abspath( __file__ ))
+persistent_data_file = os.path.join(persistent_data_path, "persistent_data.json")
 
 """
 API Keys and Endpoints
@@ -41,12 +43,12 @@ Forward Geocoding
 Given a location or place name, 
 get the latitude/longitude
 and time zone of the place
-Then put the values in persistent_data.json
+Then put the values in persistent_data json file
 """
 def get_lat_lon():
     # first check if json data file is present and readable
-    if os.path.isfile("persistent_data.json") and os.access("persistent_data.json", os.R_OK):
-        with open("persistent_data.json", "r+") as fp:
+    if os.path.isfile(persistent_data_file) and os.access(persistent_data_file, os.R_OK):
+        with open(persistent_data_file, "r+") as fp:
             persistent_data_dict = json.load(fp)
         lat = persistent_data_dict["lat"]
         lon = persistent_data_dict["lon"]
@@ -73,7 +75,7 @@ def get_lat_lon():
         persistent_data_dict["timezone_adjustment"] = timezone_adjustment
         
         # save data as json file
-        with open("persistent_data.json", "w") as fp:
+        with open(persistent_data_file, "w") as fp:
             json.dump(persistent_data_dict, fp, indent=4)
     return lat, lon, timezone_adjustment
 
@@ -86,10 +88,10 @@ def fahrenheit_to_celsius(fahrenheit):
 Given a lat/lon and timezone_adjustment factor,
 get the cloud coverage in terms of a percentage from DarkSky
 and the external temperature in Celsius from DarkSky
-Then put the values in persistent_data.json
+Then put the values in persistent_data json file
 """
 def update_cloud_cover_percentage_and_ext_temp(lat, lon, timezone_adjustment):
-    with open("persistent_data.json", "r+") as fp:
+    with open(persistent_data_file, "r+") as fp:
         persistent_data_dict = json.load(fp)
         
     # UTC +0 time (7 hours ahead of MST -7) [MST = UTC - 7]
@@ -108,19 +110,19 @@ def update_cloud_cover_percentage_and_ext_temp(lat, lon, timezone_adjustment):
     persistent_data_dict["cloud_cover_percentage"] = cloud_cover_percentage
     persistent_data_dict["ext_temp_celsius"] = ext_temp_celsius
 
-    with open("persistent_data.json", "w") as fp:
+    with open(persistent_data_file, "w") as fp:
         json.dump(persistent_data_dict, fp, indent=4)
     return cloud_cover_percentage, ext_temp_celsius
 
 """
 Get the cloud coverage in terms of a percentage
 and the external temperature in Celsius
-from persistent_data.json
+from persistent_data json file
 """
 def get_cloud_cover_percentage_and_ext_temp():
     lat, lon, timezone_adjustment = get_lat_lon()
 
-    with open("persistent_data.json", "r+") as fp:
+    with open(persistent_data_file, "r+") as fp:
         persistent_data_dict = json.load(fp)
 
     # if persistent_data already has cloud cover and ext temp values
@@ -143,7 +145,7 @@ def get_cloud_cover_percentage_and_ext_temp():
 Read and return the motor position (constrained from -90 to 90 in degrees)
 """
 def get_motor_position():
-    with open("persistent_data.json", "r+") as fp:
+    with open(persistent_data_file, "r+") as fp:
         persistent_data_dict = json.load(fp)
 
     if "motor_position" not in persistent_data_dict:
@@ -155,12 +157,12 @@ def get_motor_position():
 Update the motor position (constrained from -90 to 90 in degrees)
 """
 def set_motor_position(angle):
-    with open("persistent_data.json", "r+") as fp:
+    with open(persistent_data_file, "r+") as fp:
         persistent_data_dict = json.load(fp)
 
     persistent_data_dict["motor_position"] = angle
 
-    with open("persistent_data.json", "w") as fp:
+    with open(persistent_data_file, "w") as fp:
         json.dump(persistent_data_dict, fp, indent=4)
     
     return persistent_data_dict["motor_position"]
