@@ -17,8 +17,12 @@ API_BASE_ROUTE = "/api/v%d" % API_VERSION
 MOTOR_TEST_ROUTE = API_BASE_ROUTE + "/motortest"
 TEMPERATURE_ROUTE = API_BASE_ROUTE + "/temp"
 POSITION_ROUTE = API_BASE_ROUTE + "/pos"
+CALIBRATE_POSITION_ROUTE = API_BASE_ROUTE + "/calibratepos"
 STATUS_ROUTE = API_BASE_ROUTE + "/status"
 SCHEDULE_ROUTE = API_BASE_ROUTE + "/schedule"
 COMMAND_ROUTE = API_BASE_ROUTE + "/command"
+
+USER_ROUTE = API_BASE_ROUTE + "/user"
+LOGIN_ROUTE = "/login"
 
 # ---------- END OF API Constants ---------- #

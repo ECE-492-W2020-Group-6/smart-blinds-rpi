@@ -10,8 +10,10 @@ pandas>=1.0.1
 pvlib==0.7.1
 smbus2==0.3.0
 Flask-Cors==3.0.8
+SQLAlchemy>=0.8.0
 tzlocal>=2.0.0
 RPi.GPIO>=0.7.0
+Flask-SQLAlchemy>=2.4.1
 # Install bme280 package from git since no PyPi packages exist
 # for python versions > 3.6
 git+https://github.com/rm-hull/bme280
