@@ -388,7 +388,14 @@ class BlindsSchedule:
 
         if ( offset != int( offset ) or ( plusminus == "+" and offset > 12 ) or ( plusminus == "-" and offset > 14 ) ):
             raise InvalidTimeZoneStringException( "Offset must be an integer number of hours between -14 and 12" )
-        
+
+        # Reverse sign since POSIX timezones have opposite notion of ISO 8601 convention
+        # See: https://en.wikipedia.org/wiki/Tz_database
+        if plusminus == "+":
+            plusminus = "-"
+        elif plusminus == "-":
+            plusminus = "+"
+
         return timezone( gmtTimezoneBase + plusminus + str( int( offset ) ) )
 
     '''
