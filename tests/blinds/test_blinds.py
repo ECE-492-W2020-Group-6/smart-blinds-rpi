@@ -43,8 +43,6 @@ class TestBlinds:
         mapper = AngleStepMapper()
         blinds = Blinds( driver, mapper )
         
-        assert ( blinds._currentPosition == 0 )
-
         blinds.rotateToPosition( 12 )
         assert ( blinds._currentPosition == 12 )
 

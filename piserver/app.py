@@ -5,6 +5,7 @@ Attributions:
 Code for authentication with JWT's taken from Pretty Printed's YouTube tutorial 
 at https://www.youtube.com/watch?v=WxGBoY5iNXY and adapted 
 Original source code from tutorial can be found at: https://s3.us-east-2.amazonaws.com/prettyprinted/jwt_api_example.zip
+Multithreading startup based on example from https://networklore.com/start-task-with-flask/ 
 
 Author: Alex (Yin) Chen
 Creation Date: February 1, 2020
@@ -23,11 +24,13 @@ from controlalgorithm.angle_step_mapper import AngleStepMapper
 from gpiozero import Device
 import os
 import uuid
-from requests import codes as RESP_CODES
+from requests import codes as RESP_CODES, get as requests_get
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 import datetime
 from functools import wraps
+import time
+import threading
 
 # flask setup
 app = Flask(__name__)
@@ -124,11 +127,11 @@ smart_blinds_system =  SmartBlindsSystem( Blinds( motor_driver, mapper ), app_sc
 # Basic response routes for testing purposes 
 @app.route('/')
 def index():
-    return 'Server Works!'
+    return 'Server Works!' 
 
 @app.route('/greet')
 def say_hello():
-    return 'Hello from Server'
+    return 'Hello from Server ' + __name__
 
 # Routes for blinds system
 '''
@@ -184,10 +187,10 @@ def handle_schedule():
         return smart_blinds_system.getSchedule()
     
     if request.method == 'POST':
-        return smart_blinds_system.postSchedule( request.json )
+        return smart_blinds_system.postSchedule( request.json, forceUpdate=True )
 
     if request.method == 'DELETE':
-        return smart_blinds_system.deleteSchedule()
+        return smart_blinds_system.deleteSchedule( forceUpdate=True )
 
 '''
 API handler for setting and clearing manual override commands.
@@ -198,10 +201,10 @@ Requires authenticated user's JWT to use.
 def handle_command():
     if request.method == 'POST':
         command = request.json
-        return smart_blinds_system.postBlindsCommand( command )
+        return smart_blinds_system.postBlindsCommand( command, forceUpdate=True )
 
     if request.method == 'DELETE':
-        return smart_blinds_system.deleteBlindsCommand()
+        return smart_blinds_system.deleteBlindsCommand( forceUpdate=True )
 
 
 ### ======== BEGIN AUTH RELATED ROUTES ======== ###
@@ -307,6 +310,42 @@ def login():
 
 ### ======== END AUTH RELATED ROUTES ======== ###
 
+'''
+Perform setup for running the main loop for the server system. 
 
-if __name__ == "__main__":
-    app.run( debug=True )
+'''
+@app.before_first_request
+def start_main_loop():
+    smart_blinds_system.activate_main_loop( iter_per_min=app.config[ "SMARTBLINDS_UPDATES_PER_MIN" ])
+
+'''
+Helper function to force the server to call itself once in order to make the main loop start. 
+
+Taken from https://networklore.com/start-task-with-flask/
+'''
+def start_runner():
+    def start_loop():
+        not_started = True
+
+        while not_started:
+            print('In start loop')
+            try:
+                r = requests_get('http://127.0.0.1:5000/')
+                if r.status_code == 200:
+                    print('Server started, quiting start_loop')
+                    not_started = False
+                print(r.status_code)
+            except:
+                print('Server not yet started')
+            time.sleep(2)
+
+    print('Started runner')
+    thread = threading.Thread(target=start_loop)
+    thread.start()
+
+# if __name__ == "__main__":
+#     start_runner()
+#     app.run( debug=True )
+
+# Force an api call to itself to ensure that the main loop thread is properly started
+start_runner()

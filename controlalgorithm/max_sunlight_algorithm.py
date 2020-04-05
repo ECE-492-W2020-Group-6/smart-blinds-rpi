@@ -10,7 +10,7 @@ import os
 import pandas
 import pvlib.solarposition
 import requests
-
+from pytz import timezone
 import controlalgorithm.persistent_data as p_data
 import controlalgorithm.user_defined_exceptions as exceptions
 
@@ -19,16 +19,18 @@ Given a lat/lon, get the solar angle from pvlib.solarposition
 """
 def get_solar_angle():
     lat, lon, timezone_adjustment = p_data.get_lat_lon()
+    
+    # Etc/GMT convention has opposite sign from GMT convention
+    sign = "-" if timezone_adjustment >= 0 else "+" 
+    tz = timezone(f"Etc/GMT{sign}{abs(timezone_adjustment)}")
 
-    # UTC +0 time (7 hours ahead of MST -7) [MST = UTC - 7]
-    date_time = datetime.datetime.today()
-
+    date_time = datetime.datetime.now(tz)
     # create data frame for date
     date_data_frame = pandas.DataFrame({
         "year": [date_time.year],
         "month": [date_time.month],
         "day": [date_time.day],
-        "hour": [date_time.hour + timezone_adjustment],
+        "hour": [date_time.hour],
         "minute": [date_time.minute]
     })
 

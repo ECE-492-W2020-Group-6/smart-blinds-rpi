@@ -21,16 +21,22 @@ import json
 from requests import codes as RESP_CODES
 import smbus2
 from easydriver.easydriver import MicroStepResolution, StepDirection
+import time
+import datetime
 
 from blinds.blinds_command import BlindsCommand
-from blinds.blinds_schedule import BlindsSchedule, ScheduleTimeBlock, InvalidBlindsScheduleException, BlindSchedulingException
+from blinds.blinds_schedule import BlindMode, BlindsSchedule, ScheduleTimeBlock, InvalidBlindsScheduleException, BlindSchedulingException
 from controlalgorithm.angle_step_mapper import ANGLE_POSITION_FACTOR
 from controlalgorithm.angle_step_mapper import NUM_STEPS_FACTOR
 from controlalgorithm.angle_step_mapper import AngleStepMapper
 from controlalgorithm.persistent_data import get_motor_position
 from controlalgorithm.persistent_data import set_motor_position
+from controlalgorithm.max_sunlight_algorithm import max_sunlight_algorithm
+from controlalgorithm.composite_algorithm import composite_algorithm
+from controlalgorithm.heat_mgmt_algorithm import heat_mgmt_algorithm
 from easydriver.easydriver import EasyDriver, PowerState, MicroStepResolution, StepDirection
 from piserver.api_routes import *
+import threading
 
 '''
 Class to model blinds as an abstraction. 
@@ -43,7 +49,7 @@ class Blinds:
     # Private attributes
     _motorDriver = None
     _angleStepMapper = None
-    # current position of the blinds as a rotational % 0 is horizontal, 100 is fully closed "up" positioin, -100 is fully closed "down" position
+    # current position of the blinds as a rotational % 0 is horizontal, 100 is fully closed "up" position, -100 is fully closed "down" position
     _currentPosition = None 
 
     '''
@@ -93,7 +99,7 @@ class Blinds:
         
         num_steps, motor_dir = self._angleStepMapper.map_angle_to_step(desired_tilt_angle, self.step_resolution)
 
-        num_steps = round(num_steps * NUM_STEPS_FACTOR)
+        num_steps = int(abs(round(num_steps * NUM_STEPS_FACTOR)))
 
         self._motorDriver.microstep_resolution = self.step_resolution
         self._motorDriver.step(steps=num_steps, direction=motor_dir)
@@ -121,6 +127,7 @@ class SmartBlindsSystem:
     _blinds = None
     _blindsSchedule = None
     _temperatureSensor = None
+    _currentMode = None
 
     '''
     Costructor for modelling the system of blinds as a whole. 
@@ -140,6 +147,8 @@ class SmartBlindsSystem:
         # the currently active manual command, if any 
         # self._activeCommandTimeBlock should be set to a ScheduleTimeBlock 
         self._activeCommandTimeBlock = None
+
+        self._currentMode = self._blindsSchedule._default_mode
 
     # ---------- API functions --------- #
     '''
@@ -208,7 +217,8 @@ class SmartBlindsSystem:
             data = {
                 "position" : str(self._blinds.currentPosition),
                 "temperature" : str(self._temperatureSensor.getSample()),
-                "temp_units" : "C"
+                "temp_units" : "C",
+                "mode" : self._currentMode.name
             }
             return ( data, RESP_CODES[ "OK" ] )
         except Exception as err:
@@ -254,15 +264,21 @@ class SmartBlindsSystem:
 
     '''
     API POST request handler for schedule. For now accept only POST request of a full schedule
+
+    Set forceUpdate to true for immediate update.
+
     URL: SCHEDULE_ROUTE
-    TODO: METHOD STUB 
     '''
-    def postSchedule( self, schedule ):
+    def postSchedule( self, schedule, forceUpdate=False ):
         print( "processing request for POST schedule")
         print( "received schedule=\n", schedule )
 
         try:
             self._blindsSchedule = BlindsSchedule.fromDict( schedule )
+
+            if forceUpdate:
+                self.check_state_and_update()
+
             return schedule, RESP_CODES[ "ACCEPTED" ]
 
         except ( InvalidBlindsScheduleException, BlindSchedulingException ) as err:
@@ -274,11 +290,13 @@ class SmartBlindsSystem:
             return str( err ), RESP_CODES[ "BAD_REQUEST" ]
 
     '''
-    API DELETE request handler for schedule
+    API DELETE request handler for schedule. Deletes the currently active schedule. 
+
+    Set forceUpdate to true for immediate update.
+
     URL: SCHEDULE_ROUTE
-    TODO: METHOD STUB 
     '''
-    def deleteSchedule( self ):
+    def deleteSchedule( self, forceUpdate=False ):
         print( "processing request for DELETE schedule")
 
         try:
@@ -293,11 +311,11 @@ class SmartBlindsSystem:
                 BlindsSchedule.SATURDAY : []
             }
 
-            # TODO: force update on current state
+            if forceUpdate:
+                # force update on current state
+                self.check_state_and_update()
 
             return BlindsSchedule.toDict( self._blindsSchedule ), RESP_CODES[ "OK" ]
-
-        # TODO Other error cases
 
         except Exception as err: # catch all others and return an error message 
             #TODO : More specialized handling for safety, we don't want just any error messages being spit to the user, for 
@@ -314,22 +332,27 @@ class SmartBlindsSystem:
     }
     if time is given value 0, this is change will remain until the next day
 
+    Set forceUpdate to true for immediate update.
+
     URL: COMMAND_ROUTE
-    TODO: Testing 
     '''
-    def postBlindsCommand( self, command ):
+    def postBlindsCommand( self, command, forceUpdate=False ):
         print( "processing request for POST command")
         try:
             blindsCommand = BlindsCommand.fromDict( command )
 
-            # update active command 
-            self._activeCommandTimeBlock = blindsCommand.toTimeBlock()
+            # update active command, use custome time provider to insert a timezone
+            self._activeCommandTimeBlock = blindsCommand.toTimeBlock( 
+                    currentTimeProvider=datetime.datetime.now( self._blindsSchedule._timezone ).time )
 
             # return the resulting time block from the command
             data = ScheduleTimeBlock.toDict( self._activeCommandTimeBlock ) or {}
-            return data, RESP_CODES[ "ACCEPTED" ]   
 
-            # TODO: Update current state based on the command
+            if forceUpdate:
+                # Update current state based on the command
+                self.check_state_and_update()
+
+            return data, RESP_CODES[ "ACCEPTED" ]   
 
         except Exception as err:
             return ( str(err), RESP_CODES[ "BAD_REQUEST" ] )
@@ -338,19 +361,131 @@ class SmartBlindsSystem:
     API DELETE request handler for command 
     This should be used to clear the currently active command, restoring the blinds to the scheduled behaviour.
 
+    Set forceUpdate to true for immediate update.
+
     URL: COMMAND_ROUTE
     '''
-    def deleteBlindsCommand( self ): 
+    def deleteBlindsCommand( self, forceUpdate=False ): 
         print( "processing request for DELETE command")
         self._activeCommandTimeBlock = None
 
-        # TODO: Force system update to move blinds to desired position
-
-        # TODO: ERROR CASE 
+        # Force system update to move blinds to desired position
+        if forceUpdate:
+            self.check_state_and_update()
 
         return {}, RESP_CODES[ "OK" ]
     
     # ---------- END OF API functions --------- #
+
+    '''
+    Start the main loop for the system. This performs checks of the system state, ie. what is currently scheduled or
+    current commands and defaults. This will generate a new thread (thus sharing the memory space) to allow the same 
+    SmartBlindsSystem object.  
+    
+    This performs checks of the "environment", such as the temperature and weather data
+    '''
+    def activate_main_loop( self, iter_per_min=1 ): 
+        sleep_time = 60 / iter_per_min
+
+        '''
+        Inner function of the actual main loop to execute.        
+        '''
+        def main_loop():   
+            while True: 
+                print( "Performing main loop iteration" )
+                # TODO: what happens in an iteration
+                self.check_state_and_update()
+                time.sleep( sleep_time )
+
+        thread = threading.Thread(target=main_loop)
+        thread.start()
+
+    '''
+    Single iteration of the main loop.
+    
+    '''
+    def check_state_and_update( self ):
+        current_datetime = datetime.datetime.now( self._blindsSchedule._timezone )
+        current_time = current_datetime.time()
+        print( f"Checking and updating at time: {current_datetime}" )
+
+        # check active command. apply or clear the command
+        if self._activeCommandTimeBlock is not None:
+            check_time_result = self._activeCommandTimeBlock.checkTime( current_time )
+
+            # case 1: current time is before the command duration
+            # ignore and do nothing, this means the command does not have to be dealt with yet
+
+            # case 2: current time is within the command duration
+            if check_time_result == 0:
+                print( "DEBUG: Found an applicable command.", ScheduleTimeBlock.toJson( self._activeCommandTimeBlock ) )
+                self.do_blinds_update( self._activeCommandTimeBlock._mode, self._activeCommandTimeBlock._position )
+                return
+
+            # case 3: current time is after the command duration
+            elif check_time_result == 1:
+                # clear the current command, it is no longer valid
+                self._activeCommandTimeBlock = None
+                
+        # At this point, there is no need to deal with manual commands. Check the schedule for a time block
+        current_weekday_index = current_datetime.weekday()
+        current_weekday_name = BlindsSchedule.DAYS_OF_WEEK[ current_weekday_index ]
+
+        day_sched = self._blindsSchedule._schedule.get( current_weekday_name )
+
+        active_schedule_block = None
+        for block in day_sched:
+            if block.checkTime( current_time ) == 0:
+                active_schedule_block = block
+                break
+
+        # found a time block correspoding to current time
+        if active_schedule_block is not None: 
+            print( "DEBUG: Found an applicable scheduled block.", ScheduleTimeBlock.toJson( active_schedule_block ) )
+            self.do_blinds_update( active_schedule_block._mode, active_schedule_block._position )
+            return 
+
+        # At this point, no time block was found, so we go to the default behaviour
+        print( "DEBUG: Using defaults. Mode=", self._blindsSchedule._default_mode.name, " Pos=", self._blindsSchedule._default_pos )
+        self.do_blinds_update( self._blindsSchedule._default_mode, self._blindsSchedule._default_pos )
+        return 
+
+
+    '''
+    Perform update to motor and controls as needed.
+    '''
+    def do_blinds_update( self, target_mode, target_pos=None ):
+        position = target_pos
+
+        if target_mode == BlindMode.MANUAL:
+            # pass for this case, target position is already known
+            pass
+
+        # for other modes, calculate the correct target position
+        elif target_mode == BlindMode.LIGHT:
+            # convert angle to position
+            position = max_sunlight_algorithm() / ANGLE_POSITION_FACTOR
+
+        elif target_mode == BlindMode.DARK:
+            # treat -100% as the DARK mode
+            position = -100
+
+        elif target_mode == BlindMode.ECO:
+            # convert angle to position
+            position = heat_mgmt_algorithm( self._temperatureSensor ) / ANGLE_POSITION_FACTOR
+
+        elif target_mode == BlindMode.BALANCED:
+            # convert angle to position
+            position = composite_algorithm( self._temperatureSensor ) / ANGLE_POSITION_FACTOR
+
+        # update current mode 
+        self._currentMode = target_mode
+
+        # prevent unnecessary rotations
+        if position != self._blinds._currentPosition:
+            self._blinds.rotateToPosition( position )
+        else:
+            print( "DEBUG: No rotation, position has not changed" )
 
 # ---------- Custom Exception classes --------- #
 # Thrown when an position outside of [-100, 100] is given to rotateToPositions
