@@ -95,6 +95,21 @@ class ScheduleTimeBlock:
 
         self.validate()
 
+    '''
+    Checks whether the provided time is before, within, or after the ScheduleTimeBlock.
+
+    Returns -1 if time is earlier than the start, 0 if it is between start and end, and 1 if 
+    it is after the end. 
+    '''
+    def checkTime( self, time ): 
+        if time < self._start:
+            return -1
+        
+        if time < self._end:
+            return 0
+
+        return 1
+
     # ---------- Static Helper Methods for Serialization/Deserialization --------- #
     '''
     Converts a ScheduleTimeBlock into a dictionary that can be easily translated to JSON. 
@@ -225,7 +240,7 @@ class BlindsSchedule:
     FRIDAY = "friday"
     SATURDAY = "saturday"
 
-    DAYS_OF_WEEK = set( [ SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY ] )
+    DAYS_OF_WEEK = [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
 
     # object attributes describing the schedule
     _default_mode = None 
@@ -262,6 +277,9 @@ class BlindsSchedule:
         self.sortScheduleBlocks()
         self.checkHasNoTimeConflicts()
 
+    '''
+    Sort the schedule using sortedTimeBlockList
+    '''
     def sortScheduleBlocks( self ):
         for day in BlindsSchedule.DAYS_OF_WEEK:
             self._schedule[ day ] = BlindsSchedule.sortedTimeBlockList( self._schedule[ day ] )
@@ -288,7 +306,7 @@ class BlindsSchedule:
             raise InvalidBlindsScheduleException( "default position must a value from -100 to 100" )
 
         # checks for _schedule being well formatted
-        if not isinstance( self._schedule, dict ) or ( set( self._schedule.keys() ) != BlindsSchedule.DAYS_OF_WEEK ):
+        if not isinstance( self._schedule, dict ) or ( set( self._schedule.keys() ) != set( BlindsSchedule.DAYS_OF_WEEK ) ):
             raise InvalidBlindsScheduleException( "schedule must be a dictionary with keys being the days of the week and values being lists of ScheduleTimeBlocks" )
         
         for day in BlindsSchedule.DAYS_OF_WEEK:

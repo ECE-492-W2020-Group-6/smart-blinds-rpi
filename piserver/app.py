@@ -316,8 +316,7 @@ Perform setup for running the main loop for the server system.
 '''
 @app.before_first_request
 def start_main_loop():
-    print( "here" )
-    smart_blinds_system.activate_main_loop()
+    smart_blinds_system.activate_main_loop( iter_per_min=app.config[ "SMARTBLINDS_UPDATES_PER_MIN" ])
 
 '''
 Helper function to force the server to call itself once in order to make the main loop start. 

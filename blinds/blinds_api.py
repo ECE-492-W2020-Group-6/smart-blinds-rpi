@@ -25,7 +25,7 @@ import time
 import datetime
 
 from blinds.blinds_command import BlindsCommand
-from blinds.blinds_schedule import BlindsSchedule, ScheduleTimeBlock, InvalidBlindsScheduleException, BlindSchedulingException
+from blinds.blinds_schedule import BlindMode, BlindsSchedule, ScheduleTimeBlock, InvalidBlindsScheduleException, BlindSchedulingException
 from controlalgorithm.angle_step_mapper import ANGLE_POSITION_FACTOR
 from controlalgorithm.angle_step_mapper import NUM_STEPS_FACTOR
 from controlalgorithm.angle_step_mapper import AngleStepMapper
@@ -46,7 +46,7 @@ class Blinds:
     # Private attributes
     _motorDriver = None
     _angleStepMapper = None
-    # current position of the blinds as a rotational % 0 is horizontal, 100 is fully closed "up" positioin, -100 is fully closed "down" position
+    # current position of the blinds as a rotational % 0 is horizontal, 100 is fully closed "up" position, -100 is fully closed "down" position
     _currentPosition = None 
 
     '''
@@ -379,20 +379,70 @@ class SmartBlindsSystem:
         thread.start()
 
     '''
-    Single loop of the main loop.
+    Single iteration of the main loop.
     
     '''
     def check_state_and_update( self ): 
-        current_time = datetime.datetime.now( self._blindsSchedule._timezone )
-        print( current_time )
+        current_datetime = datetime.datetime.now( self._blindsSchedule._timezone )
+        current_time = current_datetime.time()
+        print( "time: ", current_time )
+
+        # check active command. apply or clear the command
+        if self._activeCommandTimeBlock is not None:
+            check_time_result = self._activeCommandTimeBlock.checkTime( current_time )
+
+            # case 1: current time is before the command duration
+            # ignore and do nothing, this means the command does not have to be dealt with yet
+
+            # case 2: current time is within the command duration
+            if check_time_result == 0:
+                print( "DEBUG: Found an applicable command.", ScheduleTimeBlock.toJson( self._activeCommandTimeBlock ) )
+                self.do_blinds_update( self._activeCommandTimeBlock._mode, self._activeCommandTimeBlock._position )
+                return
+
+            # case 3: current time is after the command duration
+            elif check_time_result == 1:
+                # clear the current command, it is no longer valid
+                self._activeCommandTimeBlock = None
+                
+        # At this point, there is no need to deal with manual commands. Check the schedule for a time block
+        current_weekday_index = current_datetime.weekday()
+        current_weekday_name = BlindsSchedule.DAYS_OF_WEEK[ current_weekday_index ]
+
+        day_sched = self._blindsSchedule._schedule.get( current_weekday_name )
+
+        active_schedule_block = None
+        for block in day_sched:
+            if block.checkTime( current_time ) == 0:
+                active_schedule_block = block
+                break
+
+        # found a time block correspoding to current time
+        if active_schedule_block is not None: 
+            print( "DEBUG: Found an applicable scheduled block.", ScheduleTimeBlock.toJson( active_schedule_block ) )
+            self.do_blinds_update( active_schedule_block._mode, active_schedule_block._position )
+            return 
+
+        # At this point, no time block was found, so we go to the default behaviour
+        print( "DEBUG: Using defaults. Mode=", self._blindsSchedule._default_mode.name, " Pos=", self._blindsSchedule._default_pos )
+        self.do_blinds_update( self._blindsSchedule._default_mode, self._blindsSchedule._default_pos )
         return 
 
 
     '''
     Perform update to motor and controls as needed.
     '''
-    def do_blinds_update( self, target_pos ):
-        pass
+    def do_blinds_update( self, target_mode, target_pos=None ):
+        position = target_pos
+
+        if target_mode == BlindMode.LIGHT:
+            pass
+        elif target_mode == BlindMode.DARK:
+            pass
+        elif target_mode == BlindMode.ECO:
+            pass
+        elif target_mode == BlindMode.MANUAL:
+            pass
 
 
 
