@@ -30,7 +30,8 @@ persistent_data_file = os.path.join(persistent_data_path, "..", "persistent_data
 """
 API Keys and Endpoints
 """
-dotenv.load_dotenv()
+dotenv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),"..", ".env")
+dotenv.load_dotenv(dotenv_path)
 
 OPENCAGE_API_KEY = os.getenv("OPENCAGE_API_KEY")
 OPENCAGE_URL = "https://api.opencagedata.com/geocode/v1/json?key={OPENCAGE_API_KEY}&q={place_name}&pretty=1"
@@ -127,8 +128,10 @@ def get_cloud_cover_percentage_and_ext_temp():
 
     # if persistent_data already has cloud cover and ext temp values
     if "minute" in persistent_data_dict:
+        # UTC +0 time (7 hours ahead of MST -7) [MST = UTC - 7]
+        date_time = datetime.datetime.today()
         # if it has been 10 minutes, do an update of the values
-        if persistent_data_dict["minute"] % 10 == 0:
+        if date_time.minute % 10 == 0:
             cloud_cover_percentage, ext_temp_celsius = update_cloud_cover_percentage_and_ext_temp(lat, lon, timezone_adjustment)    
 
         # otherwise just get the existing values
