@@ -127,6 +127,7 @@ class SmartBlindsSystem:
     _blinds = None
     _blindsSchedule = None
     _temperatureSensor = None
+    _currentMode = None
 
     '''
     Costructor for modelling the system of blinds as a whole. 
@@ -146,6 +147,8 @@ class SmartBlindsSystem:
         # the currently active manual command, if any 
         # self._activeCommandTimeBlock should be set to a ScheduleTimeBlock 
         self._activeCommandTimeBlock = None
+
+        self._currentMode = self._blindsSchedule._default_mode
 
     # ---------- API functions --------- #
     '''
@@ -214,7 +217,8 @@ class SmartBlindsSystem:
             data = {
                 "position" : str(self._blinds.currentPosition),
                 "temperature" : str(self._temperatureSensor.getSample()),
-                "temp_units" : "C"
+                "temp_units" : "C",
+                "mode" : self._currentMode.name
             }
             return ( data, RESP_CODES[ "OK" ] )
         except Exception as err:
@@ -473,6 +477,9 @@ class SmartBlindsSystem:
         elif target_mode == BlindMode.BALANCED:
             # convert angle to position
             position = composite_algorithm( self._temperatureSensor ) / ANGLE_POSITION_FACTOR
+
+        # update current mode 
+        self._currentMode = target_mode
 
         # prevent unnecessary rotations
         if position != self._blinds._currentPosition:
