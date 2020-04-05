@@ -30,7 +30,8 @@ persistent_data_file = os.path.join(persistent_data_path, "..", "persistent_data
 """
 API Keys and Endpoints
 """
-dotenv.load_dotenv()
+dotenv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),"..", ".env")
+dotenv.load_dotenv(dotenv_path)
 
 OPENCAGE_API_KEY = os.getenv("OPENCAGE_API_KEY")
 OPENCAGE_URL = "https://api.opencagedata.com/geocode/v1/json?key={OPENCAGE_API_KEY}&q={place_name}&pretty=1"
