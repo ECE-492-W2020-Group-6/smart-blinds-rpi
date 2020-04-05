@@ -452,7 +452,7 @@ class SmartBlindsSystem:
             # convert angle to position
             position = heat_mgmt_algorithm( self._temperatureSensor ) / ANGLE_POSITION_FACTOR
 
-        elif target_mode == BlindMode.COMPOSITE:
+        elif target_mode == BlindMode.BALANCED:
             # convert angle to position
             position = composite_algorithm( self._temperatureSensor ) / ANGLE_POSITION_FACTOR
 

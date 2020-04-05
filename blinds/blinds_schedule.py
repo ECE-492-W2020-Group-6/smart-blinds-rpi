@@ -39,7 +39,7 @@ class BlindMode( Enum ):
     DARK = 2 
     ECO = 3
     MANUAL = 4
-    COMPOSITE = 5    
+    BALANCED = 5    
 
 '''
 Class represeting the time block elements for the schedule. Contains a dictionary schedule mapping days of the week
