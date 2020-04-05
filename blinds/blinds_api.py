@@ -99,7 +99,7 @@ class Blinds:
         
         num_steps, motor_dir = self._angleStepMapper.map_angle_to_step(desired_tilt_angle, self.step_resolution)
 
-        num_steps = round(num_steps * NUM_STEPS_FACTOR)
+        num_steps = int(abs(round(num_steps * NUM_STEPS_FACTOR)))
 
         self._motorDriver.microstep_resolution = self.step_resolution
         self._motorDriver.step(steps=num_steps, direction=motor_dir)
