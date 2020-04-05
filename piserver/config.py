@@ -16,6 +16,7 @@ class Config:
     JWT_BYPASS_LOCALHOST = bool(strtobool(os.environ.get("JWT_BYPASS_LOCALHOST", "true").lower()))
     SQLALCHEMY_TRACK_MODIFICATIONS = False # Prevent deprecation warning by explicitly setting false
     ENABLE_POST_POSITION = bool(strtobool(os.environ.get("ENABLE_POST_POSITION", "true").lower()))
+    SMARTBLINDS_UPDATES_PER_MIN = float( os.environ.get("SMARTBLINDS_UPDATES_PER_MIN", "1" ) )
 
 class DevelopmentConfig(Config):
     DEBUG = True

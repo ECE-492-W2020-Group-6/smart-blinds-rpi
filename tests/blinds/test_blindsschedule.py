@@ -187,13 +187,13 @@ class TestScheduleTimeBlock:
     def test_validTzParsing( self ): 
         # Timezone with positive offset
         tzString = "GMT+0200"
-        expectedTzName = "Etc/GMT+2"
+        expectedTzName = "Etc/GMT-2"
         parsedTz = BlindsSchedule.tzFromGmtString( tzString )
         assert( parsedTz.zone == expectedTzName )
 
         # Timezone with negative offset
         tzString = "GMT-0600"
-        expectedTzName = "Etc/GMT-6"
+        expectedTzName = "Etc/GMT+6"
         parsedTz = BlindsSchedule.tzFromGmtString( tzString )
         assert( parsedTz.zone == expectedTzName )
 
@@ -272,7 +272,7 @@ class TestScheduleTimeBlock:
     def test_validDeserialization( self ):
         default_mode = BlindMode.LIGHT
         default_pos = None
-        tz = timezone( "Etc/GMT-6" )
+        tz = timezone( "Etc/GMT+6" )
         sched = {
             BlindsSchedule.SUNDAY: [
                 ScheduleTimeBlock( datetime.time( 23, 38), datetime.time( 23, 59 ), BlindMode.LIGHT, None ), 

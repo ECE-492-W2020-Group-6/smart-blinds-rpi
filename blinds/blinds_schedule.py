@@ -32,12 +32,14 @@ This is used to ensure consistent values for the mode.
     DARK : Closed, minimum sunlight
     ECO : Energy efficiency mode
     MANUAL : Set custom position
+    COMPOSITE : Mix of ECO and LIGHT
 '''
 class BlindMode( Enum ):
     LIGHT = 1
     DARK = 2 
     ECO = 3
-    MANUAL = 4    
+    MANUAL = 4
+    BALANCED = 5    
 
 '''
 Class represeting the time block elements for the schedule. Contains a dictionary schedule mapping days of the week
@@ -94,6 +96,21 @@ class ScheduleTimeBlock:
         self._position = position
 
         self.validate()
+
+    '''
+    Checks whether the provided time is before, within, or after the ScheduleTimeBlock.
+
+    Returns -1 if time is earlier than the start, 0 if it is between start and end, and 1 if 
+    it is after the end. 
+    '''
+    def checkTime( self, time ): 
+        if time < self._start:
+            return -1
+        
+        if time < self._end:
+            return 0
+
+        return 1
 
     # ---------- Static Helper Methods for Serialization/Deserialization --------- #
     '''
@@ -225,7 +242,7 @@ class BlindsSchedule:
     FRIDAY = "friday"
     SATURDAY = "saturday"
 
-    DAYS_OF_WEEK = set( [ SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY ] )
+    DAYS_OF_WEEK = [ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY ]
 
     # object attributes describing the schedule
     _default_mode = None 
@@ -262,6 +279,9 @@ class BlindsSchedule:
         self.sortScheduleBlocks()
         self.checkHasNoTimeConflicts()
 
+    '''
+    Sort the schedule using sortedTimeBlockList
+    '''
     def sortScheduleBlocks( self ):
         for day in BlindsSchedule.DAYS_OF_WEEK:
             self._schedule[ day ] = BlindsSchedule.sortedTimeBlockList( self._schedule[ day ] )
@@ -288,7 +308,7 @@ class BlindsSchedule:
             raise InvalidBlindsScheduleException( "default position must a value from -100 to 100" )
 
         # checks for _schedule being well formatted
-        if not isinstance( self._schedule, dict ) or ( set( self._schedule.keys() ) != BlindsSchedule.DAYS_OF_WEEK ):
+        if not isinstance( self._schedule, dict ) or ( set( self._schedule.keys() ) != set( BlindsSchedule.DAYS_OF_WEEK ) ):
             raise InvalidBlindsScheduleException( "schedule must be a dictionary with keys being the days of the week and values being lists of ScheduleTimeBlocks" )
         
         for day in BlindsSchedule.DAYS_OF_WEEK:
@@ -368,7 +388,14 @@ class BlindsSchedule:
 
         if ( offset != int( offset ) or ( plusminus == "+" and offset > 12 ) or ( plusminus == "-" and offset > 14 ) ):
             raise InvalidTimeZoneStringException( "Offset must be an integer number of hours between -14 and 12" )
-        
+
+        # Reverse sign since POSIX timezones have opposite notion of ISO 8601 convention
+        # See: https://en.wikipedia.org/wiki/Tz_database
+        if plusminus == "+":
+            plusminus = "-"
+        elif plusminus == "-":
+            plusminus = "+"
+
         return timezone( gmtTimezoneBase + plusminus + str( int( offset ) ) )
 
     '''

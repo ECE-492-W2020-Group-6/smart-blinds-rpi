@@ -104,7 +104,7 @@ class EasyDriver(Device):
         self.microstep_resolution = microstep_resolution
         self.power_state = PowerState.OFF
         self.direction = StepDirection.FORWARD
-        self.speed = 10
+        self.speed = 30
 
     """Get's step pin
     

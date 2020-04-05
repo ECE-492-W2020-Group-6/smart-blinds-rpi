@@ -41,7 +41,7 @@ class TestSmartBlindsSystemApi:
     def test_getTemperature_with_exception(self):
         tempSensor = MockTemperatureSensor()
         tempSensor.getSample = MagicMock(side_effect=Exception)
-        blindsSystem = SmartBlindsSystem( Blinds( None, None ), None, tempSensor )
+        blindsSystem = SmartBlindsSystem( Blinds( None, None ), BlindsSchedule( BlindMode.DARK ), tempSensor )
         assert ( blindsSystem.getTemperature()[1] == RESP_CODES[ "BAD_REQUEST" ] )
 
     '''
