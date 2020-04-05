@@ -300,8 +300,6 @@ class SmartBlindsSystem:
 
             return BlindsSchedule.toDict( self._blindsSchedule ), RESP_CODES[ "OK" ]
 
-        # TODO Other error cases
-
         except Exception as err: # catch all others and return an error message 
             #TODO : More specialized handling for safety, we don't want just any error messages being spit to the user, for 
             # now, in the testing phase we return the error 
@@ -350,8 +348,6 @@ class SmartBlindsSystem:
 
         # TODO: Force system update to move blinds to desired position
 
-        # TODO: ERROR CASE 
-
         return {}, RESP_CODES[ "OK" ]
     
     # ---------- END OF API functions --------- #
@@ -386,7 +382,7 @@ class SmartBlindsSystem:
     def check_state_and_update( self ): 
         current_datetime = datetime.datetime.now( self._blindsSchedule._timezone )
         current_time = current_datetime.time()
-        print( "time: ", current_time )
+        print( "Checking and updating at time: ", current_time )
 
         # check active command. apply or clear the command
         if self._activeCommandTimeBlock is not None:
@@ -444,6 +440,8 @@ class SmartBlindsSystem:
             pass
         elif target_mode == BlindMode.MANUAL:
             pass
+
+        self._blinds.rotateToPosition( position )
 
 
 
