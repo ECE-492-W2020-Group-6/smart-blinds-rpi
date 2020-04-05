@@ -325,8 +325,9 @@ class SmartBlindsSystem:
         try:
             blindsCommand = BlindsCommand.fromDict( command )
 
-            # update active command 
-            self._activeCommandTimeBlock = blindsCommand.toTimeBlock()
+            # update active command, use custome time provider to insert a timezone
+            self._activeCommandTimeBlock = blindsCommand.toTimeBlock( 
+                    currentTimeProvider=datetime.datetime.now( self._blindsSchedule._timezone ).time )
 
             # return the resulting time block from the command
             data = ScheduleTimeBlock.toDict( self._activeCommandTimeBlock ) or {}
