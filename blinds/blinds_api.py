@@ -403,7 +403,7 @@ class SmartBlindsSystem:
     def check_state_and_update( self ):
         current_datetime = datetime.datetime.now( self._blindsSchedule._timezone )
         current_time = current_datetime.time()
-        print( "Checking and updating at time: ", current_time )
+        print( f"Checking and updating at time: {current_datetime}" )
 
         # check active command. apply or clear the command
         if self._activeCommandTimeBlock is not None:
