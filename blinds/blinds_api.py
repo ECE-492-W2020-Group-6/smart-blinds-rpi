@@ -260,18 +260,20 @@ class SmartBlindsSystem:
 
     '''
     API POST request handler for schedule. For now accept only POST request of a full schedule
+
+    Set forceUpdate to true for immediate update.
+
     URL: SCHEDULE_ROUTE
-    TODO: METHOD STUB 
     '''
-    def postSchedule( self, schedule ):
+    def postSchedule( self, schedule, forceUpdate=False ):
         print( "processing request for POST schedule")
         print( "received schedule=\n", schedule )
 
         try:
             self._blindsSchedule = BlindsSchedule.fromDict( schedule )
 
-            # force state update 
-            self.check_state_and_update()
+            if forceUpdate:
+                self.check_state_and_update()
 
             return schedule, RESP_CODES[ "ACCEPTED" ]
 
@@ -284,11 +286,13 @@ class SmartBlindsSystem:
             return str( err ), RESP_CODES[ "BAD_REQUEST" ]
 
     '''
-    API DELETE request handler for schedule
+    API DELETE request handler for schedule. Deletes the currently active schedule. 
+
+    Set forceUpdate to true for immediate update.
+
     URL: SCHEDULE_ROUTE
-    TODO: METHOD STUB 
     '''
-    def deleteSchedule( self ):
+    def deleteSchedule( self, forceUpdate=False ):
         print( "processing request for DELETE schedule")
 
         try:
@@ -303,8 +307,9 @@ class SmartBlindsSystem:
                 BlindsSchedule.SATURDAY : []
             }
 
-            # force update on current state
-            self.check_state_and_update()
+            if forceUpdate:
+                # force update on current state
+                self.check_state_and_update()
 
             return BlindsSchedule.toDict( self._blindsSchedule ), RESP_CODES[ "OK" ]
 
@@ -323,10 +328,11 @@ class SmartBlindsSystem:
     }
     if time is given value 0, this is change will remain until the next day
 
+    Set forceUpdate to true for immediate update.
+
     URL: COMMAND_ROUTE
-    TODO: Testing 
     '''
-    def postBlindsCommand( self, command ):
+    def postBlindsCommand( self, command, forceUpdate=False ):
         print( "processing request for POST command")
         try:
             blindsCommand = BlindsCommand.fromDict( command )
@@ -338,8 +344,9 @@ class SmartBlindsSystem:
             # return the resulting time block from the command
             data = ScheduleTimeBlock.toDict( self._activeCommandTimeBlock ) or {}
 
-            # Update current state based on the command
-            self.check_state_and_update()
+            if forceUpdate:
+                # Update current state based on the command
+                self.check_state_and_update()
 
             return data, RESP_CODES[ "ACCEPTED" ]   
 
@@ -350,13 +357,17 @@ class SmartBlindsSystem:
     API DELETE request handler for command 
     This should be used to clear the currently active command, restoring the blinds to the scheduled behaviour.
 
+    Set forceUpdate to true for immediate update.
+
     URL: COMMAND_ROUTE
     '''
-    def deleteBlindsCommand( self ): 
+    def deleteBlindsCommand( self, forceUpdate=False ): 
         print( "processing request for DELETE command")
         self._activeCommandTimeBlock = None
 
-        # TODO: Force system update to move blinds to desired position
+        # Force system update to move blinds to desired position
+        if forceUpdate:
+            self.check_state_and_update()
 
         return {}, RESP_CODES[ "OK" ]
     
@@ -449,7 +460,7 @@ class SmartBlindsSystem:
         # for other modes, calculate the correct target position
         elif target_mode == BlindMode.LIGHT:
             # convert angle to position
-            position = max_sunlight_algorithm() / ANGLE_POSITION_FACTOR
+            position = int( max_sunlight_algorithm() / ANGLE_POSITION_FACTOR )
 
         elif target_mode == BlindMode.DARK:
             # treat -100% as the DARK mode
@@ -457,11 +468,11 @@ class SmartBlindsSystem:
 
         elif target_mode == BlindMode.ECO:
             # convert angle to position
-            position = heat_mgmt_algorithm( self._temperatureSensor ) / ANGLE_POSITION_FACTOR
+            position = int( heat_mgmt_algorithm( self._temperatureSensor ) / ANGLE_POSITION_FACTOR )
 
         elif target_mode == BlindMode.BALANCED:
             # convert angle to position
-            position = composite_algorithm( self._temperatureSensor ) / ANGLE_POSITION_FACTOR
+            position = int( composite_algorithm( self._temperatureSensor ) / ANGLE_POSITION_FACTOR )
 
         # prevent unnecessary rotations
         if position != self._blinds._currentPosition:

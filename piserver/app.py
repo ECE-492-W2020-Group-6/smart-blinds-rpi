@@ -187,10 +187,10 @@ def handle_schedule():
         return smart_blinds_system.getSchedule()
     
     if request.method == 'POST':
-        return smart_blinds_system.postSchedule( request.json )
+        return smart_blinds_system.postSchedule( request.json, forceUpdate=True )
 
     if request.method == 'DELETE':
-        return smart_blinds_system.deleteSchedule()
+        return smart_blinds_system.deleteSchedule( forceUpdate=True )
 
 '''
 API handler for setting and clearing manual override commands.
@@ -201,10 +201,10 @@ Requires authenticated user's JWT to use.
 def handle_command():
     if request.method == 'POST':
         command = request.json
-        return smart_blinds_system.postBlindsCommand( command )
+        return smart_blinds_system.postBlindsCommand( command, forceUpdate=True )
 
     if request.method == 'DELETE':
-        return smart_blinds_system.deleteBlindsCommand()
+        return smart_blinds_system.deleteBlindsCommand( forceUpdate=True )
 
 
 ### ======== BEGIN AUTH RELATED ROUTES ======== ###
