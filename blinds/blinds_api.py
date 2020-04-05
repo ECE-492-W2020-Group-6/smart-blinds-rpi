@@ -127,6 +127,7 @@ class SmartBlindsSystem:
     _blinds = None
     _blindsSchedule = None
     _temperatureSensor = None
+    _lock = None
 
     '''
     Costructor for modelling the system of blinds as a whole. 
@@ -146,6 +147,9 @@ class SmartBlindsSystem:
         # the currently active manual command, if any 
         # self._activeCommandTimeBlock should be set to a ScheduleTimeBlock 
         self._activeCommandTimeBlock = None
+
+        # instantiate lock
+        self._lock = asyncio.locks.Lock()
 
     # ---------- API functions --------- #
     '''
