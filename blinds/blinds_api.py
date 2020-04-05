@@ -456,7 +456,11 @@ class SmartBlindsSystem:
             # convert angle to position
             position = composite_algorithm( self._temperatureSensor ) / ANGLE_POSITION_FACTOR
 
-        self._blinds.rotateToPosition( position )
+        # prevent unnecessary rotations
+        if position != self._blinds._currentPosition:
+            self._blinds.rotateToPosition( position )
+        else:
+            print( "DEBUG: No rotation, position has not changed" )
 
 # ---------- Custom Exception classes --------- #
 # Thrown when an position outside of [-100, 100] is given to rotateToPositions
