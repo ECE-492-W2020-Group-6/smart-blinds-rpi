@@ -269,6 +269,10 @@ class SmartBlindsSystem:
 
         try:
             self._blindsSchedule = BlindsSchedule.fromDict( schedule )
+
+            # force state update 
+            self.check_state_and_update()
+
             return schedule, RESP_CODES[ "ACCEPTED" ]
 
         except ( InvalidBlindsScheduleException, BlindSchedulingException ) as err:
@@ -299,7 +303,8 @@ class SmartBlindsSystem:
                 BlindsSchedule.SATURDAY : []
             }
 
-            # TODO: force update on current state
+            # force update on current state
+            self.check_state_and_update()
 
             return BlindsSchedule.toDict( self._blindsSchedule ), RESP_CODES[ "OK" ]
 
@@ -332,9 +337,11 @@ class SmartBlindsSystem:
 
             # return the resulting time block from the command
             data = ScheduleTimeBlock.toDict( self._activeCommandTimeBlock ) or {}
-            return data, RESP_CODES[ "ACCEPTED" ]   
 
-            # TODO: Update current state based on the command
+            # Update current state based on the command
+            self.check_state_and_update()
+
+            return data, RESP_CODES[ "ACCEPTED" ]   
 
         except Exception as err:
             return ( str(err), RESP_CODES[ "BAD_REQUEST" ] )
