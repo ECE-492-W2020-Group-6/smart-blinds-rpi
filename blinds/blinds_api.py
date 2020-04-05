@@ -460,7 +460,7 @@ class SmartBlindsSystem:
         # for other modes, calculate the correct target position
         elif target_mode == BlindMode.LIGHT:
             # convert angle to position
-            position = int( max_sunlight_algorithm() / ANGLE_POSITION_FACTOR )
+            position = max_sunlight_algorithm() / ANGLE_POSITION_FACTOR
 
         elif target_mode == BlindMode.DARK:
             # treat -100% as the DARK mode
@@ -468,11 +468,11 @@ class SmartBlindsSystem:
 
         elif target_mode == BlindMode.ECO:
             # convert angle to position
-            position = int( heat_mgmt_algorithm( self._temperatureSensor ) / ANGLE_POSITION_FACTOR )
+            position = heat_mgmt_algorithm( self._temperatureSensor ) / ANGLE_POSITION_FACTOR
 
         elif target_mode == BlindMode.BALANCED:
             # convert angle to position
-            position = int( composite_algorithm( self._temperatureSensor ) / ANGLE_POSITION_FACTOR )
+            position = composite_algorithm( self._temperatureSensor ) / ANGLE_POSITION_FACTOR
 
         # prevent unnecessary rotations
         if position != self._blinds._currentPosition:
