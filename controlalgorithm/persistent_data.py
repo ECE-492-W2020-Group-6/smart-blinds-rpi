@@ -128,8 +128,10 @@ def get_cloud_cover_percentage_and_ext_temp():
 
     # if persistent_data already has cloud cover and ext temp values
     if "minute" in persistent_data_dict:
+        # UTC +0 time (7 hours ahead of MST -7) [MST = UTC - 7]
+        date_time = datetime.datetime.today()
         # if it has been 10 minutes, do an update of the values
-        if persistent_data_dict["minute"] % 10 == 0:
+        if date_time.minute % 10 == 0:
             cloud_cover_percentage, ext_temp_celsius = update_cloud_cover_percentage_and_ext_temp(lat, lon, timezone_adjustment)    
 
         # otherwise just get the existing values
