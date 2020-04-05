@@ -31,6 +31,9 @@ from controlalgorithm.angle_step_mapper import NUM_STEPS_FACTOR
 from controlalgorithm.angle_step_mapper import AngleStepMapper
 from controlalgorithm.persistent_data import get_motor_position
 from controlalgorithm.persistent_data import set_motor_position
+from controlalgorithm.max_sunlight_algorithm import max_sunlight_algorithm
+from controlalgorithm.composite_algorithm import composite_algorithm
+from controlalgorithm.heat_mgmt_algorithm import heat_mgmt_algorithm
 from easydriver.easydriver import EasyDriver, PowerState, MicroStepResolution, StepDirection
 from piserver.api_routes import *
 import threading
@@ -379,7 +382,7 @@ class SmartBlindsSystem:
     Single iteration of the main loop.
     
     '''
-    def check_state_and_update( self ): 
+    def check_state_and_update( self ):
         current_datetime = datetime.datetime.now( self._blindsSchedule._timezone )
         current_time = current_datetime.time()
         print( "Checking and updating at time: ", current_time )
@@ -432,19 +435,28 @@ class SmartBlindsSystem:
     def do_blinds_update( self, target_mode, target_pos=None ):
         position = target_pos
 
-        if target_mode == BlindMode.LIGHT:
+        if target_mode == BlindMode.MANUAL:
+            # pass for this case, target position is already known
             pass
+
+        # for other modes, calculate the correct target position
+        elif target_mode == BlindMode.LIGHT:
+            # convert angle to position
+            position = max_sunlight_algorithm() / ANGLE_POSITION_FACTOR
+
         elif target_mode == BlindMode.DARK:
-            pass
+            # treat -100% as the DARK mode
+            position = -100
+
         elif target_mode == BlindMode.ECO:
-            pass
-        elif target_mode == BlindMode.MANUAL:
-            pass
+            # convert angle to position
+            position = heat_mgmt_algorithm( self._temperatureSensor ) / ANGLE_POSITION_FACTOR
+
+        elif target_mode == BlindMode.COMPOSITE:
+            # convert angle to position
+            position = composite_algorithm( self._temperatureSensor ) / ANGLE_POSITION_FACTOR
 
         self._blinds.rotateToPosition( position )
-
-
-
 
 # ---------- Custom Exception classes --------- #
 # Thrown when an position outside of [-100, 100] is given to rotateToPositions

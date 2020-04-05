@@ -32,12 +32,14 @@ This is used to ensure consistent values for the mode.
     DARK : Closed, minimum sunlight
     ECO : Energy efficiency mode
     MANUAL : Set custom position
+    COMPOSITE : Mix of ECO and LIGHT
 '''
 class BlindMode( Enum ):
     LIGHT = 1
     DARK = 2 
     ECO = 3
-    MANUAL = 4    
+    MANUAL = 4
+    COMPOSITE = 5    
 
 '''
 Class represeting the time block elements for the schedule. Contains a dictionary schedule mapping days of the week
