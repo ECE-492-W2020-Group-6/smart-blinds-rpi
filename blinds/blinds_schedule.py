@@ -107,7 +107,7 @@ class ScheduleTimeBlock:
         if time < self._start:
             return -1
         
-        if time < self._end:
+        if time <= self._end:
             return 0
 
         return 1
