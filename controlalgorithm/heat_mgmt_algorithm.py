@@ -49,7 +49,7 @@ def cover_percentage_to_cloud_cover(cloud_cover_percentage):
         cloud_cover = "partly cloudy"
     elif cloud_cover_percentage >= 50 and cloud_cover_percentage < 75:
         cloud_cover = "cloudy"
-    elif cloud_cover_percentage >= 75 and cloud_cover_percentage < 100:
+    elif cloud_cover_percentage >= 75 and cloud_cover_percentage <= 100:
         cloud_cover = "overcast"
     else:
         raise exceptions.InputError("cover_percentage_to_cloud_cover()", "Cloud Cover Percentage must be between 0 and 100 percent inclusive")
