@@ -9,6 +9,7 @@ import dotenv
 import os
 import requests
 import sys
+import numpy as np
 
 import controlalgorithm.max_sunlight_algorithm as max_sun
 import controlalgorithm.persistent_data as p_data
@@ -43,6 +44,7 @@ Define a standard for cloud coverage percentages
 ranging from 0% to 100%
 """
 def cover_percentage_to_cloud_cover(cloud_cover_percentage):
+    cloud_cover_percentage = np.clip(cloud_cover_percentage, 0, 100)
     if cloud_cover_percentage >= 0 and cloud_cover_percentage < 25:
         cloud_cover = "clear"
     elif cloud_cover_percentage >= 25 and cloud_cover_percentage < 50:
