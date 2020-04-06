@@ -107,7 +107,7 @@ def token_required(fxn):
 
         # we skip jwt check for localhost for voice control, but it can be enabled for easier testing
         if (not app.config["JWT_BYPASS_LOCALHOST"] or (app.config["JWT_BYPASS_LOCALHOST"] and src_addr != '127.0.0.1')) and \
-                not (app.config["ENV"] == "development" and app.config["JWT_BYPASS_ALL"]):
+                not (app.config["ENV"] == "development" and (app.config["JWT_BYPASS_ALL"] or "Bypass-Auth" in request.headers)):
             if 'x-access-token' in request.headers:
                 token = request.headers['x-access-token']
 
