@@ -18,6 +18,9 @@ class Config:
     ENABLE_POST_POSITION = bool(strtobool(os.environ.get("ENABLE_POST_POSITION", "true").lower()))
     SMARTBLINDS_UPDATES_PER_MIN = float( os.environ.get("SMARTBLINDS_UPDATES_PER_MIN", "1" ) )
 
+    # TESTING ONLY. Bypass all auth for more convenient testing
+    JWT_BYPASS_ALL = bool(strtobool(os.environ.get("JWT_BYPASS_ALL", "false").lower()))
+
 class DevelopmentConfig(Config):
     DEBUG = True
     TESTING = True
