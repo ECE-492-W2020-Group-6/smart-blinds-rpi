@@ -1,11 +1,11 @@
 '''
-File for basic webserver on the Raspberry Pi to handle API requests. 
+File for basic webserver on the Raspberry Pi to handle API requests.
 
-Attributions: 
-Code for authentication with JWT's taken from Pretty Printed's YouTube tutorial 
-at https://www.youtube.com/watch?v=WxGBoY5iNXY and adapted 
+Attributions:
+Code for authentication with JWT's taken from Pretty Printed's YouTube tutorial
+at https://www.youtube.com/watch?v=WxGBoY5iNXY and adapted
 Original source code from tutorial can be found at: https://s3.us-east-2.amazonaws.com/prettyprinted/jwt_api_example.zip
-Multithreading startup based on example from https://networklore.com/start-task-with-flask/ 
+Multithreading startup based on example from https://networklore.com/start-task-with-flask/
 
 Author: Alex (Yin) Chen
 Creation Date: February 1, 2020
@@ -31,6 +31,7 @@ import datetime
 from functools import wraps
 import time
 import threading
+import base64
 
 # flask setup
 app = Flask(__name__)
@@ -92,9 +93,9 @@ class User(db.Model):
 
 
 '''
-Decorator for using the JWT token. 
-Add the @token_required annotation to force that handler to 
-require a token. 
+Decorator for using the JWT token.
+Add the @token_required annotation to force that handler to
+require a token.
 '''
 
 
@@ -180,7 +181,7 @@ def handle_position_calibration():
 
 
 '''
-API hander to return the current status of the system. This includes the position and temperature. 
+API hander to return the current status of the system. This includes the position and temperature.
 '''
 @app.route(STATUS_ROUTE, methods=['GET'])
 def get_status():
@@ -197,8 +198,8 @@ def motor_test():
 
 
 '''
-API handler for endpoints relating to the schedule. This allows for 
-getting, setting and deleting the currently active schedule. 
+API handler for endpoints relating to the schedule. This allows for
+getting, setting and deleting the currently active schedule.
 Requires authenticated user's JWT to use.
 '''
 @app.route(SCHEDULE_ROUTE, methods=['GET', 'POST', 'DELETE'])
@@ -232,7 +233,7 @@ def handle_command():
 ### ======== BEGIN AUTH RELATED ROUTES ======== ###
 '''
 API route handler for listing all users. Mainly serves testing and verification purposes
-to allow vieing all current user information. 
+to allow vieing all current user information.
 '''
 @app.route(USER_ROUTE, methods=['GET'])
 def get_all_users():
@@ -252,7 +253,7 @@ def get_all_users():
 
 
 '''
-API route handler for creating a new user. 
+API route handler for creating a new user.
 '''
 @app.route(USER_ROUTE, methods=['POST'])
 def create_user():
@@ -280,7 +281,7 @@ def create_user():
 
 
 '''
-Api route handler for deleting an existing user 
+Api route handler for deleting an existing user
 '''
 @app.route(USER_ROUTE, methods=['DELETE'])
 def delete_user():
@@ -307,26 +308,37 @@ def delete_user():
 
 
 '''
-Api route handler for login. Generates are returns a JWT to be used for authentication required requests. 
-Token duration is controlled by app.config[ "TOKEN_DURATION_MINUTES" ] through the TOKEN_DURATION_MINUTES 
-environment variable. 
+Api route handler for login. Generates are returns a JWT to be used for authentication required requests.
+Token duration is controlled by app.config[ "TOKEN_DURATION_MINUTES" ] through the TOKEN_DURATION_MINUTES
+environment variable.
 '''
 @app.route(LOGIN_ROUTE)
 def login():
-    auth = request.headers['authorization']
+    auth_header = request.headers['authorization']
+
+    if auth_header.split()[0] != "Basic":
+        return make_response("Invalid Authorization Type", RESP_CODES["UNAUTHORIZED"], {'WWW-Authenticate': 'Basic realm="Login required!"'})
+
+    auth_arg = auth_header.split()[1]
+
+    # decode from b64
+    decoded = base64.standard_b64decode(auth_arg).decode('utf-8').split(":")
+    auth_user = decoded[0]
+    auth_password = decoded[1]
+
     # check poorly formed login
-    if (not auth):
+    if (not auth_arg or not auth_user or not auth_password):
         return make_response("Could not verify", RESP_CODES["UNAUTHORIZED"], {'WWW-Authenticate': 'Basic realm="Login required!"'})
 
     # login info is properly formed
-    user = User.query.filter_by(name=DEFAULT_USER).first()
+    user = User.query.filter_by(name=auth_user).first()
 
     # no user found for the given username
     if not user:
         return make_response("Could not verify", RESP_CODES["UNAUTHORIZED"], {'WWW-Authenticate': 'Basic realm="Login required!"'})
 
     # validate password
-    if check_password_hash(user.password, auth):
+    if check_password_hash(user.password, auth_password):
         token = jwt.encode({'public_id': user.public_id, 'exp': datetime.datetime.utcnow(
         ) + datetime.timedelta(minutes=app.config["TOKEN_DURATION_MINUTES"])}, app.config['PISERVER_SECRET_KEY'])
         return jsonify({"token": token.decode('UTF-8')}), RESP_CODES['OK']
@@ -338,7 +350,7 @@ def login():
 
 
 '''
-Perform setup for running the main loop for the server system. 
+Perform setup for running the main loop for the server system.
 
 '''
 @app.before_first_request
@@ -348,7 +360,7 @@ def start_main_loop():
 
 
 '''
-Helper function to force the server to call itself once in order to make the main loop start. 
+Helper function to force the server to call itself once in order to make the main loop start.
 
 Taken from https://networklore.com/start-task-with-flask/
 '''
