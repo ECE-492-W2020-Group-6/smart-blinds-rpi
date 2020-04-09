@@ -4,7 +4,11 @@
 
 Smart Blinds. Runs on Python 3.
 
-# Installing Dependencies
+# Installing System Dependencies
+
+`sudo apt-get update && apt-get install -y git build-essential libatlas3-base libgfortran5`
+
+# Installing App Dependencies
 
 To install production dependencies, (ie. no tests), run the following command:
 
